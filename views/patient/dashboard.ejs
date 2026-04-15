@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Malasakit Center | Patient Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        /* ... (all your existing CSS remains exactly the same) ... */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --red:        #c0392b;
+            --red-dark:   #922b21;
+            --red-light:  #f1948a;
+            --cream:      #fdf6f0;
+            --warm-white: #fffaf7;
+            --paper:      #f7ede4;
+            --ink:        #1c1008;
+            --ink-mid:    #4a3728;
+            --ink-soft:   #8a7060;
+            --gold:       #c8963a;
+            --gold-light: #f0d080;
+            --sage:       #5a7a60;
+            --success:    #2e7d52;
+            --warning:    #b5651d;
+            --radius:     16px;
+            --radius-lg:  24px;
+            --radius-xl:  32px;
+            --shadow-sm:  0 2px 8px rgba(28,16,8,.08);
+            --shadow-md:  0 8px 32px rgba(28,16,8,.12);
+            --shadow-lg:  0 20px 60px rgba(28,16,8,.16);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 800px 600px at 10% 20%, rgba(192,57,43,.06) 0%, transparent 70%),
+                radial-gradient(ellipse 600px 500px at 90% 80%, rgba(200,150,58,.05) 0%, transparent 70%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='1' fill='%23c0392b' fill-opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        main, nav, footer { position: relative; z-index: 1; }
+
+        nav {
+            background: var(--red-dark);
+            background-image: linear-gradient(135deg, var(--red-dark) 0%, var(--red) 60%, #a93226 100%);
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 24px rgba(146,43,33,.4);
+        }
+
+        .nav-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand { display: flex; align-items: center; gap: 12px; }
+        .nav-logo {
+            width: 42px; height: 42px;
+            background: rgba(255,255,255,.18);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,.25);
+        }
+        .nav-title { font-family: 'DM Serif Display', serif; font-size: 1.3rem; letter-spacing: .02em; }
+        .nav-badge {
+            background: rgba(255,255,255,.15);
+            border: 1px solid rgba(255,255,255,.25);
+            font-size: .7rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 100px;
+            text-transform: uppercase;
+        }
+        .nav-actions { display: flex; align-items: center; gap: 10px; }
+        .nav-btn {
+            display: flex; align-items: center; gap: 7px;
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: 'Sora', sans-serif;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,.22); transform: translateY(-1px); }
+        .nav-user {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.2);
+            padding: 7px 14px;
+            border-radius: 100px;
+            font-size: .82rem;
+            font-weight: 500;
+        }
+        .notif-wrapper { position: relative; }
+        .notif-dot {
+            position: absolute;
+            top: -2px; right: -2px;
+            width: 10px; height: 10px;
+            background: var(--gold-light);
+            border: 2px solid var(--red-dark);
+            border-radius: 50%;
+        }
+
+        .page-header {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 56px 32px 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .header-eyebrow {
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--red);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-eyebrow::before {
+            content: '';
+            display: block;
+            width: 28px; height: 2px;
+            background: var(--red);
+            border-radius: 2px;
+        }
+        .header-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            line-height: 1.1;
+            color: var(--ink);
+        }
+        .header-title em { color: var(--red); font-style: italic; }
+        .header-sub {
+            margin-top: 10px;
+            font-size: .88rem;
+            color: var(--ink-soft);
+            max-width: 420px;
+        }
+        .header-date {
+            text-align: right;
+            font-size: .78rem;
+            color: var(--ink-soft);
+            font-weight: 500;
+        }
+        .header-date strong { display: block; font-size: 1.1rem; color: var(--ink-mid); font-weight: 700; }
+
+        .stats-strip {
+            max-width: 1280px;
+            margin: 36px auto 0;
+            padding: 0 32px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .stat-card {
+            background: var(--warm-white);
+            border: 1px solid rgba(28,16,8,.08);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            box-shadow: var(--shadow-sm);
+            transition: transform .2s, box-shadow .2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            border-radius: 2px 0 0 2px;
+        }
+        .stat-card.total::before  { background: var(--ink-soft); }
+        .stat-card.pending::before { background: var(--warning); }
+        .stat-card.approved::before { background: var(--success); }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .stat-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .stat-card.total   .stat-icon { background: #f3ede8; color: var(--ink-mid); }
+        .stat-card.pending .stat-icon { background: #fef3e2; color: var(--warning); }
+        .stat-card.approved .stat-icon { background: #e8f5ee; color: var(--success); }
+        .stat-label { font-size: .75rem; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+        .stat-value { font-size: 2rem; font-weight: 800; line-height: 1; }
+        .stat-card.total   .stat-value { color: var(--ink); }
+        .stat-card.pending .stat-value { color: var(--warning); }
+        .stat-card.approved .stat-value { color: var(--success); }
+
+        .actions-grid {
+            max-width: 1280px;
+            margin: 32px auto 0;
+            padding: 0 32px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .action-card {
+            border-radius: var(--radius-xl);
+            padding: 36px;
+            cursor: pointer;
+            transition: transform .25s, box-shadow .25s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 220px;
+        }
+        .action-card:hover { transform: translateY(-5px); }
+        .action-card.primary {
+            background: linear-gradient(135deg, var(--red-dark) 0%, var(--red) 70%, #d4574a 100%);
+            color: white;
+            box-shadow: 0 12px 40px rgba(192,57,43,.35);
+        }
+        .action-card.primary::after {
+            content: '';
+            position: absolute;
+            bottom: -40px; right: -40px;
+            width: 160px; height: 160px;
+            border: 40px solid rgba(255,255,255,.08);
+            border-radius: 50%;
+        }
+        .action-card.secondary {
+            background: var(--warm-white);
+            border: 1.5px solid rgba(28,16,8,.1);
+            color: var(--ink);
+            box-shadow: var(--shadow-sm);
+        }
+        .action-card.secondary:hover { box-shadow: var(--shadow-md); border-color: var(--gold); }
+        .action-icon {
+            width: 56px; height: 56px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            margin-bottom: 20px;
+        }
+        .action-card.primary .action-icon { background: rgba(255,255,255,.2); color: #fff; }
+        .action-card.secondary .action-icon { background: var(--paper); color: var(--red); }
+        .action-title { font-family: 'DM Serif Display', serif; font-size: 1.5rem; line-height: 1.2; }
+        .action-sub { font-size: .82rem; margin-top: 6px; }
+        .action-link {
+            display: flex; align-items: center; gap: 6px;
+            font-size: .82rem; font-weight: 700;
+            margin-top: 20px;
+        }
+        .action-card.primary .action-link { color: rgba(255,255,255,.9); }
+        .action-card.secondary .action-link { color: var(--red); }
+        .action-link i { transition: transform .2s; }
+        .action-card:hover .action-link i { transform: translateX(4px); }
+
+        .table-section {
+            max-width: 1280px;
+            margin: 32px auto 60px;
+            padding: 0 32px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title .dot { width: 10px; height: 10px; background: var(--red); border-radius: 50%; }
+        .section-badge {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            background: var(--paper);
+            border: 1px solid rgba(28,16,8,.1);
+            padding: 5px 12px;
+            border-radius: 100px;
+        }
+        .table-wrap {
+            background: var(--warm-white);
+            border: 1px solid rgba(28,16,8,.08);
+            border-radius: var(--radius-xl);
+            overflow-x: auto;
+            box-shadow: var(--shadow-sm);
+        }
+        table { width: 100%; border-collapse: collapse; font-size: .84rem; min-width: 600px; }
+        thead tr { background: var(--ink); color: #fff; }
+        thead th {
+            padding: 14px 18px;
+            text-align: left;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        thead th:last-child { text-align: right; }
+        tbody tr { border-bottom: 1px solid rgba(28,16,8,.06); transition: background .15s; }
+        tbody tr:hover { background: var(--paper); }
+        td { padding: 14px 18px; vertical-align: middle; }
+        td:last-child { text-align: right; }
+        .td-name { font-weight: 600; color: var(--ink); }
+        .td-assist { color: var(--ink-mid); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-pill.waiting  { background: #fef3e2; color: #b5651d; border: 1px solid #f0c070; }
+        .status-pill.approved { background: #e8f5ee; color: #2e7d52; border: 1px solid #88cc99; }
+        .status-pill.declined { background: #fde8e8; color: var(--red-dark); border: 1px solid #f4a0a0; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+        .tbl-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: .74rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all .15s;
+            font-family: 'Sora', sans-serif;
+        }
+        .tbl-btn.view   { background: var(--paper); color: var(--ink-mid); border: 1px solid rgba(28,16,8,.1); }
+        .tbl-btn.edit   { background: #fef3e2; color: var(--warning); border: 1px solid #f0c070; }
+        .tbl-btn.delete { background: #fde8e8; color: var(--red); border: 1px solid #f4a0a0; }
+        .tbl-btn.doc    { background: #e8f0fe; color: #3050b0; border: 1px solid #b0c0f0; }
+        .tbl-btn:hover  { filter: brightness(.92); transform: translateY(-1px); }
+        .empty-state { padding: 60px; text-align: center; color: var(--ink-soft); }
+        .empty-state i { font-size: 48px; display: block; margin-bottom: 12px; opacity: .4; }
+
+        /* Modal System */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(28,16,8,.55);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: var(--warm-white);
+            border-radius: var(--radius-xl);
+            padding: 36px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-box.wide { max-width: 900px; }
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(28,16,8,.08);
+        }
+        .modal-title { font-family: 'DM Serif Display', serif; font-size: 1.4rem; }
+        .modal-close {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            border: 1px solid rgba(28,16,8,.1);
+            background: var(--paper);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .modal-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
+        .form-row { display: grid; gap: 16px; margin-bottom: 16px; }
+        .form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+        .field label {
+            display: block;
+            font-size: .76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--ink-mid);
+            margin-bottom: 6px;
+        }
+        .field input, .field select, .field textarea {
+            width: 100%;
+            background: var(--cream);
+            border: 1.5px solid rgba(28,16,8,.12);
+            border-radius: 12px;
+            padding: 11px 14px;
+            font-family: 'Sora', sans-serif;
+            font-size: .86rem;
+            outline: none;
+        }
+        .field input:focus, .field select:focus, .field textarea:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(192,57,43,.1);
+        }
+        .file-zone {
+            border: 2px dashed rgba(28,16,8,.18);
+            border-radius: 14px;
+            padding: 28px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+        .file-zone:hover { border-color: var(--red); background: rgba(192,57,43,.03); }
+        .file-zone i { font-size: 36px; color: var(--ink-soft); margin-bottom: 8px; display: block; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all .2s;
+            font-family: 'Sora', sans-serif;
+        }
+        .btn-primary { background: var(--red); color: #fff; box-shadow: 0 4px 16px rgba(192,57,43,.3); }
+        .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); }
+        .btn-ghost { background: var(--paper); color: var(--ink-mid); border: 1px solid rgba(28,16,8,.1); }
+        .btn-danger { background: #fde8e8; color: var(--red-dark); border: 1px solid #f4a0a0; }
+        .btn-row { display: flex; gap: 12px; margin-top: 24px; justify-content: center; }
+        .btn-full { width: 100%; }
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .detail-item.wide { grid-column: 1 / -1; }
+        .detail-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 4px; }
+        .detail-value { font-size: .9rem; font-weight: 500; background: var(--paper); padding: 10px 14px; border-radius: 10px; word-break: break-word; }
+        .records-table { width: 100%; font-size: .8rem; border-collapse: collapse; }
+        .records-table thead tr { background: var(--ink); }
+        .records-table thead th { color: #fff; padding: 10px 14px; text-align: left; font-size: .7rem; }
+        .records-table tbody td { padding: 10px 14px; border-bottom: 1px solid rgba(28,16,8,.06); }
+        .search-input {
+            background: var(--paper);
+            border: 1.5px solid rgba(28,16,8,.12);
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: .82rem;
+            width: 220px;
+            outline: none;
+        }
+        .search-input:focus { border-color: var(--red); }
+        #toastWrap {
+            position: fixed; bottom: 28px; right: 28px;
+            z-index: 999;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .toast {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--ink);
+            color: #fff;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-size: .84rem;
+            min-width: 260px;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform .3s, opacity .3s;
+        }
+        .toast.show { transform: translateX(0); opacity: 1; }
+        @media (max-width: 768px) {
+            .stats-strip, .actions-grid { grid-template-columns: 1fr; }
+            .form-row.cols-2 { grid-template-columns: 1fr; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .nav-inner { padding: 0 16px; }
+            .page-header { padding: 32px 20px 0; flex-direction: column; align-items: start; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="toastWrap"></div>
+
+<nav>
+    <div class="nav-inner">
+        <div class="nav-brand">
+            <div class="nav-logo"><i class='bx bx-heart-circle'></i></div>
+            <span class="nav-title">Malasakit Center</span>
+            <span class="nav-badge">Patient Portal</span>
+        </div>
+        <div class="nav-actions">
+            <div class="notif-wrapper" style="position:relative">
+                <button class="nav-btn" id="notifBtn"><i class='bx bx-bell'></i><div class="notif-dot" id="notifDot" style="display:none"></div></button>
+                <div id="notifDropdown" style="display:none; position:absolute; right:0; top:100%; background:var(--warm-white); width:280px; border-radius:20px; box-shadow:var(--shadow-lg); margin-top:8px; z-index:101;">
+                    <div class="notif-head" style="padding:12px 16px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">Notifications <button id="markAllReadBtn" style="background:none; border:none; color:var(--red); font-weight:600; cursor:pointer;">Mark all read</button></div>
+                    <div id="notifListContent" style="padding:20px; text-align:center; color:var(--ink-soft);">✨ All caught up</div>
+                </div>
+            </div>
+            <div class="nav-user"><i class='bx bx-user-circle'></i> <span id="currentUserName"><%= user ? user.name : 'Loading...' %></span></div>
+            <button class="nav-btn" onclick="openModal('logoutModal')"><i class='bx bx-log-out'></i> Logout</button>
+        </div>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="header-eyebrow">Patient Dashboard</div>
+        <h1 class="header-title">Medical Assistance<br><em>Made Simple.</em></h1>
+        <p class="header-sub">Track, submit, and manage your medical assistance requests seamlessly.</p>
+    </div>
+    <div class="header-date"><span>Today</span><strong id="currentDate"></strong></div>
+</div>
+
+<div class="stats-strip" id="statsContainer"><div class="stat-card total"><div class="stat-icon"><i class='bx bx-loader-circle'></i></div><div><div class="stat-label">Loading...</div><div class="stat-value">-</div></div></div></div>
+
+<div class="actions-grid">
+    <div class="action-card primary" onclick="window.location.href='/patient/sheet'"><div><div class="action-icon"><i class='bx bx-plus-medical'></i></div><div class="action-title">Medical Assistance<br>Request</div><div class="action-sub">Submit a new request for medical aid. Secure and fast.</div></div><div class="action-link">Request Now <i class='bx bx-right-arrow-alt'></i></div></div>
+    <div class="action-card secondary" onclick="openModal('recordsModal')"><div><div class="action-icon"><i class='bx bx-clipboard'></i></div><div class="action-title">Request<br>Records</div><div class="action-sub">View history, track status, and manage your submissions.</div></div><div class="action-link">Browse Records <i class='bx bx-chevron-right'></i></div></div>
+</div>
+
+<div class="table-section">
+    <div class="section-header"><div class="section-title"><span class="dot"></span> Recently Submitted Requests</div><span class="section-badge">Latest 5 entries</span></div>
+    <div class="table-wrap"><table><thead><tr><th>Full Name</th><th>Contact</th><th>Medical Assistance</th><th>Document</th><th>Status</th><th>Actions</th></tr></thead><tbody id="recentTableBody"><tr><td colspan="6" class="empty-state"><i class='bx bx-loader-alt'></i> Loading requests...</td></tr></tbody></table></div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="logoutModal"><div class="modal-box" style="text-align:center"><div style="background:#fde8e8; width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;"><i class='bx bx-log-out-circle' style="font-size:36px;color:var(--red)"></i></div><div class="modal-title">Confirm Logout</div><p style="margin:10px 0 20px">Are you sure you want to leave?</p><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('logoutModal')">Cancel</button><a href="/" class="btn btn-primary" style="text-decoration:none">Yes, Logout</a></div></div></div>
+
+<div class="modal-overlay" id="recordsModal"><div class="modal-box wide" style="padding:0; overflow:hidden"><div style="padding:24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;"><div class="modal-title"><i class='bx bx-clipboard'></i> All Requests</div><div style="display:flex; gap:8px;"><input type="text" id="recordSearch" class="search-input" placeholder="Search by name..." onkeyup="filterRecords()"><button class="modal-close" onclick="closeModal('recordsModal')"><i class='bx bx-x'></i></button></div></div><div style="overflow-y:auto; max-height:60vh;"><table class="records-table" style="width:100%"><thead><tr><th>Name</th><th>Contact</th><th>Email</th><th>Assistance</th><th>Doc</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="recordsBody"></tbody></table></div><div style="padding:16px; text-align:right; border-top:1px solid rgba(0,0,0,0.05);"><button class="btn btn-ghost" onclick="closeModal('recordsModal')">Close</button></div></div></div>
+
+<div class="modal-overlay" id="viewModal"><div class="modal-box"><div class="modal-header"><div class="modal-title">Request Details</div><button class="modal-close" onclick="closeModal('viewModal')"><i class='bx bx-x'></i></button></div><div class="detail-grid" id="viewDetails"></div><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('viewModal')">Close</button><button class="btn btn-ghost" id="vEditBtn" style="display:none">Edit</button><button class="btn btn-danger" id="vDeleteBtn" style="display:none">Delete</button></div></div></div>
+
+<div class="modal-overlay" id="editModal"><div class="modal-box wide"><div class="modal-header"><div class="modal-title"><i class='bx bx-edit'></i> Edit Request</div><button class="modal-close" onclick="closeModal('editModal')"><i class='bx bx-x'></i></button></div><form id="editForm" method="POST" enctype="multipart/form-data"><input type="hidden" id="eId" name="request_id"><div class="form-row cols-2"><div class="field"><label>Full Name</label><input id="eFullname" name="fullname" required></div><div class="field"><label>Contact</label><input id="eContact" name="contact_number" required></div><div class="field"><label>Email</label><input id="eEmail" name="email" required></div><div class="field"><label>Birthdate</label><input id="eBirthdate" name="birthdate" type="date" required></div><div class="field"><label>Occupation</label><input id="eOcc" name="occupation" required></div><div class="field"><label>Nationality</label><input id="eNat" name="nationality" required></div><div class="field"><label>Civil Status</label><select id="eCivil" name="civil_status"><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select></div><div class="field"><label>Income</label><input id="eIncome" name="income" type="number" required></div></div><div class="field"><label>Medical Assistance</label><textarea id="eMed" name="med_assistance" rows="2" required></textarea></div><div class="field"><label>Concern</label><textarea id="eConcern" name="concern" rows="2" required></textarea></div><div class="field"><label>New Document (optional)</label><div class="file-zone" onclick="document.getElementById('eDocInput').click()"><i class='bx bx-cloud-upload'></i><p id="eDocLabel">Click to upload document</p><input type="file" id="eDocInput" name="document" style="display:none"></div></div><button type="submit" class="btn btn-primary btn-full"><span id="editBtnTxt">Update Request</span><span class="spinner" id="editSpinner" style="display:none"></span></button></form></div></div>
+
+<div class="modal-overlay" id="deleteModal"><div class="modal-box" style="text-align:center"><div style="background:#fde8e8; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;"><i class='bx bx-trash' style="font-size:28px;color:var(--red)"></i></div><div class="modal-title">Delete Request</div><p>Delete request for <strong id="delName"></strong>? This action cannot be undone.</p><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('deleteModal')">Cancel</button><button class="btn btn-primary" style="background:var(--red)" id="delConfirmBtn">Delete</button></div></div></div>
+
+<div class="modal-overlay" id="docModal"><div class="modal-box wide"><div class="modal-header"><div class="modal-title">Document — <span id="docPatient"></span></div><button class="modal-close" onclick="closeModal('docModal')"><i class='bx bx-x'></i></button></div><div id="docPreview" style="min-height:280px; background:var(--paper); border-radius:16px; display:flex; align-items:center; justify-content:center;"></div><div style="margin-top:16px; text-align:right"><a id="docDownload" href="#" target="_blank" style="color:var(--red); font-weight:600;">Download file</a></div></div></div>
+
+<script>
+    // Backend data injected via EJS
+    const user = { id: <%= user ? user.id : 'null' %>, name: '<%= user ? user.name.replace(/'/g, "\\'") : "Guest" %>' };
+    const backendRequests = <%- JSON.stringify(requests || []) %>;
+    let allRequests = [...backendRequests];
+    let currentViewId = null, currentDeleteId = null;
+
+    function refreshStats() {
+        const total = allRequests.length;
+        const pending = allRequests.filter(r=>r.status === 'waiting').length;
+        const approved = allRequests.filter(r=>r.status === 'approved').length;
+        document.getElementById('statsContainer').innerHTML = `
+            <div class="stat-card total"><div class="stat-icon"><i class='bx bx-folder-open'></i></div><div><div class="stat-label">Total Requests</div><div class="stat-value">${total}</div></div></div>
+            <div class="stat-card pending"><div class="stat-icon"><i class='bx bx-time-five'></i></div><div><div class="stat-label">Pending Review</div><div class="stat-value">${pending}</div></div></div>
+            <div class="stat-card approved"><div class="stat-icon"><i class='bx bx-check-shield'></i></div><div><div class="stat-label">Approved Cases</div><div class="stat-value">${approved}</div></div></div>
+        `;
+    }
+
+    function statusPill(s) { const map={waiting:'Pending',approved:'Approved',declined:'Declined'}; return `<span class="status-pill ${s}"><span class="status-dot"></span>${map[s]||s}</span>`; }
+    function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    function renderRecent() {
+        const tbody = document.getElementById('recentTableBody');
+        const recent = [...allRequests].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
+        if(!recent.length) { tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><i class="bx bx-folder-open"></i><p>No requests yet.</p></div></td></tr>'; return; }
+        tbody.innerHTML = recent.map(r=>`
+            <tr>
+                <td class="td-name">${escapeHtml(r.fullname)}</td>
+                <td class="td-contact">${escapeHtml(r.contact_number)}</td>
+                <td class="td-assist">${escapeHtml(r.med_assistance.substring(0,45))}</td>
+                <td>${r.document_path ? `<button class="tbl-btn doc" onclick="openDocModal('${escapeHtml(r.document_path)}','${escapeHtml(r.fullname)}')"><i class='bx bx-show'></i> View</button>` : '—'}</td>
+                <td>${statusPill(r.status)}</td>
+                <td><div style="display:flex; gap:5px; justify-content:flex-end;"><button class="tbl-btn view" onclick="openViewModal(${r.id})"><i class='bx bx-show-alt'></i> View</button>${r.status==='waiting'?`<button class="tbl-btn edit" onclick="openEditModal(${r.id})"><i class='bx bx-edit'></i> Edit</button><button class="tbl-btn delete" onclick="openDeleteModal(${r.id})"><i class='bx bx-trash'></i> Del</button>`:''}</div></td>
+            </tr>`).join('');
+    }
+
+    function renderRecordsTable(filter='') {
+        const filtered = allRequests.filter(r=>!filter || r.fullname.toLowerCase().includes(filter) || r.email.toLowerCase().includes(filter));
+        const tbody = document.getElementById('recordsBody');
+        if(!filtered.length) { tbody.innerHTML='<tr><td colspan="8" class="empty-state">No records</td></tr>'; return; }
+        tbody.innerHTML = filtered.map(r=>`
+            <tr>
+                <td style="font-weight:600">${escapeHtml(r.fullname)}</td>
+                <td>${escapeHtml(r.contact_number)}</td>
+                <td>${escapeHtml(r.email)}</td>
+                <td style="max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(r.med_assistance.substring(0,28))}</td>
+                <td>${r.document_path?`<button class="tbl-btn doc" onclick="openDocModal('${escapeHtml(r.document_path)}','${escapeHtml(r.fullname)}')"><i class='bx bx-file'></i></button>`:'—'}</td>
+                <td>${statusPill(r.status)}</td>
+                <td style="font-size:.75rem;">${new Date(r.created_at).toLocaleDateString()}</td>
+                <td><button class="tbl-btn view" onclick="openViewModal(${r.id})">View</button>${r.status==='waiting'?` <button class="tbl-btn edit" onclick="openEditModal(${r.id})">Edit</button>`:''}</td>
+            </tr>`).join('');
+    }
+    function filterRecords() { renderRecordsTable(document.getElementById('recordSearch').value.toLowerCase()); }
+
+    function openModal(id) { 
+        const m = document.getElementById(id); 
+        if(m) {
+            m.style.display = 'flex'; 
+            setTimeout(() => m.classList.add('active'), 10);
+        }
+    }
+    function closeModal(id) { 
+        const m = document.getElementById(id); 
+        if(m) {
+            m.classList.remove('active'); 
+            setTimeout(() => m.style.display = 'none', 280);
+        }
+    }
+
+    async function openViewModal(id) {
+        const r = allRequests.find(x=>x.id===id); if(!r) return;
+        currentViewId = id;
+        document.getElementById('viewDetails').innerHTML = `
+            <div><div class="detail-label">Full Name</div><div class="detail-value">${escapeHtml(r.fullname)}</div></div>
+            <div><div class="detail-label">Contact</div><div class="detail-value">${escapeHtml(r.contact_number)}</div></div>
+            <div><div class="detail-label">Email</div><div class="detail-value">${escapeHtml(r.email)}</div></div>
+            <div><div class="detail-label">Birthdate</div><div class="detail-value">${new Date(r.birthdate).toLocaleDateString()}</div></div>
+            <div><div class="detail-label">Occupation</div><div class="detail-value">${escapeHtml(r.occupation)}</div></div>
+            <div><div class="detail-label">Nationality</div><div class="detail-value">${escapeHtml(r.nationality)}</div></div>
+            <div><div class="detail-label">Civil Status</div><div class="detail-value">${escapeHtml(r.civil_status)}</div></div>
+            <div><div class="detail-label">Income</div><div class="detail-value">₱${Number(r.income).toLocaleString()}</div></div>
+            <div class="wide"><div class="detail-label">Medical Assistance</div><div class="detail-value">${escapeHtml(r.med_assistance)}</div></div>
+            <div class="wide"><div class="detail-label">Concern</div><div class="detail-value">${escapeHtml(r.concern)}</div></div>
+            <div><div class="detail-label">Status</div><div class="detail-value">${statusPill(r.status)}</div></div>
+            <div><div class="detail-label">Document</div><div class="detail-value">${r.document_path ? `<a href="#" onclick="openDocModal('${escapeHtml(r.document_path)}','${escapeHtml(r.fullname)}'); return false;" style="color:var(--red);">View File</a>` : 'None'}</div></div>
+        `;
+        const canEdit = r.status==='waiting';
+        const vEditBtn = document.getElementById('vEditBtn');
+        const vDeleteBtn = document.getElementById('vDeleteBtn');
+        if(vEditBtn) vEditBtn.style.display = canEdit ? 'inline-flex' : 'none';
+        if(vDeleteBtn) vDeleteBtn.style.display = canEdit ? 'inline-flex' : 'none';
+        if(vEditBtn) vEditBtn.onclick = ()=>{ closeModal('viewModal'); setTimeout(()=>openEditModal(currentViewId),200); };
+        if(vDeleteBtn) vDeleteBtn.onclick = ()=>{ closeModal('viewModal'); setTimeout(()=>openDeleteModal(currentViewId),200); };
+        openModal('viewModal');
+    }
+
+    async function openEditModal(id) {
+        const r = allRequests.find(x=>x.id===id); if(!r) return;
+        document.getElementById('eId').value = r.id;
+        document.getElementById('eFullname').value = r.fullname;
+        document.getElementById('eContact').value = r.contact_number;
+        document.getElementById('eEmail').value = r.email;
+        document.getElementById('eBirthdate').value = r.birthdate?.split('T')[0] || r.birthdate;
+        document.getElementById('eOcc').value = r.occupation;
+        document.getElementById('eNat').value = r.nationality;
+        document.getElementById('eCivil').value = r.civil_status;
+        document.getElementById('eIncome').value = r.income;
+        document.getElementById('eMed').value = r.med_assistance;
+        document.getElementById('eConcern').value = r.concern;
+        const docLabel = document.getElementById('eDocLabel');
+        if(docLabel) docLabel.innerText = r.document_path ? `Current: ${r.document_path.split('/').pop()} (click to replace)` : 'Click to upload document';
+        openModal('editModal');
+    }
+
+    // Fix Edit Form Submission
+    const editForm = document.getElementById('editForm');
+    if(editForm) {
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('eId').value;
+            const formData = new FormData(editForm);
+            const btnSpan = document.getElementById('editBtnTxt');
+            const spinner = document.getElementById('editSpinner');
+            if(btnSpan) btnSpan.style.display='none';
+            if(spinner) spinner.style.display='inline-block';
+            try {
+                const res = await fetch(`/patient/update-request/${id}`, { method: 'POST', body: formData });
+                const data = await res.json();
+                if(data.success) {
+                    showToast('success', 'Updated', 'Request updated successfully.');
+                    closeModal('editModal');
+                    setTimeout(()=>window.location.reload(), 600);
+                } else { 
+                    showToast('error', 'Failed', data.message || 'Update failed'); 
+                }
+            } catch(err) { 
+                showToast('error', 'Error', 'Network error. Please try again.'); 
+            }
+            if(btnSpan) btnSpan.style.display='';
+            if(spinner) spinner.style.display='none';
+        });
+    }
+
+    function openDeleteModal(id) { 
+        const r = allRequests.find(x=>x.id===id); 
+        currentDeleteId=id; 
+        const delNameSpan = document.getElementById('delName');
+        if(delNameSpan) delNameSpan.innerText = r?.fullname || ''; 
+        openModal('deleteModal'); 
+    }
+    
+    // Fix Delete Confirmation
+    const delConfirmBtn = document.getElementById('delConfirmBtn');
+    if(delConfirmBtn) {
+        delConfirmBtn.onclick = async () => {
+            if(!currentDeleteId) return;
+            try {
+                const res = await fetch(`/patient/delete-request/${currentDeleteId}`, { method: 'POST' });
+                const data = await res.json();
+                if(data.success) { 
+                    showToast('success', 'Deleted', 'Request removed successfully.'); 
+                    closeModal('deleteModal'); 
+                    setTimeout(()=>window.location.reload(), 500);
+                } else { 
+                    showToast('error', 'Error', data.message || 'Delete failed'); 
+                }
+            } catch(err) {
+                showToast('error', 'Error', 'Network error. Please try again.');
+            }
+        };
+    }
+
+    function openDocModal(path, name) {
+        document.getElementById('docPatient').innerText = name;
+        const url = `/uploads/${path}`; 
+        const downloadLink = document.getElementById('docDownload');
+        if(downloadLink) downloadLink.href = url;
+        const ext = path.split('.').pop().toLowerCase();
+        const previewDiv = document.getElementById('docPreview');
+        if(!previewDiv) return;
+        if(['jpg','jpeg','png','gif','webp'].includes(ext)) previewDiv.innerHTML = `<img src="${url}" style="max-height:50vh; object-fit:contain; border-radius:12px;" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%238a7060%22%3E%3Cpath%20d%3D%22M20%206h-8l-2-2H4c-1.1%200-2%20.9-2%202v12c0%201.1.9%202%202%202h16c1.1%200%202-.9%202-2V8c0-1.1-.9-2-2-2zm0%2012H4V6h5.17l2%202H20v10z%22%2F%3E%3C%2Fsvg%3E';">`;
+        else if(ext==='pdf') previewDiv.innerHTML = `<iframe src="${url}" style="width:100%; height:55vh; border:none; border-radius:12px;"></iframe>`;
+        else previewDiv.innerHTML = `<div style="padding:32px;"><i class='bx bx-file' style="font-size:48px;"></i><p>Preview not available. <a href="${url}" target="_blank" style="color:var(--red)">Download file</a></p></div>`;
+        openModal('docModal');
+    }
+
+    function showToast(type, title, msg) {
+        const wrap = document.getElementById('toastWrap'); 
+        if(!wrap) return;
+        const t = document.createElement('div');
+        t.className = `toast`; 
+        t.innerHTML = `<i class='bx ${type==='success'?'bx-check-circle':'bx-info-circle'}'></i><div><strong>${title}</strong><br><span style="font-size:.78rem;">${msg}</span></div>`;
+        wrap.appendChild(t); 
+        setTimeout(()=>t.classList.add('show'),10);
+        setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); },3000);
+    }
+
+    // Notifications
+    const notifBtn = document.getElementById('notifBtn');
+    if(notifBtn) {
+        notifBtn.onclick = () => { 
+            const dd = document.getElementById('notifDropdown'); 
+            if(dd) dd.style.display = dd.style.display==='none'?'block':'none'; 
+        };
+    }
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+    if(markAllReadBtn) {
+        markAllReadBtn.onclick = async () => { 
+            await fetch('/patient/mark-all-notification', {method:'POST'}); 
+            const notifDot = document.getElementById('notifDot');
+            if(notifDot) notifDot.style.display='none'; 
+            const notifDropdown = document.getElementById('notifDropdown');
+            if(notifDropdown) notifDropdown.style.display='none'; 
+        };
+    }
+    document.addEventListener('click', (e)=>{ 
+        if(!e.target.closest('.notif-wrapper')) {
+            const notifDropdown = document.getElementById('notifDropdown');
+            if(notifDropdown) notifDropdown.style.display='none'; 
+        }
+    });
+
+    const currentDateSpan = document.getElementById('currentDate');
+    if(currentDateSpan) {
+        currentDateSpan.innerText = new Date().toLocaleDateString('en-PH', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+    }
+    refreshStats(); 
+    renderRecent(); 
+    renderRecordsTable();
+</script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+@page {
+            size: A4;
+            margin: 5mm;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.2;
+            color: #000;
+            background: white;
+            padding: 10px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        .main-border {
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            padding-top: 10px;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .logo {
+            position: absolute;
+            left: 20%;
+            top: 40%;
+            transform: translate(-160px, -50%);
+            width: 64px;
+            height: 64px;
+        }
+        
+        .logo img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+        }
+        
+        .header-text {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .header-text div {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        
+        .title {
+            font-weight: bold;
+            font-size: 18px;
+            text-decoration: underline;
+            margin-top: 10px;
+            color: #0066cc;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            font-size: 11px;
+        }
+        
+        .table th,
+        .table td {
+            border: 1px solid #000;
+            padding: 4px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        .table th {
+            font-weight: bold;
+            background-color: #f0f8ff;
+        }
+        
+        .table .text-center {
+            text-align: center;
+        }
+        
+        .table .font-semibold {
+            font-weight: bold;
+        }
+        
+        .patient-table {
+            font-size: 10px;
+        }
+        
+        .patient-table td:first-child {
+            width: 16.666%;
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+        
+        .patient-table td:nth-child(2) {
+            width: 33.333%;
+        }
+        
+        .patient-table td:nth-child(3) {
+            width: 16.666%;
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+        
+        .patient-table td:nth-child(4) {
+            width: 33.333%;
+        }
+        
+        .charges-table th:first-child {
+            text-align: left;
+            width: 25%;
+        }
+        
+        .charges-table th {
+            text-align: center;
+            width: 15%;
+        }
+        
+        .summary-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+            background: #e6f2ff;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .classification {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .classification-box {
+            border: 1px solid #000;
+            padding: 24px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        
+        .signatures {
+            margin-bottom: 8px;
+            margin-top: 16px;
+            font-size: 10px;
+        }
+        
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .signature-table td {
+            width: 50%;
+            padding: 0 20px;
+            vertical-align: top;
+            border: none;
+        }
+        
+        .signature-group {
+            margin-bottom: 20px;
+        }
+        
+        .signature-label {
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-align: left;
+        }
+        
+        .signature-line {
+            border-bottom: 1px solid #000;
+            height: 48px;
+            position: relative;
+            margin-bottom: 4px;
+        }
+        
+        .signature-name {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 9px;
+        }
+        
+        .signature-name div {
+            line-height: 1.1;
+        }
+        
+        .acknowledgment {
+            border-top: 2px solid #000;
+            padding-top: 16px;
+            margin-top: 16px;
+        }
+        
+        .acknowledgment-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 16px;
+            color: #0066cc;
+        }
+        
+        .acknowledgment-text {
+            font-size: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .acknowledgment-text p {
+            margin-bottom: 8px;
+        }
+        
+        .underline-blank {
+            border-bottom: 1px solid #000;
+            display: inline-block;
+            margin: 0 8px;
+            padding: 0 32px;
+        }
+        
+        .underline-small {
+            padding: 0 16px;
+        }
+        
+        .receipt-signature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .receipt-signature-table td {
+            width: 50%;
+            padding: 0 20px;
+            vertical-align: top;
+            border: none;
+        }
+        
+        .receipt-signature-line {
+            border-bottom: 1px solid #000;
+            height: 48px;
+            margin-bottom: 8px;
+        }
+        
+        .receipt-label {
+            text-align: center;
+            font-size: 9px;
+        }
+        
+        .empty-row {
+            height: 24px;
+        }
+        
+        .subtotal-row {
+            font-weight: bold;
+            background-color: #e6f2ff;
+        }
+        
+        .total-row {
+            font-weight: bold;
+            background-color: #d9edf7;
+        }

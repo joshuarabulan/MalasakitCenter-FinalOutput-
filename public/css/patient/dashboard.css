@@ -1,0 +1,214 @@
+* { font-family: 'Inter', sans-serif; }
+        
+        /* Premium glassmorphism & smooth transitions */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 40px -16px rgba(0, 0, 0, 0.12);
+        }
+        
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #e2eaf5 100%);
+            min-height: 100vh;
+        }
+        
+        /* Modern button gradient */
+        .btn-primary {
+            background: linear-gradient(105deg, #ef4444 0%, #dc2626 100%);
+            transition: all 0.25s ease;
+            box-shadow: 0 6px 14px -6px rgba(220, 38, 38, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 22px -8px rgba(220, 38, 38, 0.5);
+            filter: brightness(1.02);
+        }
+        
+        .input-field {
+            transition: all 0.2s ease;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 0.75rem 1rem;
+        }
+        
+        .input-field:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+            outline: none;
+        }
+        
+        /* Enhanced Toast */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .toast {
+            min-width: 320px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            animation: slideInRight 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1), fadeOut 0.4s ease-in 2.8s forwards;
+            transform: translateX(100%);
+            opacity: 0;
+            backdrop-filter: blur(8px);
+        }
+        
+        .toast.success { border-left: 6px solid #10b981; }
+        .toast.error { border-left: 6px solid #ef4444; }
+        .toast.warning { border-left: 6px solid #f59e0b; }
+        .toast.info { border-left: 6px solid #3b82f6; }
+        
+        .toast-progress-bar {
+            height: 4px;
+            width: 100%;
+            animation: progressBar 3s linear forwards;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateX(100%); }
+        }
+        
+        @keyframes progressBar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        
+        /* Status badges with icons */
+        .status-waiting { background: #fef3c7; color: #b45309; border-left: 3px solid #f59e0b; }
+        .status-approved { background: #d1fae5; color: #065f46; border-left: 3px solid #10b981; }
+        .status-denied, .status-deny { background: #fee2e2; color: #991b1b; border-left: 3px solid #ef4444; }
+        
+        /* Data table */
+        .data-table th {
+            background: linear-gradient(95deg, #ef4444, #dc2626);
+            color: white;
+            font-weight: 600;
+            padding: 14px 16px;
+        }
+        
+        .data-table tr:hover td {
+            background: #fef2f2;
+        }
+        
+        /* Modal animations */
+        .modal-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            transform: scale(0.96) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+            opacity: 0;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        
+        /* Dashboard cards animation */
+        .dashboard-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 32px;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 30px 40px -20px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* Stat cards */
+        .stat-card {
+            background: white;
+            border-radius: 28px;
+            transition: all 0.25s;
+            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.12);
+        }
+        
+        /* Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #dc2626;
+            border-radius: 10px;
+        }
+        
+        /* Notification badge pulse */
+        .notification-badge {
+            animation: subtlePulse 1.5s infinite;
+        }
+        
+        @keyframes subtlePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.12); background-color: #ef4444; }
+            100% { transform: scale(1); }
+        }
+        
+        /* File upload area */
+        .file-upload-area {
+            transition: all 0.2s;
+            background: #fafcff;
+        }
+        .file-upload-area:hover {
+            border-color: #ef4444;
+            background: #fff5f5;
+        }
+        
+        /* Spinner */
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #ef4444;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        @media (max-width: 768px) {
+            .toast { min-width: 280px; }
+            .dashboard-card { padding: 1.5rem; }
+        }

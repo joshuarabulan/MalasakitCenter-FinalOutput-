@@ -1,0 +1,150 @@
+/* â”€â”€ BASE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        * { box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #f4f0eb; }
+
+        /* â”€â”€ TABS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeInUp 0.25s ease; }
+
+        .tab-link {
+            padding: 14px 4px;
+            border-bottom: 2px solid transparent;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #9b8f87;
+            background: none;
+            border-top: none; border-left: none; border-right: none;
+            cursor: pointer;
+            transition: color 0.15s, border-color 0.15s;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: 0.01em;
+        }
+        .tab-link:hover { color: #1a1410; }
+        .tab-link.active { border-bottom-color: #c0392b; color: #c0392b; }
+
+        /* â”€â”€ STAT CARDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        .stat-card {
+            background: #faf8f5;
+            border-radius: 14px;
+            padding: 18px 18px 14px;
+            border: 1px solid #ede8e2;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.09); }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 14px 14px 0 0;
+        }
+        .stat-card.c-blue::before   { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .stat-card.c-green::before  { background: linear-gradient(90deg, #22c55e, #4ade80); }
+        .stat-card.c-purple::before { background: linear-gradient(90deg, #a855f7, #c084fc); }
+        .stat-card.c-orange::before { background: linear-gradient(90deg, #f97316, #fb923c); }
+        .stat-card.c-red::before    { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .stat-card.c-teal::before   { background: linear-gradient(90deg, #14b8a6, #2dd4bf); }
+
+        .stat-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; flex-shrink: 0;
+        }
+
+        /* EB Garamond for all numbers â€” formal, consistent with statistics page */
+        .stat-value {
+            font-family: 'EB Garamond', Georgia, serif;
+            font-size: 30px;
+            font-weight: 500;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+        .stat-value.compact {
+            font-size: 20px;
+            letter-spacing: 0;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #9b8f87;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .stat-progress {
+            height: 3px;
+            border-radius: 2px;
+            background: #ede8e2;
+            margin-top: auto;
+            overflow: hidden;
+        }
+        .stat-progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+        .c-blue   .stat-progress-fill { background: #3b82f6; }
+        .c-green  .stat-progress-fill { background: #22c55e; }
+        .c-purple .stat-progress-fill { background: #a855f7; }
+        .c-orange .stat-progress-fill { background: #f97316; }
+        .c-red    .stat-progress-fill { background: #ef4444; }
+        .c-teal   .stat-progress-fill { background: #14b8a6; }
+
+        /* Min/Max row */
+        .minmax-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0; }
+        .minmax-item { flex: 1; min-width: 0; }
+        .minmax-item.right { text-align: right; }
+        .minmax-value {
+            font-family: 'EB Garamond', Georgia, serif;
+            font-size: 20px;
+            font-weight: 500;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .minmax-arrow { color: #ded8d2; font-size: 14px; flex-shrink: 0; }
+
+        /* â”€â”€ SUMMARY BANNER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        .summary-banner {
+            background: #faf8f5;
+            border: 1px solid #ede8e2;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        /* â”€â”€ TABLE CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        .table-card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+            overflow: hidden;
+            border: 1px solid #ede8e2;
+        }
+        .table-card-header {
+            background: #1a1410;
+            padding: 18px 22px;
+        }
+
+        /* â”€â”€ ANIMATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .nav-label{
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            line-height:1.1;
+        }
+        .nav-item i{flex-shrink:0;}

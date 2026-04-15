@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Statistics Report</title>
+    <link rel="icon" type="image/png" href="/img/icon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/admin/statistics.css">
+    <link rel="stylesheet" href="/css/admin/admin-theme.css">
+</head>
+
+<body>
+    <div id="toastContainer"></div>
+
+    <aside class="sidebar w-64 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl fixed h-full z-10 text-white">
+        <div class="p-6 border-b border-slate-700 flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center text-white">
+                <i class="fas fa-hospital-user mr-3"></i><span class="nav-text">Malasakit Admin</span>
+            </h1>
+            <button type="button" class="sidebar-toggle text-white text-lg"><i class="fas fa-bars"></i></button>
+        </div>
+        <nav class="mt-6 px-4 space-y-2">
+            <a href="/admin/dashboard" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-line w-5 mr-3 text-center"></i><span class="nav-label">Dashboard</span></a>
+            <a href="/admin/user-management" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-users-cog w-5 mr-3 text-center"></i><span class="nav-label">User Management</span></a>
+            <a href="/patient/admin" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-notes-medical w-5 mr-3 text-center"></i><span class="nav-label">Patient Concerns</span></a>
+            <a href="/admin/main-form" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-file-invoice-dollar w-5 mr-3 text-center"></i><span class="nav-label">Statement of Account</span></a>
+            <a href="/admin/reports" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-folder-open w-5 mr-3 text-center"></i><span class="nav-label">Report Templates</span></a>
+            <a href="/admin/statistics" class="nav-item flex items-center py-3 px-4 bg-slate-700 text-white rounded-lg"><i class="fas fa-chart-pie w-5 mr-3 text-center"></i><span class="nav-label">Monthly Statistics</span></a>
+            <a href="/admin/feedback" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-comment-dots w-5 mr-3 text-center"></i><span class="nav-label">Feedback</span></a>
+        </nav>
+    </aside>
+
+    <div id="exportModal" class="cm-overlay hidden">
+        <div class="cm-box">
+            <div class="cm-stripe cm-stripe--green"></div>
+            <div class="cm-body">
+                <div class="cm-icon-wrap cm-icon-wrap--green">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                </div>
+                <div class="cm-tag cm-tag--green"><span class="cm-dot cm-dot--green"></span>Excel Export</div>
+                <h3 class="cm-title">Export to Excel?</h3>
+                <p class="cm-desc">This will generate a full <strong>Excel (.xlsx) spreadsheet</strong> of the monthly statistical report, including all services, demographics, ward breakdowns, and fund utilization.</p>
+                <div class="cm-info-row">
+                    <span class="lbl"><i class="fas fa-table mr-2 text-green-500"></i>Format</span>
+                    <span class="val">Excel Spreadsheet (.xlsx)</span>
+                </div>
+                <div class="cm-info-row">
+                    <span class="lbl"><i class="fas fa-list mr-2 text-blue-400"></i>Services</span>
+                    <span class="val num"><%= services.length %> rows</span>
+                </div>
+                <div class="cm-info-row">
+                    <span class="lbl"><i class="fas fa-calendar-alt mr-2 text-purple-400"></i>Generated</span>
+                    <span class="val"><%= new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+                </div>
+                <div class="cm-divider"></div>
+                <div class="cm-actions">
+                    <button onclick="closeExportModal()" class="cm-btn cm-btn-cancel">Cancel</button>
+                    <button onclick="proceedExport()" class="cm-btn cm-btn-green" id="exportConfirmBtn">
+                        <i class="fas fa-file-excel" style="margin-right:6px;"></i>Export Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="printModal" class="cm-overlay hidden">
+        <div class="cm-box">
+            <div class="cm-stripe cm-stripe--blue"></div>
+            <div class="cm-body">
+                <div class="cm-icon-wrap cm-icon-wrap--blue">
+                    <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                </div>
+                <div class="cm-tag cm-tag--blue"><span class="cm-dot cm-dot--blue"></span>Print Report</div>
+                <h3 class="cm-title">Print this report?</h3>
+                <p class="cm-desc">This will open a <strong>print-ready view</strong> of the full monthly statistical report in a new tab. Make sure your printer is connected.</p>
+                <div class="cm-info-row">
+                    <span class="lbl"><i class="fas fa-print mr-2 text-blue-500"></i>Output</span>
+                    <span class="val">Print / Save as PDF</span>
+                </div>
+                <div class="cm-info-row">
+                    <span class="lbl"><i class="fas fa-columns mr-2 text-cyan-500"></i>Layout</span>
+                    <span class="val">Landscape recommended</span>
+                </div>
+                <div class="cm-info-row">
+                    <span class="lbl"><i class="fas fa-external-link-alt mr-2 text-purple-400"></i>Opens in</span>
+                    <span class="val">New tab</span>
+                </div>
+                <div class="cm-divider"></div>
+                <div class="cm-actions">
+                    <button onclick="closePrintModal()" class="cm-btn cm-btn-cancel">Cancel</button>
+                    <button onclick="proceedPrint()" class="cm-btn cm-btn-blue" id="printConfirmBtn">
+                        <i class="fas fa-print" style="margin-right:6px;"></i>Print Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="analyticsModal" class="am-overlay hidden">
+        <div class="am-box">
+            <div class="am-header">
+                <h3>Advanced Analytics</h3>
+                <button class="am-close" onclick="closeAnalytics()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="am-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                    <div class="am-chart-card"><h4>Transaction Distribution by Ward</h4><canvas id="wardChart"></canvas></div>
+                    <div class="am-chart-card"><h4>Today vs Monthly Average</h4><canvas id="comparisonChart"></canvas></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="mini-stat"><div class="mini-stat-value" style="color:#3b82f6;"><%= statistics ? statistics.totalTransactions : '0' %></div><div class="mini-stat-label">Total Transactions</div></div>
+                        <div class="mini-stat"><div class="mini-stat-value" style="color:#22c55e;">&#8369;<%= statistics ? statistics.totalAmount : '0.00' %></div><div class="mini-stat-label">Total Revenue</div></div>
+                    <div class="mini-stat"><div class="mini-stat-value" style="color:#a855f7;"><%= statistics ? statistics.averageBill : '0.00' %></div><div class="mini-stat-label">Average Transaction</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content admin-main p-4 lg:p-8" style="margin-left:16rem;">
+
+        <% if (statistics) { %>
+
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:32px;color:#1a1410;line-height:1.15;margin-bottom:4px;">Monthly Statistical Report </h1>
+                <p style="font-size:13.5px;color:#9b8f87;font-weight:500;">Comprehensive overview of billing transactions and financial metrics</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#e6f9ef;color:#1a7a42;border-radius:20px;font-size:12px;font-weight:600;border:1px solid rgba(26,122,66,0.2);">
+                    <span style="width:6px;height:6px;background:#1a7a42;border-radius:50%;display:inline-block;animation:pulse-icon 2s infinite;"></span>Live Data
+                </span>
+                <button onclick="refreshStatistics()" class="btn-action btn-ghost"><i class="fas fa-redo-alt"></i> Refresh</button>
+            </div>
+        </div>
+
+        <!-- Primary Stat Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
+            <div class="stat-card gradient-1">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="stat-icon bg-blue-100 text-blue-600 floating"><i class="fas fa-file-invoice-dollar"></i></div>
+                        <div class="stat-value counter" id="totalTransactions"><%= statistics.totalTransactions %></div>
+                        <div class="stat-label">Total Transactions</div>
+                        <div class="stat-trend positive"><i class="fas fa-arrow-up"></i> All Time <span class="stat-badge bg-blue-100 text-blue-800">100%</span></div>
+                    </div>
+                    <div><div class="stat-aside-value text-blue-500"></div><div class="stat-aside-label">Value</div></div>
+                </div>
+                <div class="progress-container"><div class="progress-bar" style="width:100%"></div></div>
+            </div>
+
+            <div class="stat-card gradient-2">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="stat-icon bg-green-100 text-green-600"><i class="fas fa-money-bill-wave pulse"></i></div>
+                        <div class="stat-value">&#8369;<span class="counter" id="totalAmount"><%= statistics.totalAmount %></span></div>
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-trend positive"><i class="fas fa-chart-line"></i> Cumulative <span class="stat-badge bg-green-100 text-green-800">&#8369;<%= statistics.totalAmount %></span></div>
+                    </div>
+                    <div><div class="stat-aside-value text-green-500" style="font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;">All</div><div class="stat-aside-label">Records</div></div>
+                </div>
+                <div class="progress-container"><div class="progress-bar" style="width:100%"></div></div>
+            </div>
+
+            <div class="stat-card gradient-3">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="stat-icon bg-purple-100 text-purple-600"><i class="fas fa-calculator"></i></div>
+                        <div class="stat-value"><span class="counter" id="averageBill"><%= statistics.averageBill %></span></div>
+                        <div class="stat-label">Average Bill</div>
+                        <div class="stat-trend neutral"><i class="fas fa-balance-scale"></i> Per Transaction <span class="stat-badge bg-purple-100 text-purple-800">Mean</span></div>
+                    </div>
+                    <div><div class="stat-aside-value text-purple-500" style="font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;">Per Tx</div><div class="stat-aside-label">Average</div></div>
+                </div>
+                <div class="progress-container"><div class="progress-bar" style="width:<%= statistics.averageBill > 0 ? '100' : '0' %>%"></div></div>
+            </div>
+
+            <div class="stat-card gradient-4">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="stat-icon bg-orange-100 text-orange-600"><i class="fas fa-calendar-day"></i></div>
+                        <div class="stat-value counter" id="todayTransactions"><%= statistics.todayTransactions %></div>
+                        <div class="stat-label">Today's Transactions</div>
+                        <div class="stat-trend <%= statistics.todayTransactions > 0 ? 'positive' : 'neutral' %>">
+                            <i class="fas fa-<%= statistics.todayTransactions > 0 ? 'arrow-up' : 'minus' %>"></i> Today
+                            <span class="stat-badge bg-orange-100 text-orange-800"><%= statistics.todayTotal %></span>
+                        </div>
+                    </div>
+                    <div><div class="stat-aside-value text-orange-500"><%= new Date().getDate() %></div><div class="stat-aside-label">Today</div></div>
+                </div>
+                <div class="progress-container"><div class="progress-bar" style="width:<%= statistics.todayTransactions > 0 ? '100' : '0' %>%"></div></div>
+            </div>
+        </div>
+
+        <!-- Secondary Stat Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div class="stat-card gradient-5">
+                <div class="stat-icon bg-red-100 text-red-600"><i class="fas fa-exchange-alt"></i></div>
+                <div class="flex items-end gap-3 mb-1">
+                    <div><div class="range-value"><span id="minBill"><%= statistics.minBill %></span></div><div class="range-label">Min</div></div>
+                    <div style="color:#ded8d2;font-size:14px;padding-bottom:14px;">â†’</div>
+                    <div><div class="range-value"><span id="maxBill"><%= statistics.maxBill %></span></div><div class="range-label">Max</div></div>
+                </div>
+                <div class="stat-label">Bill Range</div>
+                <div class="stat-trend neutral"><i class="fas fa-ruler-combined"></i> Spread</div>
+                <div class="progress-container"><div class="progress-bar" style="width:100%"></div></div>
+            </div>
+
+            <div class="stat-card gradient-6">
+                <%
+                const totalWards = statistics.wardDistribution.Inpatient + statistics.wardDistribution.Outpatient + statistics.wardDistribution.ER;
+                const inpatientPercent  = totalWards > 0 ? Math.round((statistics.wardDistribution.Inpatient  / totalWards) * 100) : 0;
+                const outpatientPercent = totalWards > 0 ? Math.round((statistics.wardDistribution.Outpatient / totalWards) * 100) : 0;
+                const erPercent         = totalWards > 0 ? Math.round((statistics.wardDistribution.ER         / totalWards) * 100) : 0;
+                %>
+                <div class="stat-icon bg-cyan-100 text-cyan-600"><i class="fas fa-hospital"></i></div>
+                <div class="flex items-end gap-4 mb-1">
+                    <div><div class="ward-value text-blue-600"><%= statistics.wardDistribution.Inpatient %></div><div class="ward-label">IP Â· <%= inpatientPercent %>%</div></div>
+                    <div><div class="ward-value text-green-600"><%= statistics.wardDistribution.Outpatient %></div><div class="ward-label">OP Â· <%= outpatientPercent %>%</div></div>
+                    <div><div class="ward-value text-red-600"><%= statistics.wardDistribution.ER %></div><div class="ward-label">ER Â· <%= erPercent %>%</div></div>
+                </div>
+                <div class="stat-label">Ward Distribution</div>
+                <div class="stat-trend positive"><i class="fas fa-procedures"></i> Active Wards</div>
+                <div class="progress-container"><div class="progress-bar" style="width:100%"></div></div>
+            </div>
+
+            <div class="stat-card gradient-7">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="stat-icon bg-pink-100 text-pink-600"><i class="fas fa-coins"></i></div>
+                        <div class="stat-value"><span class="counter" id="todayTotal"><%= statistics.todayTotal %></span></div>
+                        <div class="stat-label">Today's Revenue</div>
+                        <div class="stat-trend <%= parseFloat(statistics.todayTotal) > 0 ? 'positive' : 'neutral' %>">
+                            <i class="fas fa-<%= parseFloat(statistics.todayTotal) > 0 ? 'arrow-up' : 'minus' %>"></i> Daily
+                            <span class="stat-badge bg-pink-100 text-pink-800"><%= statistics.todayTransactions %> tx</span>
+                        </div>
+                    </div>
+                    <div><div class="stat-aside-value text-pink-500" style="font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;">Today</div><div class="stat-aside-label">Revenue</div></div>
+                </div>
+                <div class="progress-container"><div class="progress-bar" style="width:<%= parseFloat(statistics.todayTotal) > 0 ? '100' : '0' %>%"></div></div>
+            </div>
+
+            <div class="stat-card gradient-8">
+                <%
+                let performancePercent = 0;
+                if (statistics.totalTransactions > 0) {
+                    performancePercent = Math.round((statistics.todayTransactions / (statistics.totalTransactions / 30)) * 100);
+                    if (performancePercent > 100) performancePercent = 100;
+                    if (performancePercent < 0)   performancePercent = 0;
+                }
+                %>
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="stat-icon bg-lime-100 text-lime-600"><i class="fas fa-tachometer-alt"></i></div>
+                        <div class="stat-value"><%= statistics.totalTransactions > 0 ? Math.round(statistics.totalTransactions / 30) : 0 %></div>
+                        <div class="stat-label">Avg Daily Transactions</div>
+                        <div class="stat-trend positive"><i class="fas fa-chart-bar"></i> 30-day avg <span class="stat-badge bg-lime-100 text-lime-800">30d</span></div>
+                    </div>
+                    <div>
+                        <div class="stat-aside-value text-lime-600"><%= statistics.totalTransactions > 0 ? Math.round((statistics.todayTransactions / (statistics.totalTransactions / 30)) * 100) : 0 %>%</div>
+                        <div class="stat-aside-label">vs Avg</div>
+                    </div>
+                </div>
+                <div class="progress-container"><div class="progress-bar" style="width:<%= performancePercent %>%"></div></div>
+            </div>
+        </div>
+
+        <!-- Insight Banner -->
+        <div class="insight-banner mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:20px;color:#1a1410;margin-bottom:6px;">Transaction Insights</h3>
+                    <p style="font-size:13.5px;color:#6b6259;line-height:1.6;">
+                        Based on <strong style="color:#1a1410;" class="num"><%= statistics.totalTransactions %></strong> transactions totaling
+                            <strong style="color:#1a7a42;" class="num">&#8369;<%= statistics.totalAmount %></strong> with an average bill of
+                        <strong style="color:#6d28d9;" class="num"><%= statistics.averageBill %></strong>.
+                    </p>
+                    <p style="font-size:12px;color:#9b8f87;margin-top:5px;">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Today: <strong style="color:#1a1410;" class="num"><%= statistics.todayTransactions %></strong> transactions Â·
+                        <strong style="color:#1a1410;" class="num"><%= statistics.todayTotal %></strong> revenue
+                    </p>
+                </div>
+                <div class="flex gap-2 flex-shrink-0">
+                    <button onclick="openExportModal()" class="btn-action btn-blue"><i class="fas fa-file-export"></i> Export</button>
+                    <button onclick="showAnalytics()" class="btn-action btn-ghost"><i class="fas fa-chart-pie"></i> Analytics</button>
+                </div>
+            </div>
+        </div>
+
+        <% } %>
+
+        <!-- Monthly Table Card -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:24px;color:#fff;margin-bottom:4px;">Monthly Statistical Report</h2>
+                        <p style="font-size:13px;color:#9b9189;">Detailed breakdown of services, demographics, and fund utilization</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openExportModal()" class="btn-action btn-green" id="excelBtn">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button onclick="openPrintModal()" class="btn-action btn-blue" id="printBtn">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    <div class="mini-stat"><div class="mini-stat-value" style="color:#3b82f6;"><%= services.length %></div><div class="mini-stat-label">Services</div></div>
+                    <div class="mini-stat"><div class="mini-stat-value" style="color:#22c55e;"><%= fundTypes.length %></div><div class="mini-stat-label">Funding Sources</div></div>
+                    <div class="mini-stat"><div class="mini-stat-value" style="color:#a855f7;">4</div><div class="mini-stat-label">Age Groups</div></div>
+                    <div class="mini-stat"><div class="mini-stat-value" style="color:#c0392b;"><%= grandTotal ? grandTotal.toFixed(2) : '0.00' %></div><div class="mini-stat-label">Grand Total</div></div>
+                </div>
+
+                <div class="sticky-table-container">
+                    <table class="sticky-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">Service</th>
+                                <th colspan="5">Male</th>
+                                <th colspan="5">Female</th>
+                                <th rowspan="2">Total</th>
+                                <th colspan="3">Ward Breakdown</th>
+                                <th colspan="2">Special Cases</th>
+                                <th colspan="<%= fundTypes.length %>">Amount of Fund Utilized</th>
+                                <th rowspan="2">Total Amount</th>
+                            </tr>
+                            <tr>
+                                <th>0â€“18</th><th>19â€“35</th><th>36â€“60</th><th>61+</th><th>Sub</th>
+                                <th>0â€“18</th><th>19â€“35</th><th>36â€“60</th><th>61+</th><th>Sub</th>
+                                <th>Inpatient</th><th>Outpatient</th><th>ER</th>
+                                <th>Pregnant</th><th>PWD</th>
+                                <% fundTypes.forEach(fund => { %><th><%= fund %></th><% }) %>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% services.forEach(service => {
+                                const serviceKey = service.toLowerCase().replace(/\s+/g, '_');
+                            %>
+                            <tr class="service-row">
+                                <td><%= service %></td>
+                                <td><%= data[serviceKey].male['0-18']   || '0' %></td>
+                                <td><%= data[serviceKey].male['19-35']  || '0' %></td>
+                                <td><%= data[serviceKey].male['36-60']  || '0' %></td>
+                                <td><%= data[serviceKey].male['61+']    || '0' %></td>
+                                <td class="highlight-cell"><%= data[serviceKey].male.subtotal || '0' %></td>
+                                <td><%= data[serviceKey].female['0-18']  || '0' %></td>
+                                <td><%= data[serviceKey].female['19-35'] || '0' %></td>
+                                <td><%= data[serviceKey].female['36-60'] || '0' %></td>
+                                <td><%= data[serviceKey].female['61+']   || '0' %></td>
+                                <td class="highlight-cell"><%= data[serviceKey].female.subtotal || '0' %></td>
+                                <td style="font-weight:600;color:#1a1410;"><%= (data[serviceKey].male.subtotal + data[serviceKey].female.subtotal) || '0' %></td>
+                                <td><%= data[serviceKey].ward.Inpatient  || '0' %></td>
+                                <td><%= data[serviceKey].ward.Outpatient || '0' %></td>
+                                <td><%= data[serviceKey].ward.ER         || '0' %></td>
+                                <td><%= data[serviceKey].pregnantCount || '0' %></td>
+                                <td><%= data[serviceKey].pwdCount      || '0' %></td>
+                                <% fundTypes.forEach(fund => { %>
+                                    <td><%= data[serviceKey].fundUtilization[fund] ? data[serviceKey].fundUtilization[fund].toFixed(2) : '0.00' %></td>
+                                <% }) %>
+                                <td style="font-weight:600;color:#1a1410;"><%= data[serviceKey].totalAmountUtilized ? data[serviceKey].totalAmountUtilized.toFixed(2) : '0.00' %></td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                        <tfoot>
+                            <tr class="grand-total">
+                                <th colspan="<%= 5 + 5 + 1 + 3 + 2 + fundTypes.length %>" style="text-align:right;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;">Grand Total</th>
+                                <th style="font-family:'EB Garamond',Georgia,serif;font-size:18px;color:#c0392b;font-weight:600;">
+                                    <%= grandTotal ? grandTotal.toFixed(2) : '0.00' %>
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="mt-5 p-4" style="background:#faf8f5;border-radius:10px;border:1px solid #ede8e2;">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+                        <div>
+                            <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#9b8f87;margin-bottom:6px;">Report Information</p>
+                            <div style="font-size:12.5px;color:#6b6259;line-height:1.8;">
+                                <span><i class="fas fa-calendar-alt text-blue-400 mr-2"></i>Generated: <%= new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></span><br>
+                                <span><i class="fas fa-clock text-green-400 mr-2"></i>Time: <%= new Date().toLocaleTimeString() %></span><br>
+                                <span><i class="fas fa-database text-purple-400 mr-2"></i>Records: <span class="num"><%= statistics ? statistics.totalTransactions : '0' %></span> transactions</span>
+                            </div>
+                        </div>
+                        <p style="font-size:12px;color:#9b8f87;"><i class="fas fa-info-circle text-orange-400 mr-1"></i>Includes all billing records from the system</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // â”€â”€ COUNTER ANIMATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        function animateCounters() {
+            document.querySelectorAll('.counter').forEach(counter => {
+                const target = parseInt(counter.textContent.replace(/[^0-9]/g, ''));
+                if (!target) return;
+                const inc = target / 80; let cur = 0;
+                const tick = () => {
+                    cur += inc;
+                    if (cur >= target) { counter.textContent = target.toLocaleString(); return; }
+                    counter.textContent = Math.round(cur).toLocaleString();
+                    setTimeout(tick, 12);
+                };
+                tick();
+            });
+        }
+
+        // â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        function showNotification(msg, type) {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${msg}`;
+            document.getElementById('toastContainer').appendChild(t);
+            setTimeout(() => t.classList.add('show'), 10);
+            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3200);
+        }
+
+        // â”€â”€ REFRESH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        function refreshStatistics() {
+            const btn = event.target.closest('button');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshingâ€¦';
+            btn.disabled = true;
+            setTimeout(() => location.reload(), 1200);
+        }
+
+        // â”€â”€ EXCEL MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        function openExportModal()  { document.getElementById('exportModal').classList.remove('hidden'); }
+        function closeExportModal() { document.getElementById('exportModal').classList.add('hidden'); }
+
+        function proceedExport() {
+            const btn = document.getElementById('exportConfirmBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Generatingâ€¦';
+            btn.disabled = true;
+            setTimeout(() => {
+                closeExportModal();
+                setTimeout(() => { btn.innerHTML = '<i class="fas fa-file-excel" style="margin-right:6px;"></i>Export Now'; btn.disabled = false; }, 400);
+                window.location.href = '/report/download/service';
+                showNotification('Excel export started â€” check your downloads.', 'success');
+            }, 800);
+        }
+
+        // â”€â”€ PRINT MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        function openPrintModal()  { document.getElementById('printModal').classList.remove('hidden'); }
+        function closePrintModal() { document.getElementById('printModal').classList.add('hidden'); }
+
+        function proceedPrint() {
+            const btn = document.getElementById('printConfirmBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Openingâ€¦';
+            btn.disabled = true;
+            setTimeout(() => {
+                closePrintModal();
+                setTimeout(() => { btn.innerHTML = '<i class="fas fa-print" style="margin-right:6px;"></i>Print Now'; btn.disabled = false; }, 400);
+                window.open('/report/print/service', '_blank');
+                showNotification('Print view opened in a new tab.', 'success');
+            }, 600);
+        }
+
+        // â”€â”€ ANALYTICS MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        let analyticsModal = document.getElementById('analyticsModal');
+        let wardChart = null, comparisonChart = null;
+
+        function showAnalytics()  { analyticsModal.classList.remove('hidden'); renderCharts(); }
+        function closeAnalytics() {
+            analyticsModal.classList.add('hidden');
+            if (wardChart)       { wardChart.destroy();       wardChart = null; }
+            if (comparisonChart) { comparisonChart.destroy(); comparisonChart = null; }
+        }
+
+        function renderCharts() {
+            <% if (statistics) { %>
+            wardChart = new Chart(document.getElementById('wardChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Inpatient', 'Outpatient', 'Emergency Room'],
+                    datasets: [{ data: [<%= statistics.wardDistribution.Inpatient %>, <%= statistics.wardDistribution.Outpatient %>, <%= statistics.wardDistribution.ER %>], backgroundColor: ['rgba(59,130,246,0.8)','rgba(34,197,94,0.8)','rgba(239,68,68,0.8)'], borderColor: ['rgb(59,130,246)','rgb(34,197,94)','rgb(239,68,68)'], borderWidth: 2 }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { padding: 16, font: { size: 12, family: 'DM Sans' } } }, tooltip: { callbacks: { label: ctx => { const t = ctx.dataset.data.reduce((a,b)=>a+b,0); return `${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/t*100)}%)`; } } } } }
+            });
+            comparisonChart = new Chart(document.getElementById('comparisonChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: ['Today', 'Monthly Avg'], datasets: [{ label: 'Transactions', data: [<%= statistics.todayTransactions %>, <%= Math.round(statistics.totalTransactions / 30) %>], backgroundColor: ['rgba(249,115,22,0.8)','rgba(59,130,246,0.8)'], borderColor: ['rgb(249,115,22)','rgb(59,130,246)'], borderWidth: 1, borderRadius: 6 }] },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'DM Sans' } } }, x: { ticks: { font: { family: 'DM Sans' } } } } }
+            });
+            <% } %>
+        }
+
+        // â”€â”€ CLOSE ON OVERLAY CLICK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        document.addEventListener('click', e => {
+            if (e.target.id === 'analyticsModal') closeAnalytics();
+            if (e.target.id === 'exportModal')    closeExportModal();
+            if (e.target.id === 'printModal')     closePrintModal();
+        });
+
+        // â”€â”€ KEYBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { closeAnalytics(); closeExportModal(); closePrintModal(); }
+            if (e.ctrlKey && e.key === 'r') { e.preventDefault(); refreshStatistics(); }
+        });
+
+        // â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(animateCounters, 400);
+            setInterval(() => location.reload(), 300000);
+        });
+    </script>
+    <script>
+        (() => {
+            const key = 'adminSidebarCollapsed';
+            if (localStorage.getItem(key) === '1') document.body.classList.add('sidebar-collapsed');
+            document.querySelectorAll('.sidebar-toggle').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.body.classList.toggle('sidebar-collapsed');
+                    localStorage.setItem(key, document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

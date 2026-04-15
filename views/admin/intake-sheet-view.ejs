@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unified Intake Sheet - Malasakit Center (Admin View)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #e2e8f0;
+      font-family: 'IBM Plex Sans', sans-serif;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .toolbar {
+      max-width: 1100px;
+      width: 100%;
+      background: #1e293b;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .toolbar-title {
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.3px;
+    }
+    .toolbar-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .btn {
+      border: none;
+      background: #334155;
+      color: white;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-print {
+      background: #2c6e9e;
+    }
+    .btn-print:hover {
+      background: #1e4a76;
+    }
+    .btn-close:hover {
+      background: #b91c1c;
+    }
+
+    .sheet-wrap {
+      max-width: 1100px;
+      width: 100%;
+      background: white;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.25);
+    }
+
+    /* 2-page print control */
+    .page {
+      background: white;
+      padding: 28px 26px 32px 26px;
+      position: relative;
+      break-inside: avoid;
+      page-break-after: avoid;
+    }
+    .page:first-child {
+      page-break-after: always;
+    }
+    .page:last-child {
+      page-break-after: auto;
+    }
+    .page-label {
+      font-size: 8px;
+      color: #94a3b8;
+      border-bottom: 1px dashed #cbd5e1;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .header {
+      margin-bottom: 18px;
+    }
+    .logo-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .logo-row img {
+      height: 44px;
+      object-fit: contain;
+    }
+    .header-title {
+      text-align: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      color: #0f172a;
+      border-top: 2px solid #b91c1c;
+      padding-top: 10px;
+    }
+    .header-title span {
+      display: block;
+      font-size: 0.7rem;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 500;
+      color: #334155;
+      letter-spacing: 0.5px;
+    }
+
+    .form-card {
+      margin-top: 4px;
+    }
+    .row-2, .row-3 {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .cell {
+      flex: 1;
+      min-width: 150px;
+    }
+    .field-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #4b5563;
+      letter-spacing: 0.3px;
+      margin-bottom: 2px;
+    }
+    .value-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: #0f172a;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 3px;
+      word-break: break-word;
+    }
+    .row-group {
+      margin-bottom: 10px;
+    }
+    .shaded {
+      background: #f8fafc;
+      padding: 6px 10px;
+      border-radius: 10px;
+    }
+    .sec-bar {
+      background: #1e3a5f;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      margin: 18px 0 10px 0;
+      display: inline-block;
+      width: auto;
+    }
+    .sec-num {
+      background: #ffcd4a;
+      color: #1e293b;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 11px;
+      margin-right: 8px;
+    }
+    .name-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .name-row > div {
+      flex: 1;
+      min-width: 90px;
+    }
+    .fam-table, .rec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5px;
+      margin: 8px 0 12px;
+    }
+    .fam-table th, .fam-table td, .rec-table th, .rec-table td {
+      border: 1px solid #cbd5e1;
+      padding: 5px 3px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .fam-table th {
+      background: #eef2ff;
+      font-weight: 700;
+    }
+    .income-split {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: #f9f9fb;
+      border-radius: 16px;
+      margin-bottom: 10px;
+    }
+    .expense-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      margin-top: 6px;
+      border-bottom: 1px dotted #cbd5e1;
+      padding: 3px 0;
+    }
+    .prob-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+      gap: 8px;
+      background: #f1f5f9;
+      padding: 10px;
+      border-radius: 16px;
+      margin-bottom: 12px;
+    }
+    .prob-cell {
+      font-size: 11px;
+      background: white;
+      padding: 6px 10px;
+      border-radius: 20px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .oath-block {
+      background: #fef9e3;
+      border-left: 5px solid #b45309;
+      padding: 10px 12px;
+      font-size: 10px;
+      font-weight: 500;
+      text-align: justify;
+      margin: 12px 0;
+      border-radius: 10px;
+    }
+    .sig-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 16px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .sig-line {
+      flex: 2;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 4px;
+    }
+    /* SQUARE BOX for thumbmark - exactly as requested: box, not rectangle */
+    .thumb-box {
+      flex: 1;
+      min-width: 100px;
+      max-width: 120px;
+      background: #fefce8;
+      border: 2px solid #2d3e50;
+      border-radius: 0px;
+      padding: 10px 6px;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #1e293b;
+      letter-spacing: 0.5px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      aspect-ratio: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #fef9e6;
+    }
+    .thumb-box span {
+      display: block;
+      font-size: 8px;
+      font-weight: 500;
+      color: #4b5563;
+      margin-top: 6px;
+      text-transform: uppercase;
+    }
+    .assess-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 8px 0 14px;
+      background: #ffffff;
+    }
+    .assess-cell {
+      background: #f1f5f9;
+      padding: 6px 12px;
+      border-radius: 28px;
+      font-size: 10.5px;
+      font-weight: 500;
+    }
+    .assess-check {
+      margin-right: 6px;
+      font-weight: 700;
+    }
+    .rec-check {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .bottom-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .bottom-box {
+      flex: 1;
+      background: #f8fafc;
+      padding: 10px;
+      border-radius: 14px;
+      text-align: center;
+      font-size: 10px;
+    }
+    .bsig {
+      height: 40px;
+      border-bottom: 1px solid #334155;
+      margin: 6px 0;
+    }
+    .b-name {
+      font-weight: 700;
+      margin: 4px 0;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .toolbar {
+        display: none;
+      }
+      .sheet-wrap {
+        box-shadow: none;
+        max-width: 100%;
+      }
+      .page {
+        padding: 0.45in 0.4in;
+        break-inside: avoid;
+        page-break-after: avoid;
+      }
+      .page:first-child {
+        page-break-after: always;
+      }
+      .page:last-child {
+        page-break-after: auto;
+      }
+      .page-label {
+        display: none;
+      }
+      .fam-table td, .fam-table th {
+        font-size: 8.5px;
+        padding: 3px 2px;
+      }
+      .value-text {
+        border-bottom: 0.5px solid #ccc;
+        font-size: 10.5px;
+      }
+      .field-label {
+        font-size: 8px;
+      }
+      .prob-cell {
+        font-size: 9px;
+      }
+      .oath-block {
+        font-size: 9px;
+      }
+      .assess-cell {
+        font-size: 9px;
+      }
+      .sec-bar {
+        margin: 12px 0 8px;
+        font-size: 0.7rem;
+      }
+      .bottom-box {
+        font-size: 9px;
+      }
+      .logo-row img {
+        height: 38px;
+      }
+      .header-title {
+        font-size: 1.3rem;
+      }
+      .thumb-box {
+        border: 2px solid #1e293b;
+        background: #fef9e6;
+        aspect-ratio: 1 / 1;
+        max-width: 110px;
+        padding: 8px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="toolbar-title">Unified Intake Sheet — Malasakit Center (Admin View)</div>
+  <div class="toolbar-actions">
+    <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
+    <button class="btn btn-close" onclick="window.close()">✖ Close</button>
+  </div>
+</div>
+
+<div class="sheet-wrap">
+  <!-- PAGE 1 - CLIENT INFORMATION -->
+  <div class="page">
+    <div class="page-label">PAGE 1 · CLIENT INFORMATION</div>
+    <div class="header">
+      <div class="logo-row">
+        <img src="/uploads/DOH.png" alt="DOH" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 50%27%3E%3Crect width=%27120%27 height=%2750%27 fill=%27%231455a4%27/%3E%3Ctext x=%2712%27 y=%2730%27 fill=%27white%27 font-size=%2714%27 font-weight=%27bold%27%3EDOH%3C/text%3E%3C/svg%3E'">
+        <img src="/uploads/Philhealth.png" alt="PhilHealth" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 50%27%3E%3Crect width=%27120%27 height=%2750%27 fill=%27%230c2340%27/%3E%3Ctext x=%278%27 y=%2730%27 fill=%27%23b8860b%27 font-size=%2712%27 font-weight=%27bold%27%3EPHILHEALTH%3C/text%3E%3C/svg%3E'">
+        <img src="/uploads/PCSO.png" alt="PCSO" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 50%27%3E%3Crect width=%27120%27 height=%2750%27 fill=%27%23b8860b%27/%3E%3Ctext x=%2718%27 y=%2730%27 fill=%27white%27 font-size=%2714%27%3EPCSO%3C/text%3E%3C/svg%3E'">
+        <img src="/uploads/DSWD.png" alt="DSWD" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 50%27%3E%3Crect width=%27120%27 height=%2750%27 fill=%27%231f7a5a%27/%3E%3Ctext x=%2712%27 y=%2730%27 fill=%27white%27 font-size=%2714%27%3EDSWD%3C/text%3E%3C/svg%3E'">
+        <img src="/uploads/MALASAKITCENTER.png" alt="Malasakit Center" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 140 50%27%3E%3Crect width=%27140%27 height=%2750%27 fill=%27%238b0000%27/%3E%3Ctext x=%276%27 y=%2730%27 fill=%27%23ffd966%27 font-size=%2712%27 font-weight=%27bold%27%3EMALASAKIT%3C/text%3E%3C/svg%3E'">
+      </div>
+      <div class="header-title">Unified Intake Sheet <span>Malasakit Center · Whole-of-Government Approach</span></div>
+    </div>
+
+    <div class="form-card">
+      <div class="row-2">
+        <div class="cell"><div class="field-label">PhilHealth ID No.</div><div class="value-text"><%= typeof request !== 'undefined' && request.philhealth_no ? request.philhealth_no : 'N/A' %></div></div>
+        <div class="cell"><div class="field-label">Hospital No.</div><div class="value-text"><%= typeof request !== 'undefined' && request.hospital_no ? request.hospital_no : 'N/A' %></div></div>
+      </div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Date of Intake</div><div class="value-text"><%= (typeof request !== 'undefined' && request.intake_date) ? new Date(request.intake_date).toLocaleDateString() : 'N/A' %></div></div>
+        <div class="cell"><div class="field-label">Time of Interview</div><div class="value-text"><%= typeof request !== 'undefined' && request.intake_time ? request.intake_time : 'N/A' %></div></div>
+      </div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Name of Informant</div><div class="value-text"><%= typeof request !== 'undefined' && request.informant_name ? request.informant_name : 'N/A' %></div></div>
+        <div class="cell"><div class="field-label">Relation to Patient</div><div class="value-text"><%= (typeof request !== 'undefined' && (request.informant_relation || request.relation_to_patient)) ? (request.informant_relation || request.relation_to_patient) : 'N/A' %></div></div>
+      </div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Informant Address</div><div class="value-text"><%= typeof request !== 'undefined' && request.informant_address ? request.informant_address : 'N/A' %></div></div>
+        <div class="cell"><div class="field-label">Contact Number</div><div class="value-text"><%= (typeof request !== 'undefined' && (request.patient_contact || request.contact_number)) ? (request.patient_contact || request.contact_number) : 'N/A' %></div></div>
+      </div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Patient Email</div><div class="value-text"><%= typeof request !== 'undefined' && request.patient_email ? request.patient_email : 'N/A' %></div></div>
+        <div class="cell"><div class="field-label">Supporting Document</div><div class="value-text"><%= (typeof request !== 'undefined' && request.document) ? 'Uploaded' : 'No document' %></div></div>
+      </div>
+
+      <div class="sec-bar"><span class="sec-num">A</span> IDENTIFYING INFORMATION</div>
+      <div class="name-row">
+        <div><div class="field-label">Last Name</div><div class="value-text"><%= (typeof request !== 'undefined' && request.last_name) ? request.last_name : ((typeof request !== 'undefined' && request.fullname) ? request.fullname.split(',')[0] : 'N/A') %></div></div>
+        <div><div class="field-label">First Name</div><div class="value-text"><%= (typeof request !== 'undefined' && request.first_name) ? request.first_name : ((typeof request !== 'undefined' && request.fullname && request.fullname.split(',').length > 1) ? (request.fullname.split(',')[1] || '').trim() : 'N/A') %></div></div>
+        <div><div class="field-label">Middle Name</div><div class="value-text"><%= typeof request !== 'undefined' && request.middle_name ? request.middle_name : 'N/A' %></div></div>
+        <div><div class="field-label">Ext</div><div class="value-text"><%= typeof request !== 'undefined' && request.extension ? request.extension : 'N/A' %></div></div>
+        <div><div class="field-label">Sex</div><div class="value-text"><%= typeof request !== 'undefined' && request.sex ? request.sex : 'N/A' %></div></div>
+      </div>
+      <div class="row-3">
+        <div class="cell"><div class="field-label">Date of Birth</div><div class="value-text"><%= (typeof request !== 'undefined' && request.birthdate) ? new Date(request.birthdate).toLocaleDateString() : 'N/A' %></div></div>
+        <div class="cell"><div class="field-label">Age</div><div class="value-text"><%= typeof request !== 'undefined' && request.age ? request.age : 'N/A' %></div></div>
+        <div class="cell"><div class="field-label">Place of Birth</div><div class="value-text"><%= typeof request !== 'undefined' && request.place_of_birth ? request.place_of_birth : 'N/A' %></div></div>
+      </div>
+      <div class="row-group"><div class="field-label">Permanent Address</div><div class="value-text"><%= typeof request !== 'undefined' && request.permanent_address ? request.permanent_address : 'N/A' %></div></div>
+      <div class="row-group shaded"><div class="field-label">Present Address</div><div class="value-text"><%= typeof request !== 'undefined' && request.present_address ? request.present_address : 'N/A' %></div></div>
+      <div class="row-group"><div class="field-label">Civil Status</div><div class="value-text"><%= (typeof request !== 'undefined' && (request.civil_status || request.patient_civil_status)) ? (request.civil_status || request.patient_civil_status) : 'N/A' %></div></div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Religion</div><div class="value-text"><%= typeof request !== 'undefined' && request.religion ? request.religion : 'N/A' %></div></div>
+        <div class="cell"><div class="field-label">Nationality</div><div class="value-text"><%= (typeof request !== 'undefined' && (request.nationality || request.patient_nationality)) ? (request.nationality || request.patient_nationality) : 'N/A' %></div></div>
+      </div>
+      <div class="row-group shaded"><div class="field-label">Highest Educational Attainment</div><div class="value-text"><%= typeof request !== 'undefined' && request.education ? request.education : 'N/A' %></div></div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Occupation</div><div class="value-text"><%= (typeof request !== 'undefined' && (request.occupation || request.patient_occupation)) ? (request.occupation || request.patient_occupation) : 'N/A' %></div></div>
+        <div class="cell"><div class="field-label">Monthly Income (₱)</div><div class="value-text"><%= (typeof request !== 'undefined' && (request.monthly_income || request.patient_income)) ? (request.monthly_income || request.patient_income) : 'N/A' %></div></div>
+      </div>
+
+      <div class="sec-bar"><span class="sec-num">B</span> FAMILY COMPOSITION</div>
+      <table class="fam-table">
+        <thead>
+          <tr><th>#</th><th>Full Name</th><th>Sex</th><th>Age</th><th>Civil Status</th><th>Relation</th><th>Education</th><th>Occupation</th><th>Monthly Income</th></tr>
+        </thead>
+        <tbody>
+          <% if (typeof request !== 'undefined' && request.family_composition && request.family_composition.length) { 
+            request.family_composition.forEach(function(member, index) { %>
+              <tr>
+                <td><%= index+1 %></td>
+                <td><%= member.name || 'N/A' %></td>
+                <td><%= member.sex || 'N/A' %></td>
+                <td><%= member.age || 'N/A' %></td>
+                <td><%= member.civil_status || 'N/A' %></td>
+                <td><%= member.relation || 'N/A' %></td>
+                <td><%= member.education || 'N/A' %></td>
+                <td><%= member.occupation || 'N/A' %></td>
+                <td><%= member.income || 'N/A' %></td>
+              </tr>
+          <% }); } else { %>
+            <tr><td colspan="9" style="text-align:center;">No family composition submitted.</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PAGE 2 - ASSESSMENT & RECOMMENDATION (Square Thumbmark Box) -->
+  <div class="page">
+    <div class="page-label">PAGE 2 · ASSESSMENT & RECOMMENDATION</div>
+    <div class="form-card">
+      <div class="sec-bar"><span class="sec-num">C</span> HOUSEHOLD PROFILE & EXPENSES</div>
+      <div class="income-split">
+        <div style="padding: 8px;">
+          <div class="field-label">House/Lot</div>
+          <div class="value-text"><%= typeof request !== 'undefined' && request.house_status ? request.house_status : 'N/A' %></div>
+          <div class="field-label">Light Source</div>
+          <div class="value-text"><%= typeof request !== 'undefined' && request.light_source ? request.light_source : 'N/A' %></div>
+          <div class="field-label">Water Source</div>
+          <div class="value-text"><%= typeof request !== 'undefined' && request.water_source ? request.water_source : 'N/A' %></div>
+        </div>
+        <div style="padding: 8px;">
+          <div class="field-label">Monthly Expenses (₱)</div>
+          <div class="expense-row"><span>Food</span><span><%= (typeof request !== 'undefined' && request.food_expense) ? request.food_expense : 'N/A' %></span></div>
+          <div class="expense-row"><span>Education</span><span><%= (typeof request !== 'undefined' && request.education_expense) ? request.education_expense : 'N/A' %></span></div>
+          <div class="expense-row"><span>Medical Expenditure</span><span><%= (typeof request !== 'undefined' && request.medical_expense) ? request.medical_expense : 'N/A' %></span></div>
+          <div class="expense-row"><span>Transportation</span><span><%= (typeof request !== 'undefined' && request.transportation_expense) ? request.transportation_expense : 'N/A' %></span></div>
+          <div class="expense-row"><span>Others</span><span><%= (typeof request !== 'undefined' && request.other_expense) ? request.other_expense : 'N/A' %></span></div>
+        </div>
+      </div>
+      
+      <div class="sec-bar"><span class="sec-num">D</span> PROBLEM PRESENTED</div>
+      <div class="prob-grid">
+        <div class="prob-cell"><strong>Health Condition:</strong> <span><%= (typeof request !== 'undefined' && (request.problem_health_specify || request.problem_health)) ? (request.problem_health_specify || request.problem_health) : 'N/A' %></span></div>
+        <div class="prob-cell"><strong>Economic Resources:</strong> <span><%= (typeof request !== 'undefined' && (request.problem_economic_specify || request.problem_economic)) ? (request.problem_economic_specify || request.problem_economic) : 'N/A' %></span></div>
+        <div class="prob-cell"><strong>Food/Nutrition:</strong> <span><%= (typeof request !== 'undefined' && (request.problem_food_specify || request.problem_food)) ? (request.problem_food_specify || request.problem_food) : 'N/A' %></span></div>
+        <div class="prob-cell"><strong>Housing:</strong> <span><%= (typeof request !== 'undefined' && (request.problem_housing_specify || request.problem_housing)) ? (request.problem_housing_specify || request.problem_housing) : 'N/A' %></span></div>
+        <div class="prob-cell"><strong>Employment:</strong> <span><%= (typeof request !== 'undefined' && (request.problem_employment_specify || request.problem_employment)) ? (request.problem_employment_specify || request.problem_employment) : 'N/A' %></span></div>
+        <div class="prob-cell"><strong>Others:</strong> <span><%= (typeof request !== 'undefined' && (request.problem_others_specify || request.problem_others)) ? (request.problem_others_specify || request.problem_others) : 'N/A' %></span></div>
+      </div>
+
+      <div class="oath-block">
+        AKO SI, <strong><%= (typeof request !== 'undefined' && (request.client_name_signature || request.signature_display)) ? (request.client_name_signature || request.signature_display) : '___________' %></strong>, AY NAGPAPATUNAY NA TAMA AT TOTOO ANG IMPORMASYON. PINAPAYAGAN KO ANG MALASAKIT CENTER NA IBAHAGI ITO SA MGA KAAKIBAT NA AHENSIYA.
+      </div>
+
+      <div class="sig-row">
+        <div class="sig-line">
+          <div class="value-text"><%= (typeof request !== 'undefined' && (request.signature_display || request.client_name_signature)) ? (request.signature_display || request.client_name_signature) : 'N/A' %></div>
+          <span class="sig-label">Signature of Client</span>
+        </div>
+        <!-- SQUARE BOX: perfect 1:1 aspect ratio, clean border, no icon -->
+        <div class="thumb-box">
+          ⬤ THUMB MARK
+          <span>(left thumb)</span>
+        </div>
+      </div>
+
+      <div class="sec-bar"><span class="sec-num">E</span> SOCIAL WORKER'S ASSESSMENT</div>
+      <div class="assess-grid">
+        <div class="assess-cell"><span class="assess-check"><%= (typeof request !== 'undefined' && request.assessment_financially_capable) ? '✓' : '○' %> Financially capable but still needs assistance</span></div>
+        <div class="assess-cell"><span class="assess-check"><%= (typeof request !== 'undefined' && request.assessment_lack_resources) ? '✓' : '○' %> Lacks resources for health needs</span></div>
+        <div class="assess-cell"><span class="assess-check"><%= (typeof request !== 'undefined' && request.assessment_medical_checkup) ? '✓' : '○' %> Needs medical check-up (school/employment)</span></div>
+        <div class="assess-cell"><span class="assess-check"><%= (typeof request !== 'undefined' && request.assessment_resources_exhausted) ? '✓' : '○' %> Resources exhausted due to costly treatment</span></div>
+      </div>
+
+      <div class="sec-bar"><span class="sec-num">F</span> RECOMMENDATION & ASSISTANCE</div>
+      <table class="rec-table">
+        <thead><tr><th>Type of Assistance</th><th>Amount (₱)</th><th>Mode</th><th>Fund Source</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="rec-check">
+                <span><%= (typeof request !== 'undefined' && request.assist_hospital_bill) ? '✓' : '○' %> Hospital Bill</span>
+                <span><%= (typeof request !== 'undefined' && request.assist_lab_diagnostic) ? '✓' : '○' %> Lab/Diagnostic</span>
+                <span><%= (typeof request !== 'undefined' && request.assist_medical_supplies) ? '✓' : '○' %> Medical Supplies</span>
+              </div>
+            </td>
+            <td><%= (typeof request !== 'undefined' && (request.recommendation_amount || request.assistance_amount)) ? (request.recommendation_amount || request.assistance_amount) : 'N/A' %></td>
+            <td><%= (typeof request !== 'undefined' && (request.recommendation_mode || request.assistance_mode)) ? (request.recommendation_mode || request.assistance_mode) : 'Medical Assistance' %></td>
+            <td><%= (typeof request !== 'undefined' && (request.recommendation_fund_source || request.fund_source)) ? (request.recommendation_fund_source || request.fund_source) : 'MC-MAIP' %></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="bottom-row">
+        <div class="bottom-box">
+          <div class="field-label">Interviewed by:</div>
+          <div class="bsig"></div>
+          <div style="font-size:9px; text-align:center;">Medical Social Worker</div>
+        </div>
+        <div class="bottom-box">
+          <div>Reviewed & Approved:</div>
+          <div class="b-name">DOROTHY JOY C. ZAMORA, RSW</div>
+          <div>Lic. No. 0031864</div>
+          <div>OIC - Medical Social Service</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    if (typeof request === 'undefined') {
+      window.request = {
+        philhealth_no: '12-3456789-0',
+        hospital_no: 'H-2409-112',
+        intake_date: '2026-04-10',
+        intake_time: '09:45 AM',
+        informant_name: 'Maria R. Santos',
+        relation_to_patient: 'Daughter',
+        informant_address: '22 Mabini St., Barangay Central, Manila',
+        patient_contact: '09171234567',
+        patient_email: 'patient@example.com',
+        document: 'medical_cert.pdf',
+        last_name: 'Dela Cruz',
+        first_name: 'Juan',
+        middle_name: 'Santos',
+        extension: 'Jr.',
+        sex: 'Male',
+        birthdate: '1975-08-22',
+        age: '50',
+        place_of_birth: 'Quezon City',
+        permanent_address: 'Blk 3 Lot 8, Phase 2, Tondo, Manila',
+        present_address: 'Same as permanent',
+        civil_status: 'Married',
+        religion: 'Roman Catholic',
+        nationality: 'Filipino',
+        education: 'College Graduate',
+        occupation: 'Tricycle Driver',
+        monthly_income: '12,000',
+        family_composition: [
+          { name: 'Luz Dela Cruz', sex: 'Female', age: '48', civil_status: 'Married', relation: 'Wife', education: 'High School', occupation: 'Housewife', income: 'N/A' },
+          { name: 'Mark Dela Cruz', sex: 'Male', age: '20', civil_status: 'Single', relation: 'Son', education: 'College Level', occupation: 'Student', income: 'N/A' }
+        ],
+        house_status: 'Rent (PHP 3,500)',
+        light_source: 'Meralco',
+        water_source: 'Maynilad',
+        food_expense: '6,000',
+        education_expense: '2,500',
+        medical_expense: '15,000',
+        transportation_expense: '1,200',
+        other_expense: '800',
+        problem_health_specify: 'Hypertension & CKD Stage 3',
+        problem_economic_specify: 'Irregular income, no savings',
+        problem_food_specify: 'Insufficient food budget',
+        problem_housing_specify: 'Overcrowded rental',
+        problem_employment_specify: 'Low earnings, no insurance',
+        client_name_signature: 'Juan Dela Cruz',
+        signature_display: 'Juan Dela Cruz',
+        assessment_financially_capable: false,
+        assessment_lack_resources: true,
+        assessment_medical_checkup: false,
+        assessment_resources_exhausted: true,
+        assist_hospital_bill: true,
+        assist_lab_diagnostic: true,
+        assist_medical_supplies: false,
+        recommendation_amount: '25,000',
+        recommendation_mode: 'Guarantee Letter',
+        fund_source: 'Malasakit MC-MAIP'
+      };
+    }
+  })();
+</script>
+</body>
+</html>

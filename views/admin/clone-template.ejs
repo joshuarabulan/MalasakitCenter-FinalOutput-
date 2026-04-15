@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statement of Account</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="/img/icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/admin/clone-template.css">
+    <link rel="stylesheet" href="/css/admin/admin-theme.css">
+    <style>
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+        }
+        .summary-grid .summary-label {
+            color: #9b8f87;
+            font-weight: 500;
+        }
+        .summary-grid .summary-value {
+            color: #1a1410;
+            font-weight: 600;
+            text-align: right;
+        }
+        .charges-preview {
+            max-height: 150px;
+            overflow-y: auto;
+            background: #faf8f5;
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 8px;
+        }
+        .charge-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            padding: 4px 0;
+            border-bottom: 1px solid #ede8e2;
+        }
+        .charge-item:last-child {
+            border-bottom: none;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .loading-spinner {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .loading-spinner .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #ede8e2;
+            border-top-color: #c17f3a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="toastContainer"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p style="color:#1a1410; font-weight:500;">Processing...</p>
+        </div>
+    </div>
+
+    <!-- PDF Confirm Modal -->
+    <div id="pdfConfirmModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-stripe ms-green"></div>
+            <div class="modal-body">
+                <div class="modal-icon-wrap mi-green">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+                <div class="modal-tag mt-green"><span class="modal-dot md-green"></span>Download PDF</div>
+                <h3 class="modal-title">Download billing PDF?</h3>
+                <p class="modal-desc">A PDF copy of this billing record will be generated and downloaded to your device.</p>
+                <div class="modal-info-box green">
+                    <p><i class="fas fa-info-circle" style="margin-right:6px;"></i>The PDF will include all charges, discounts, and PhilHealth deductions for this patient.</p>
+                </div>
+                <div id="pdfRecordDetails"></div>
+                <div class="modal-divider"></div>
+                <div class="modal-actions">
+                    <button onclick="closeModal('pdfConfirmModal')" class="btn btn-ghost">Cancel</button>
+                    <button id="confirmPdfBtn" class="btn btn-green">
+                        <i class="fas fa-file-pdf" style="margin-right:4px;font-size:11px;"></i>Download PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Confirm Modal -->
+    <div id="printConfirmModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-stripe ms-blue"></div>
+            <div class="modal-body">
+                <div class="modal-icon-wrap mi-blue">
+                    <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                </div>
+                <div class="modal-tag mt-blue"><span class="modal-dot md-blue"></span>Print Record</div>
+                <h3 class="modal-title">Print this billing record?</h3>
+                <p class="modal-desc">This will open the print dialog directly. Make sure your printer is connected and ready.</p>
+                <div class="modal-info-box blue">
+                    <p><i class="fas fa-print" style="margin-right:6px;"></i>The print dialog will appear automatically. Click Print to send to your printer.</p>
+                </div>
+                <div id="printRecordDetails"></div>
+                <div class="modal-divider"></div>
+                <div class="modal-actions">
+                    <button onclick="closeModal('printConfirmModal')" class="btn btn-ghost">Cancel</button>
+                    <button id="confirmPrintBtn" class="btn btn-blue">
+                        <i class="fas fa-print" style="margin-right:4px;font-size:11px;"></i>Print Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Soft Delete Modal -->
+    <div id="softDeleteModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-stripe ms-yellow"></div>
+            <div class="modal-body">
+                <div class="modal-icon-wrap mi-yellow">
+                    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                </div>
+                <div class="modal-tag mt-yellow"><span class="modal-dot md-yellow"></span>Move to Trash</div>
+                <h3 class="modal-title">Move this record?</h3>
+                <p class="modal-desc">The record will be moved to <strong>Deleted Records</strong> where you can restore or permanently delete it later.</p>
+                <div id="softDeleteRecordDetails"></div>
+                <div class="modal-divider"></div>
+                <div class="modal-actions">
+                    <button onclick="closeModal('softDeleteModal')" class="btn btn-ghost">Cancel</button>
+                    <button id="confirmSoftDelete" class="btn btn-yellow"><i class="fas fa-trash" style="margin-right:4px;font-size:11px;"></i>Move to Trash</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Restore Modal -->
+    <div id="restoreModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-stripe ms-green"></div>
+            <div class="modal-body">
+                <div class="modal-icon-wrap mi-green">
+                    <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                </div>
+                <div class="modal-tag mt-green"><span class="modal-dot md-green"></span>Restore</div>
+                <h3 class="modal-title">Restore this record?</h3>
+                <div class="restore-info"><i class="fas fa-info-circle mr-2"></i>The record will be moved back to <strong>Active Records</strong> immediately.</div>
+                <div id="restoreRecordDetails"></div>
+                <div class="modal-divider"></div>
+                <div class="modal-actions">
+                    <button onclick="closeModal('restoreModal')" class="btn btn-ghost">Cancel</button>
+                    <button id="confirmRestore" class="btn btn-green"><i class="fas fa-undo" style="margin-right:4px;font-size:11px;"></i>Restore Record</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permanent Delete Modal -->
+    <div id="permanentDeleteModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-stripe ms-red"></div>
+            <div class="modal-body">
+                <div class="modal-icon-wrap mi-red">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <div class="modal-tag mt-red"><span class="modal-dot md-red"></span>Permanent Delete</div>
+                <h3 class="modal-title">Delete permanently?</h3>
+                <div class="modal-warning">
+                    <p class="w-title"><i class="fas fa-exclamation-triangle mr-1"></i>This cannot be undone</p>
+                    <p>This will permanently erase the record from the database. There is no way to recover it.</p>
+                </div>
+                <div id="permanentDeleteRecordDetails"></div>
+                <div class="modal-confirm-label"><i class="fas fa-keyboard"></i>Type <strong style="margin:0 4px;">"DELETE"</strong> to confirm:</div>
+                <input type="text" id="deleteConfirmation" placeholder="DELETE" class="modal-confirm-input">
+                <div class="modal-divider"></div>
+                <div class="modal-actions">
+                    <button onclick="closeModal('permanentDeleteModal')" class="btn btn-ghost">Cancel</button>
+                    <button id="confirmPermanentDelete" class="btn btn-red" disabled><i class="fas fa-trash-alt" style="margin-right:4px;font-size:11px;"></i>Delete Permanently</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty Trash Modal -->
+    <div id="emptyTrashModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-stripe ms-red"></div>
+            <div class="modal-body">
+                <div class="modal-icon-wrap mi-red">
+                    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                </div>
+                <div class="modal-tag mt-red"><span class="modal-dot md-red"></span>Empty Trash</div>
+                <h3 class="modal-title">Empty all trash?</h3>
+                <div class="modal-warning">
+                    <p class="w-title"><i class="fas fa-exclamation-triangle mr-1"></i>This cannot be undone</p>
+                    <p>All records in the trash will be permanently deleted from the database.</p>
+                </div>
+                <div class="trash-count-box">
+                    <span class="trash-icon"><i class="fas fa-trash-alt"></i></span>
+                    <p>You are about to permanently delete <strong><span id="trashCount">0</span> records</strong></p>
+                </div>
+                <div class="modal-confirm-label"><i class="fas fa-keyboard"></i>Type <strong style="margin:0 4px;">"EMPTY TRASH"</strong> to confirm:</div>
+                <input type="text" id="emptyTrashConfirmation" placeholder="EMPTY TRASH" class="modal-confirm-input">
+                <div class="modal-divider"></div>
+                <div class="modal-actions">
+                    <button onclick="closeModal('emptyTrashModal')" class="btn btn-ghost">Cancel</button>
+                    <button id="confirmEmptyTrash" class="btn btn-red" disabled><i class="fas fa-trash-alt" style="margin-right:4px;font-size:11px;"></i>Empty Trash</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Bill Confirmation Modal -->
+    <div id="saveBillConfirmModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-stripe ms-green"></div>
+            <div class="modal-body">
+                <div class="modal-icon-wrap mi-green">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <div class="modal-tag mt-green"><span class="modal-dot md-green"></span>Confirm Save</div>
+                <h3 class="modal-title">Save billing record?</h3>
+                <p class="modal-desc">Please review the patient information and charges before saving. This action will create a permanent billing record.</p>
+                
+                <div id="saveRecordSummary" style="background:#f8f6f3; border-radius:12px; padding:12px; margin:16px 0;">
+                    <div style="font-size:12px; font-weight:700; color:#1a1410; margin-bottom:8px;"><i class="fas fa-file-invoice mr-2"></i>Record Summary</div>
+                    <div class="summary-grid">
+                        <div class="summary-label">Patient Name:</div>
+                        <div class="summary-value" id="summaryPatientName">--</div>
+                        <div class="summary-label">Hospital #:</div>
+                        <div class="summary-value" id="summaryHospitalNumber">--</div>
+                        <div class="summary-label">Ward:</div>
+                        <div class="summary-value" id="SummaryWard">--</div>
+                        <div class="summary-label">Confinement:</div>
+                        <div class="summary-value" id="SummaryConfinement">--</div>
+                        <div class="summary-label">Total Due:</div>
+                        <div class="summary-value" id="SummaryTotalDue" style="color:#1a7a42; font-size:14px;">--</div>
+                    </div>
+                    <div id="chargesPreview" class="charges-preview"></div>
+                </div>
+                
+                <div class="modal-info-box green">
+                    <p><i class="fas fa-info-circle" style="margin-right:6px;"></i>The record will be saved and appear in Active Records immediately.</p>
+                </div>
+                <div class="modal-divider"></div>
+                <div class="modal-actions">
+                    <button onclick="closeModal('saveBillConfirmModal')" class="btn btn-ghost">Cancel</button>
+                    <button id="confirmSaveBill" class="btn btn-green"><i class="fas fa-save" style="margin-right:4px;font-size:11px;"></i>Save Record</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LAYOUT -->
+    <div class="min-h-screen flex">
+
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl fixed h-full z-10 text-white">
+            <div class="p-6 border-b border-slate-700 flex items-center justify-between">
+                <h1 class="text-2xl font-bold flex items-center text-white">
+                    <i class="fas fa-hospital-user mr-3"></i><span class="nav-text">Malasakit Admin</span>
+                </h1>
+                <button type="button" class="sidebar-toggle text-white text-lg"><i class="fas fa-bars"></i></button>
+            </div>
+            <nav class="mt-6 px-4 space-y-2">
+                <a href="/admin/dashboard" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-line w-5 mr-3 text-center"></i><span class="nav-label">Dashboard</span></a>
+                <a href="/admin/user-management" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-users-cog w-5 mr-3 text-center"></i><span class="nav-label">User Management</span></a>
+                <a href="/patient/admin" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-notes-medical w-5 mr-3 text-center"></i><span class="nav-label">Patient Concerns</span></a>
+                <a href="/admin/main-form" class="nav-item flex items-center py-3 px-4 bg-slate-700 text-white rounded-lg"><i class="fas fa-file-invoice-dollar w-5 mr-3 text-center"></i><span class="nav-label">Statement of Account</span></a>
+                <a href="/admin/reports" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-folder-open w-5 mr-3 text-center"></i><span class="nav-label">Report Templates</span></a>
+                <a href="/admin/statistics" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-pie w-5 mr-3 text-center"></i><span class="nav-label">Monthly Statistics</span></a>
+                <a href="/admin/feedback" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-comment-dots w-5 mr-3 text-center"></i><span class="nav-label">Feedback</span></a>
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <main class="admin-main flex-1 p-8" style="margin-left:16rem;">
+
+            <!-- Page Header -->
+            <div class="mb-7 mt-2">
+                <h1 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:30px;color:#1a1410;line-height:1.15;margin-bottom:3px;">Billing Management</h1>
+                <p style="font-size:13px;color:#9b8f87;font-weight:500;">Create and manage patient billing records</p>
+            </div>
+
+            <!-- Tabs -->
+            <div style="border-bottom:1px solid #ede8e2;" class="flex gap-1 mb-0">
+                <button class="tab-button active" data-tab="create">
+                    <i class="fas fa-file-invoice mr-2"></i>Create Bill
+                </button>
+                <button class="tab-button" data-tab="records">
+                    <i class="fas fa-list mr-2"></i>Active Records
+                    <span class="count-badge badge-red" id="activeCountBadge"><%= records ? records.length : 0 %></span>
+                </button>
+                <button class="tab-button" data-tab="deleted">
+                    <i class="fas fa-trash mr-2"></i>Stored Records
+                    <span class="count-badge badge-red" id="deletedCountBadge"><%= deletedRecords ? deletedRecords.length : 0 %></span>
+                </button>
+            </div>
+
+            <div id="createTab" class="tab-content active mt-4">
+                <div class="form-card">
+                    <div class="form-card-header">
+                        <h2 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:32px;color:#fff;margin-bottom:3px;">Patient Billing Form</h2>
+                        <p style="font-size:13.5px;color:#9b9189;">Complete the form below to generate a hospital bill</p>
+                    </div>
+
+                    <form id="billingForm" class="p-6" action="/submit-main-form" method="POST">
+                        <!-- Patient Information -->
+                        <div class="form-section">
+                            <h3 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:18px;color:#1a1410;margin-bottom:14px;">
+                                <i class="fas fa-user-injured mr-2 text-blue-400"></i>Patient Information
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <div class="section-label">Full Name</div>
+                                    <input type="text" name="name" id="patientName" class="fi" placeholder="Patient's full name" required>
+                                    <div class="validation-message name-error">Please enter patient's full name</div>
+                                </div>
+                                <div>
+                                    <div class="section-label">Address</div>
+                                    <input type="text" name="address" id="patientAddress" class="fi" placeholder="Patient's address" required>
+                                    <div class="validation-message address-error">Please enter patient's address</div>
+                                </div>
+                                <div>
+                                    <div class="section-label">Confinement Period</div>
+                                    <div class="flex items-center gap-2">
+                                        <input type="date" name="confinement_start" id="confStart" class="fi" required>
+                                        <span style="color:#9b8f87;font-size:12px;white-space:nowrap;">to</span>
+                                        <input type="date" name="confinement_end" id="confEnd" class="fi" required>
+                                    </div>
+                                    <div class="validation-message confinement_start-error">Please select start date</div>
+                                </div>
+                                <div>
+                                    <div class="section-label">Hospital Number</div>
+                                    <input type="text" name="hospital_number" id="hospitalNumber" class="fi" placeholder="Hospital number" required>
+                                    <div class="validation-message hospital_number-error">Please enter hospital number</div>
+                                </div>
+                                <div>
+                                    <div class="section-label">ICD/IVS Code</div>
+                                    <input type="text" name="icd_ivs" class="fi" placeholder="ICD/IVS code (optional)">
+                                </div>
+                                <div>
+                                    <div class="section-label">Ward</div>
+                                    <select name="ward" id="patientWard" class="fi" required>
+                                        <option value="">Select Ward</option>
+                                        <option value="Inpatient">Inpatient</option>
+                                        <option value="Outpatient">Outpatient</option>
+                                        <option value="ER">Emergency Room (ER)</option>
+                                    </select>
+                                    <div class="validation-message ward-error">Please select a ward</div>
+                                </div>
+                                <div>
+                                    <div class="section-label">Age</div>
+                                    <input type="number" name="age" class="fi" placeholder="Age" required>
+                                    <div class="validation-message age-error">Please enter age</div>
+                                </div>
+                                <div>
+                                    <div class="section-label">Gender</div>
+                                    <select name="gender" class="fi" required>
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                    <div class="validation-message gender-error">Please select gender</div>
+                                </div>
+                                <div>
+                                    <div class="section-label">Fund Type</div>
+                                    <select name="fund_type" class="fi" required>
+                                        <option value="">Select Fund Type</option>
+                                        <option value="PHIC">PHIC</option>
+                                        <option value="PCSO">PCSO</option>
+                                        <option value="DSWD">DSWD</option>
+                                        <option value="MAIP">MAIP</option>
+                                        <option value="OP-SCPF">OP-SCPF</option>
+                                        <option value="OTHERS">OTHERS</option>
+                                    </select>
+                                    <div class="validation-message fund_type-error">Please select fund type</div>
+                                </div>
+                                <div>
+                                    <div class="section-label">Date</div>
+                                    <input type="date" name="date" class="fi" required>
+                                    <div class="validation-message date-error">Please select a date</div>
+                                </div>
+                                <div class="flex items-center gap-x-6 md:col-span-2">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" name="is_pregnant" value="1" class="h-4 w-4 rounded accent-amber-600">
+                                        <span style="font-size:13.5px;color:#4a4340;">Is Pregnant?</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" name="is_pwd" value="1" class="h-4 w-4 rounded accent-amber-600">
+                                        <span style="font-size:13.5px;color:#4a4340;">Is PWD?</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hospital Charges -->
+                        <div class="form-section">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:18px;color:#1a1410;">
+                                    <i class="fas fa-file-invoice-dollar mr-2 text-green-500"></i>Hospital Charges
+                                </h3>
+                                <button type="button" id="addCharge" class="btn btn-dark" style="font-size:12.5px;padding:7px 14px;">
+                                    <i class="fas fa-plus-circle"></i>Add Charge
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto" style="border:1px solid #ede8e2;border-radius:10px;">
+                                <table class="w-full charge-table" style="border-collapse:separate;border-spacing:0;">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align:left;min-width:180px;">Service</th>
+                                            <th style="min-width:110px;">Amount</th>
+                                            <th style="min-width:110px;">Discount</th>
+                                            <th style="min-width:130px;">PhilHealth Rate</th>
+                                            <th style="min-width:110px;">Amount Due</th>
+                                            <th style="width:52px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="chargesTable">
+                                        <tr class="charge-row">
+                                            <td>
+                                                <select name="service[]" class="fi" style="min-width:160px;" required>
+                                                    <option value="">Select Service</option>
+                                                    <option>Drugs and Medicines</option><option>Medicines</option>
+                                                    <option>Laboratory</option><option>Medical Supplies</option>
+                                                    <option>X-ray</option><option>ECG</option>
+                                                    <option>CT Scan</option><option>Ultrasound</option>
+                                                    <option>Oxygen</option><option value="Rnb">Room and Board (R&amp;B)</option>
+                                                    <option value="OR/DR">OR / DR</option><option>Diagnostic</option>
+                                                    <option>Implant</option><option>Epoetin</option>
+                                                    <option>Hospital Bill</option><option>Hemodialysis Sessions</option>
+                                                    <option>Others</option>
+                                                </select>
+                                                <div class="validation-message service-error">Select a service</div>
+                                            </td>
+                                            <td><input type="number" step="0.01" name="amount[]" class="fi charge-amount" placeholder="0.00" required></td>
+                                            <td><input type="number" step="0.01" name="discount[]" class="fi charge-discount" placeholder="0.00"></td>
+                                            <td><input type="number" step="0.01" name="philhealth[]" class="fi charge-philhealth" placeholder="0.00"></td>
+                                            <td><input type="text" name="amount_due[]" class="fi charge-due" value="0.00" readonly style="background:#f8f6f3;color:#6b6259;font-family:'EB Garamond',Georgia,serif;font-size:14px;"></td>
+                                            <td style="text-align:center;">
+                                                <button type="button" class="remove-row" style="width:30px;height:30px;border-radius:8px;border:none;background:#fef2f2;color:#dc2626;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:auto;">
+                                                    <i class="fas fa-trash" style="font-size:11px;"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Summary of Charges -->
+                        <div class="form-section">
+                            <h3 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:18px;color:#1a1410;margin-bottom:14px;">
+                                <i class="fas fa-calculator mr-2 text-purple-400"></i>Summary of Charges
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="summary-side accent">
+                                    <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#9b8f87;margin-bottom:12px;">Additional Charges</p>
+                                    <div class="space-y-3">
+                                        <div><div class="section-label">Non-PHF Meds</div><input type="number" step="0.01" name="non_phf_meds" class="fi" placeholder="0.00" required value="0"></div>
+                                        <div><div class="section-label">Hemodialysis Treatment</div><input type="number" step="0.01" name="hemodialysis" class="fi" placeholder="0.00" required value="0"></div>
+                                        <div><div class="section-label">Implant</div><input type="number" step="0.01" name="implant" class="fi" placeholder="0.00" required value="0"></div>
+                                    </div>
+                                </div>
+                                <div class="summary-side">
+                                    <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#9b8f87;margin-bottom:12px;">Total Calculation</p>
+                                    <div style="font-size:13px;color:#6b6259;display:flex;flex-direction:column;gap:8px;">
+                                        <div style="display:flex;justify-content:space-between;"><span>Hospital Subtotal</span><span style="font-family:'EB Garamond',Georgia,serif;font-size:15px;color:#1a1410;" id="hospitalSubtotal">0.00</span></div>
+                                        <div style="display:flex;justify-content:space-between;"><span>Additional Charges</span><span style="font-family:'EB Garamond',Georgia,serif;font-size:15px;color:#1a1410;" id="additionalCharges">0.00</span></div>
+                                        <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #ede8e2;"><span>Total Discounts</span><span style="font-family:'EB Garamond',Georgia,serif;font-size:15px;color:#dc2626;" id="totalDiscounts">0.00</span></div>
+                                        <div style="display:flex;justify-content:space-between;"><span>PhilHealth Deductions</span><span style="font-family:'EB Garamond',Georgia,serif;font-size:15px;color:#1a7a42;" id="philhealthDeductions">0.00</span></div>
+                                    </div>
+                                    <div class="total-display">
+                                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                                            <span style="font-size:13px;font-weight:600;color:#c4b8ae;">Total Amount Due</span>
+                                            <span class="amount" id="totalDue">0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-2">
+                            <button type="reset" id="resetForm" class="btn btn-ghost"><i class="fas fa-redo"></i>Reset Form</button>
+                            <button type="button" id="saveBill" class="btn btn-green"><i class="fas fa-save"></i>Save Billing Record</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="recordsTab" class="tab-content mt-4">
+                <div class="table-card">
+                    <div class="table-card-header">
+                        <h2 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:22px;color:#fff;margin-bottom:3px;">Active Billing Records</h2>
+                        <p style="font-size:12.5px;color:#9b9189;">View and manage active patient records</p>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex gap-3 mb-5">
+                            <div class="search-wrap flex-1">
+                                <input type="text" id="searchActiveRecords" class="fi" placeholder="Search patient name or hospital number…">
+                                <i class="fas fa-search search-icon"></i>
+                            </div>
+                            <button id="deleteAllBtn" class="btn btn-red"><i class="fas fa-trash"></i>Delete All</button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full record-table" style="border-collapse:separate;border-spacing:0;">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th><th>Patient Name</th><th>Hospital #</th>
+                                        <th>Confinement</th><th>Ward</th><th>Total Due</th>
+                                        <th>Created At</th><th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activeRecordsTable">
+                                    <% if (records.length === 0) { %>
+                                    <tr><td colspan="8" style="text-align:center;padding:40px 14px;color:#9b8f87;">
+                                        <i class="fas fa-file-invoice" style="font-size:32px;display:block;margin-bottom:10px;color:#ede8e2;"></i>
+                                        No active billing records · Create one in the <strong>Create Bill</strong> tab
+                                    </td></tr>
+                                    <% } else { records.forEach(record => { %>
+                                    <tr class="record-row" data-id="<%= record.id %>">
+                                        <td style="color:#9b8f87;font-size:12px;">#<%= record.id %></td>
+                                        <td style="font-weight:600;color:#1a1410;"><%= record.name %></td>
+                                        <td style="color:#6b6259;"><%= record.hospital_number %></td>
+                                        <td style="font-size:12px;color:#6b6259;">
+                                            <%= new Date(record.confinement_start).toLocaleDateString() %> to <%= new Date(record.confinement_end).toLocaleDateString() %>
+                                        </td>
+                                        <td><span class="ward-badge <%= record.ward==='Inpatient'?'ward-ip':record.ward==='Outpatient'?'ward-op':'ward-er' %>"><%= record.ward %></span></td>
+                                        <td class="num" style="color:#1a1410;font-weight:600;"><%= record.total_due.toFixed(2) %></td>
+                                        <td style="font-size:12px;color:#9b8f87;"><%= new Date(record.created_at).toLocaleDateString() %></td>
+                                        <td>
+                                            <div style="display:flex;gap:5px;">
+                                                <button class="pdf-btn btn btn-green has-tip" style="padding:6px 10px;font-size:12px;"
+                                                    data-id="<%= record.id %>" data-name="<%= record.name %>"
+                                                    data-hospital="<%= record.hospital_number %>" data-ward="<%= record.ward %>"
+                                                    data-total="<%= record.total_due.toFixed(2) %>"
+                                                    data-url="/generate-pdf/<%= record.id %>">
+                                                    <i class="fas fa-file-pdf"></i>PDF
+                                                </button>
+                                                <button class="print-btn btn btn-blue has-tip" style="padding:6px 10px;font-size:12px;"
+                                                    data-id="<%= record.id %>" data-name="<%= record.name %>"
+                                                    data-hospital="<%= record.hospital_number %>" data-ward="<%= record.ward %>"
+                                                    data-total="<%= record.total_due.toFixed(2) %>"
+                                                    data-url="/print-direct/<%= record.id %>">
+                                                    <i class="fas fa-print"></i>Print
+                                                </button>
+                                                <button class="soft-delete-btn btn btn-yellow has-tip" style="padding:6px 10px;font-size:12px;"
+                                                    data-id="<%= record.id %>" data-name="<%= record.name %>"
+                                                    data-hospital="<%= record.hospital_number %>" data-ward="<%= record.ward %>"
+                                                    data-total="<%= record.total_due.toFixed(2) %>">
+                                                    <i class="fas fa-trash"></i>Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }) } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="deletedTab" class="tab-content mt-4">
+                <div class="table-card">
+                    <div class="table-card-header yellow">
+                        <h2 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:22px;color:#fff;margin-bottom:3px;">Deleted Records (Trash)</h2>
+                        <p style="font-size:12.5px;color:rgba(255,255,255,0.7);">Restore or permanently delete records</p>
+                    </div>
+                    <div class="p-5">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                            <p style="font-size:12.5px;color:#9b8f87;"><i class="fas fa-info-circle mr-2 text-amber-500"></i>Records in trash can be restored or deleted permanently.</p>
+                            <div style="display:flex;gap:8px;">
+                                <button id="restoreAllBtn" class="btn btn-green" <% if (!deletedRecords || deletedRecords.length === 0) { %>disabled<% } %>>
+                                    <i class="fas fa-undo"></i>Restore All
+                                </button>
+                                <button id="emptyTrashBtn" class="btn btn-red" <% if (!deletedRecords || deletedRecords.length === 0) { %>disabled<% } %>>
+                                    <i class="fas fa-trash-alt"></i>Empty Trash
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="search-wrap mb-4">
+                            <input type="text" id="searchDeletedRecords" class="fi" placeholder="Search deleted records…">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full record-table">
+                                <thead>
+                                    <tr><th>ID</th><th>Patient Name</th><th>Hospital #</th><th>Ward</th><th>Total Due</th><th>Deleted On</th><th>Actions</th></tr>
+                                </thead>
+                                <tbody id="deletedRecordsTable">
+                                    <% if (!deletedRecords || deletedRecords.length === 0) { %>
+                                    <tr><td colspan="7" style="text-align:center;padding:40px 14px;color:#9b8f87;">
+                                        <i class="fas fa-trash-alt" style="font-size:32px;display:block;margin-bottom:10px;color:#ede8e2;"></i>
+                                        Trash is empty
+                                    </td></tr>
+                                    <% } else { deletedRecords.forEach(record => { %>
+                                    <tr class="deleted-row" data-id="<%= record.id %>">
+                                        <td style="color:#9b8f87;font-size:12px;">#<%= record.id %></td>
+                                        <td style="font-weight:600;color:#1a1410;"><%= record.name %></td>
+                                        <td style="color:#6b6259;"><%= record.hospital_number %></td>
+                                        <td><span class="ward-badge <%= record.ward==='Inpatient'?'ward-ip':record.ward==='Outpatient'?'ward-op':'ward-er' %>"><%= record.ward %></span></td>
+                                        <td class="num" style="color:#1a1410;font-weight:600;"><%= record.total_due.toFixed(2) %></td>
+                                        <td style="font-size:12px;color:#9b8f87;"><%= record.deleted_at || 'N/A' %></td>
+                                        <td>
+                                            <div style="display:flex;gap:5px;">
+                                                <button class="pdf-btn btn btn-green" style="padding:6px 10px;font-size:12px;"
+                                                    data-id="<%= record.id %>" data-name="<%= record.name %>"
+                                                    data-hospital="<%= record.hospital_number %>" data-ward="<%= record.ward %>"
+                                                    data-total="<%= record.total_due.toFixed(2) %>"
+                                                    data-url="/generate-pdf/<%= record.id %>">
+                                                    <i class="fas fa-file-pdf"></i>PDF
+                                                </button>
+                                                <button class="print-btn btn btn-blue" style="padding:6px 10px;font-size:12px;"
+                                                    data-id="<%= record.id %>" data-name="<%= record.name %>"
+                                                    data-hospital="<%= record.hospital_number %>" data-ward="<%= record.ward %>"
+                                                    data-total="<%= record.total_due.toFixed(2) %>"
+                                                    data-url="/print-direct/<%= record.id %>">
+                                                    <i class="fas fa-print"></i>Print
+                                                </button>
+                                                <button class="restore-btn btn btn-green" style="padding:6px 10px;font-size:12px;"
+                                                    data-id="<%= record.id %>" data-name="<%= record.name %>"
+                                                    data-hospital="<%= record.hospital_number %>" data-ward="<%= record.ward %>"
+                                                    data-total="<%= record.total_due.toFixed(2) %>">
+                                                    <i class="fas fa-undo"></i>Restore
+                                                </button>
+                                                <button class="permanent-delete-btn btn btn-red" style="padding:6px 10px;font-size:12px;background:#991b1b;"
+                                                    data-id="<%= record.id %>" data-name="<%= record.name %>"
+                                                    data-hospital="<%= record.hospital_number %>" data-ward="<%= record.ward %>"
+                                                    data-total="<%= record.total_due.toFixed(2) %>">
+                                                    <i class="fas fa-trash-alt"></i>Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }) } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    // Helper functions
+    function showToast(message, type = 'success') {
+        const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', info:'fa-info-circle', warning:'fa-exclamation-triangle' };
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.innerHTML = `<i class="fas ${icons[type]||'fa-info-circle'}"></i><span style="flex:1;">${message}</span><button class="toast-close">&times;</button>`;
+        document.getElementById('toastContainer').appendChild(t);
+        setTimeout(() => t.classList.add('show'), 10);
+        t.querySelector('.toast-close').addEventListener('click', () => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); });
+        setTimeout(() => { if (t.parentNode) { t.classList.remove('show'); setTimeout(() => t.remove(), 300); } }, 5000);
+    }
+
+    function showLoading() { document.getElementById('loadingOverlay').classList.add('active'); }
+    function hideLoading() { document.getElementById('loadingOverlay').classList.remove('active'); }
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+        document.body.style.overflow = 'auto';
+        if (id === 'permanentDeleteModal') { 
+            const input = document.getElementById('deleteConfirmation');
+            if(input) { input.value = ''; document.getElementById('confirmPermanentDelete').disabled = true; }
+        }
+        if (id === 'emptyTrashModal') { 
+            const input = document.getElementById('emptyTrashConfirmation');
+            if(input) { input.value = ''; document.getElementById('confirmEmptyTrash').disabled = true; }
+        }
+    }
+
+    function updateTabBadges() {
+        const activeCount = document.querySelectorAll('#activeRecordsTable .record-row:not([style*="display: none"])').length;
+        const deletedCount = document.querySelectorAll('#deletedRecordsTable .deleted-row:not([style*="display: none"])').length;
+        
+        const activeBadge = document.getElementById('activeCountBadge');
+        const deletedBadge = document.getElementById('deletedCountBadge');
+        
+        if (activeBadge) {
+            activeBadge.textContent = activeCount;
+            if (activeCount === 0) activeBadge.style.display = 'none';
+            else activeBadge.style.display = 'inline-flex';
+        }
+        if (deletedBadge) {
+            deletedBadge.textContent = deletedCount;
+            if (deletedCount === 0) deletedBadge.style.display = 'none';
+            else deletedBadge.style.display = 'inline-flex';
+        }
+    }
+
+    function switchToTab(tabName) {
+        const tabButton = document.querySelector(`.tab-button[data-tab="${tabName}"]`);
+        if (tabButton) tabButton.click();
+    }
+
+    function reloadPageData() { location.reload(); }
+
+    function buildDetailHTML(name, hospital, ward, total) {
+        return `<div class="modal-detail-row"><span class="lbl">Patient Name</span><span class="val">${name}</span></div>
+                <div class="modal-detail-row"><span class="lbl">Hospital #</span><span class="val">${hospital}</span></div>
+                <div class="modal-detail-row"><span class="lbl">Ward</span><span class="val">${ward}</span></div>
+                <div class="modal-detail-row"><span class="lbl">Total Due</span><span class="val">${total}</span></div>`;
+    }
+
+    // Calculate totals
+    function calculateTotals() {
+        let hospitalSubtotal = 0, totalDiscounts = 0, philhealthDeductions = 0;
+        document.querySelectorAll('.charge-row').forEach(row => {
+            const aI = row.querySelector('.charge-amount');
+            const dI = row.querySelector('.charge-discount');
+            const pI = row.querySelector('.charge-philhealth');
+            let a = parseFloat(aI.value) || 0;
+            let d = parseFloat(dI.value) || 0;
+            let p = parseFloat(pI.value) || 0;
+            if (a > 250000) { a = 250000; aI.value = 250000; }
+            d = Math.max(d, 0); p = Math.max(p, 0);
+            if (d + p > a) { p = Math.max(0, p - ((d + p) - a)); if(pI) pI.value = p.toFixed(2); }
+            const dueEl = row.querySelector('.charge-due');
+            if(dueEl) dueEl.value = Math.max(0, a - d - p).toFixed(2);
+            hospitalSubtotal += a; totalDiscounts += d; philhealthDeductions += p;
+        });
+        const nonPHF = parseFloat(document.querySelector('[name="non_phf_meds"]')?.value) || 0;
+        const hemo = parseFloat(document.querySelector('[name="hemodialysis"]')?.value) || 0;
+        const impl = parseFloat(document.querySelector('[name="implant"]')?.value) || 0;
+        const add = nonPHF + hemo + impl;
+        
+        const subtotalEl = document.getElementById('hospitalSubtotal');
+        if(subtotalEl) subtotalEl.textContent = hospitalSubtotal.toFixed(2);
+        const addEl = document.getElementById('additionalCharges');
+        if(addEl) addEl.textContent = add.toFixed(2);
+        const discountEl = document.getElementById('totalDiscounts');
+        if(discountEl) discountEl.textContent = totalDiscounts.toFixed(2);
+        const philEl = document.getElementById('philhealthDeductions');
+        if(philEl) philEl.textContent = philhealthDeductions.toFixed(2);
+        const totalEl = document.getElementById('totalDue');
+        if(totalEl) totalEl.textContent = Math.max(0, hospitalSubtotal + add - totalDiscounts - philhealthDeductions).toFixed(2);
+    }
+
+    function makeChargeRow() {
+        const serviceOptions = `<option value="">Select Service</option>
+            <option>Drugs and Medicines</option><option>Medicines</option>
+            <option>Laboratory</option><option>Medical Supplies</option>
+            <option>X-ray</option><option>ECG</option><option>CT Scan</option>
+            <option>Ultrasound</option><option>Oxygen</option>
+            <option value="Rnb">Room and Board (R&amp;B)</option>
+            <option value="OR/DR">OR / DR</option><option>Diagnostic</option>
+            <option>Implant</option><option>Epoetin</option>
+            <option>Hospital Bill</option><option>Hemodialysis Sessions</option><option>Others</option>`;
+        const tr = document.createElement('tr');
+        tr.className = 'charge-row';
+        tr.innerHTML = `
+            <td><select name="service[]" class="fi" style="min-width:160px;" required>${serviceOptions}</select></td>
+            <td><input type="number" step="0.01" name="amount[]" class="fi charge-amount" placeholder="0.00" required></td>
+            <td><input type="number" step="0.01" name="discount[]" class="fi charge-discount" placeholder="0.00"></td>
+            <td><input type="number" step="0.01" name="philhealth[]" class="fi charge-philhealth" placeholder="0.00"></td>
+            <td><input type="text" name="amount_due[]" class="fi charge-due" value="0.00" readonly style="background:#f8f6f3;"></td>
+            <td style="text-align:center;"><button type="button" class="remove-row" style="width:30px;height:30px;border-radius:8px;border:none;background:#fef2f2;color:#dc2626;cursor:pointer;"><i class="fas fa-trash"></i></button></td>`;
+        tr.querySelectorAll('input').forEach(i => i.addEventListener('input', calculateTotals));
+        const rmBtn = tr.querySelector('.remove-row');
+        if(rmBtn) rmBtn.addEventListener('click', () => { tr.remove(); calculateTotals(); });
+        return tr;
+    }
+
+    function updateSaveModalSummary() {
+        const patientName = document.getElementById('patientName')?.value || '--';
+        const hospitalNumber = document.getElementById('hospitalNumber')?.value || '--';
+        const ward = document.getElementById('patientWard')?.value || '--';
+        const confStart = document.getElementById('confStart')?.value || '';
+        const confEnd = document.getElementById('confEnd')?.value || '';
+        const totalDue = document.getElementById('totalDue')?.textContent || '0.00';
+        
+        const summaryName = document.getElementById('summaryPatientName');
+        if(summaryName) summaryName.textContent = patientName;
+        const summaryHospital = document.getElementById('summaryHospitalNumber');
+        if(summaryHospital) summaryHospital.textContent = hospitalNumber;
+        const summaryWard = document.getElementById('SummaryWard');
+        if(summaryWard) summaryWard.textContent = ward;
+        const summaryConf = document.getElementById('SummaryConfinement');
+        if(summaryConf) summaryConf.textContent = confStart && confEnd ? `${confStart} to ${confEnd}` : '--';
+        const summaryTotal = document.getElementById('SummaryTotalDue');
+        if(summaryTotal) summaryTotal.textContent = `₱${totalDue}`;
+        
+        const charges = [];
+        document.querySelectorAll('.charge-row').forEach(row => {
+            const service = row.querySelector('[name="service[]"]')?.value || 'Unknown';
+            const amount = row.querySelector('.charge-amount')?.value || '0';
+            if (service && parseFloat(amount) > 0) {
+                charges.push(`<div class="charge-item"><span>${service}</span><span>₱${parseFloat(amount).toFixed(2)}</span></div>`);
+            }
+        });
+        const chargesPreview = document.getElementById('chargesPreview');
+        if(chargesPreview) {
+            if (charges.length > 0) chargesPreview.innerHTML = `<div style="font-size:11px; font-weight:600; margin-bottom:6px;">Charges:</div>${charges.join('')}`;
+            else chargesPreview.innerHTML = '<div style="font-size:11px; color:#9b8f87;">No charges added yet</div>';
+        }
+    }
+
+    // Print function - opens print dialog directly using window.open
+    function printRecord(url) {
+        showLoading();
+        const printWindow = window.open(url, '_blank', 'noopener');
+        if (printWindow) {
+            closeModal('printConfirmModal');
+            setTimeout(hideLoading, 300);
+        } else {
+            showToast('Please allow popups to print', 'error');
+            hideLoading();
+        }
+    }
+
+    // PDF download function
+    async function downloadPDF(url, name) {
+        showLoading();
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `billing_record_${name.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(downloadUrl);
+            showToast('PDF downloaded successfully!', 'success');
+            closeModal('pdfConfirmModal');
+        } catch (error) {
+            console.error('Download error:', error);
+            showToast('Error downloading PDF. Please try again.', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Async CRUD operations
+    async function softDeleteRecord(id) {
+        showLoading();
+        try {
+            const res = await fetch(`/admin/soft-delete/${id}`, { method: 'DELETE', headers: {'Content-Type':'application/json'} });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                closeModal('softDeleteModal');
+                reloadPageData();
+            } else showToast(data.message, 'error');
+        } catch { showToast('Error moving record to trash', 'error'); }
+        finally { hideLoading(); }
+    }
+
+    async function restoreRecord(id) {
+        showLoading();
+        try {
+            const res = await fetch(`/admin/restore/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'} });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                closeModal('restoreModal');
+                reloadPageData();
+            } else showToast(data.message, 'error');
+        } catch { showToast('Error restoring record', 'error'); }
+        finally { hideLoading(); }
+    }
+
+    async function permanentDeleteRecord(id) {
+        showLoading();
+        try {
+            const res = await fetch(`/admin/permanent-delete/${id}`, { method: 'DELETE', headers: {'Content-Type':'application/json'} });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                closeModal('permanentDeleteModal');
+                reloadPageData();
+            } else showToast(data.message, 'error');
+        } catch { showToast('Error permanently deleting record', 'error'); }
+        finally { hideLoading(); }
+    }
+
+    async function emptyTrash() {
+        showLoading();
+        try {
+            const res = await fetch('/admin/empty-trash', { method: 'DELETE', headers: {'Content-Type':'application/json'} });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                closeModal('emptyTrashModal');
+                reloadPageData();
+            } else showToast(data.message, 'error');
+        } catch { showToast('Error emptying trash', 'error'); }
+        finally { hideLoading(); }
+    }
+
+    async function restoreAllRecords() {
+        showLoading();
+        const ids = [...document.querySelectorAll('#deletedRecordsTable .deleted-row')].map(r => r.dataset.id);
+        if (!ids.length) { showToast('No records to restore', 'info'); hideLoading(); return; }
+        try {
+            for (const id of ids) await fetch(`/admin/restore/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'} });
+            showToast(`Restored ${ids.length} records`, 'success');
+            reloadPageData();
+        } catch { showToast('Error restoring all records', 'error'); }
+        finally { hideLoading(); }
+    }
+
+    async function deleteAllRecords() {
+        showLoading();
+        const ids = [...document.querySelectorAll('#activeRecordsTable .record-row')].map(r => r.dataset.id);
+        if (!ids.length) { showToast('No active records to delete', 'info'); hideLoading(); return; }
+        try {
+            for (const id of ids) await fetch(`/admin/soft-delete/${id}`, { method: 'DELETE', headers: {'Content-Type':'application/json'} });
+            showToast(`Moved ${ids.length} records to trash`, 'success');
+            reloadPageData();
+        } catch { showToast('Error deleting all records', 'error'); }
+        finally { hideLoading(); }
+    }
+
+    // DOM Ready
+    document.addEventListener('DOMContentLoaded', () => {
+        // Tab switching
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab + 'Tab').classList.add('active');
+                updateTabBadges();
+            });
+        });
+
+        // Add charge row
+        const addChargeBtn = document.getElementById('addCharge');
+        if(addChargeBtn) {
+            addChargeBtn.addEventListener('click', () => {
+                document.getElementById('chargesTable').appendChild(makeChargeRow());
+            });
+        }
+
+        // Remove row delegation
+        document.addEventListener('click', e => {
+            if (e.target.closest('.remove-row')) {
+                e.target.closest('tr').remove();
+                calculateTotals();
+            }
+        });
+
+        // Input listeners
+        document.querySelectorAll('[name="non_phf_meds"],[name="hemodialysis"],[name="implant"]').forEach(i => i.addEventListener('input', calculateTotals));
+        document.querySelectorAll('.charge-amount,.charge-discount,.charge-philhealth').forEach(i => i.addEventListener('input', calculateTotals));
+        calculateTotals();
+
+        // Reset form
+        const resetBtn = document.getElementById('resetForm');
+        if(resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                document.querySelectorAll('.validation-error').forEach(el => el.classList.remove('validation-error'));
+                document.querySelectorAll('.validation-message').forEach(el => el.style.display = 'none');
+                const tb = document.getElementById('chargesTable');
+                while (tb.children.length > 1) tb.removeChild(tb.lastChild);
+                const fr = tb.querySelector('.charge-row');
+                if(fr) {
+                    if(fr.querySelector('select')) fr.querySelector('select').selectedIndex = 0;
+                    fr.querySelectorAll('input').forEach(i => { if (i.name !== 'amount_due[]') i.value = ''; });
+                    const due = fr.querySelector('.charge-due');
+                    if(due) due.value = '0.00';
+                }
+                calculateTotals();
+                showToast('Form has been reset', 'info');
+            });
+        }
+
+        // Save bill - show confirmation modal
+        const saveBtn = document.getElementById('saveBill');
+        if(saveBtn) {
+            saveBtn.addEventListener('click', () => {
+                let valid = true;
+                document.querySelectorAll('#billingForm [required]').forEach(f => {
+                    if (!f.value) valid = false;
+                });
+                if (!valid) { showToast('Please fill all required fields', 'error'); return; }
+                if (!document.querySelectorAll('.charge-row').length) { showToast('Please add at least one charge item', 'error'); return; }
+                updateSaveModalSummary();
+                openModal('saveBillConfirmModal');
+            });
+        }
+
+        // Confirm save
+        const confirmSaveBtn = document.getElementById('confirmSaveBill');
+        if(confirmSaveBtn) {
+            confirmSaveBtn.addEventListener('click', async () => {
+                closeModal('saveBillConfirmModal');
+                showLoading();
+                try {
+                    const formData = new FormData(document.getElementById('billingForm'));
+                    const services = [];
+                    document.querySelectorAll('.charge-row').forEach(row => {
+                        services.push({
+                            service: row.querySelector('[name="service[]"]')?.value,
+                            amount: row.querySelector('[name="amount[]"]')?.value,
+                            discount: row.querySelector('[name="discount[]"]')?.value,
+                            philhealth: row.querySelector('[name="philhealth[]"]')?.value,
+                            amount_due: row.querySelector('[name="amount_due[]"]')?.value
+                        });
+                    });
+                    formData.append('services_json', JSON.stringify(services));
+                    const result = await (await fetch('/submit-main-form', { method: 'POST', body: formData })).json();
+                    if (result.message) {
+                        showToast('Billing record saved successfully!', 'success');
+                        document.getElementById('billingForm').reset();
+                        calculateTotals();
+                        setTimeout(() => {
+                            switchToTab('records');
+                            reloadPageData();
+                        }, 1500);
+                    } else throw new Error(result.error || 'Failed to save record');
+                } catch (err) { showToast(`Error: ${err.message}`, 'error'); }
+                finally { hideLoading(); }
+            });
+        }
+
+        // PDF button - open modal then download
+        document.addEventListener('click', e => {
+            const pdfBtn = e.target.closest('.pdf-btn');
+            if (pdfBtn) {
+                e.preventDefault();
+                document.getElementById('pdfRecordDetails').innerHTML = buildDetailHTML(pdfBtn.dataset.name, pdfBtn.dataset.hospital, pdfBtn.dataset.ward, pdfBtn.dataset.total);
+                const confirmBtn = document.getElementById('confirmPdfBtn');
+                if(confirmBtn) {
+                    confirmBtn.onclick = () => downloadPDF(pdfBtn.dataset.url, pdfBtn.dataset.name);
+                }
+                openModal('pdfConfirmModal');
+                return;
+            }
+            
+            // Print button - open modal then print directly
+            const printBtn = e.target.closest('.print-btn');
+            if (printBtn) {
+                e.preventDefault();
+                document.getElementById('printRecordDetails').innerHTML = buildDetailHTML(printBtn.dataset.name, printBtn.dataset.hospital, printBtn.dataset.ward, printBtn.dataset.total);
+                const confirmPrintBtn = document.getElementById('confirmPrintBtn');
+                if(confirmPrintBtn) {
+                    confirmPrintBtn.onclick = () => printRecord(printBtn.dataset.url);
+                }
+                openModal('printConfirmModal');
+                return;
+            }
+            
+            const softDel = e.target.closest('.soft-delete-btn');
+            if (softDel) {
+                document.getElementById('softDeleteRecordDetails').innerHTML = buildDetailHTML(softDel.dataset.name, softDel.dataset.hospital, softDel.dataset.ward, softDel.dataset.total);
+                const confirmBtn = document.getElementById('confirmSoftDelete');
+                if(confirmBtn) confirmBtn.onclick = () => softDeleteRecord(softDel.dataset.id);
+                openModal('softDeleteModal');
+                return;
+            }
+            const restoreBtn = e.target.closest('.restore-btn');
+            if (restoreBtn) {
+                document.getElementById('restoreRecordDetails').innerHTML = buildDetailHTML(restoreBtn.dataset.name, restoreBtn.dataset.hospital, restoreBtn.dataset.ward, restoreBtn.dataset.total);
+                const confirmBtn = document.getElementById('confirmRestore');
+                if(confirmBtn) confirmBtn.onclick = () => restoreRecord(restoreBtn.dataset.id);
+                openModal('restoreModal');
+                return;
+            }
+            const permDel = e.target.closest('.permanent-delete-btn');
+            if (permDel) {
+                document.getElementById('permanentDeleteRecordDetails').innerHTML = buildDetailHTML(permDel.dataset.name, permDel.dataset.hospital, permDel.dataset.ward, permDel.dataset.total);
+                const confirmBtn = document.getElementById('confirmPermanentDelete');
+                if(confirmBtn) confirmBtn.onclick = () => permanentDeleteRecord(permDel.dataset.id);
+                openModal('permanentDeleteModal');
+                return;
+            }
+        });
+
+        // Empty trash
+        const emptyTrashBtn = document.getElementById('emptyTrashBtn');
+        if(emptyTrashBtn) {
+            emptyTrashBtn.addEventListener('click', () => {
+                const count = document.querySelectorAll('#deletedRecordsTable .deleted-row').length;
+                const trashCount = document.getElementById('trashCount');
+                if(trashCount) trashCount.textContent = count;
+                openModal('emptyTrashModal');
+            });
+        }
+        const confirmEmpty = document.getElementById('confirmEmptyTrash');
+        if(confirmEmpty) confirmEmpty.onclick = emptyTrash;
+
+        // Restore all
+        const restoreAll = document.getElementById('restoreAllBtn');
+        if(restoreAll) restoreAll.addEventListener('click', restoreAllRecords);
+
+        // Delete all active
+        const deleteAll = document.getElementById('deleteAllBtn');
+        if(deleteAll) deleteAll.addEventListener('click', deleteAllRecords);
+
+        // Confirmation inputs
+        const delConf = document.getElementById('deleteConfirmation');
+        if(delConf) {
+            delConf.addEventListener('input', function() {
+                const confirmBtn = document.getElementById('confirmPermanentDelete');
+                if(confirmBtn) confirmBtn.disabled = this.value !== 'DELETE';
+            });
+        }
+        const emptyConf = document.getElementById('emptyTrashConfirmation');
+        if(emptyConf) {
+            emptyConf.addEventListener('input', function() {
+                const confirmBtn = document.getElementById('confirmEmptyTrash');
+                if(confirmBtn) confirmBtn.disabled = this.value !== 'EMPTY TRASH';
+            });
+        }
+
+        // Search functionality
+        const searchActive = document.getElementById('searchActiveRecords');
+        if(searchActive) {
+            searchActive.addEventListener('input', function() {
+                const q = this.value.toLowerCase();
+                document.querySelectorAll('#activeRecordsTable .record-row').forEach(r => {
+                    const show = r.cells[1]?.textContent.toLowerCase().includes(q) || r.cells[2]?.textContent.toLowerCase().includes(q);
+                    r.style.display = show ? '' : 'none';
+                });
+                updateTabBadges();
+            });
+        }
+        const searchDeleted = document.getElementById('searchDeletedRecords');
+        if(searchDeleted) {
+            searchDeleted.addEventListener('input', function() {
+                const q = this.value.toLowerCase();
+                document.querySelectorAll('#deletedRecordsTable .deleted-row').forEach(r => {
+                    const show = r.cells[1]?.textContent.toLowerCase().includes(q) || r.cells[2]?.textContent.toLowerCase().includes(q);
+                    r.style.display = show ? '' : 'none';
+                });
+                updateTabBadges();
+            });
+        }
+
+        updateTabBadges();
+    });
+
+    // Modal close on overlay click
+    document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); }));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal.active').forEach(m => closeModal(m.id)); });
+
+    // Sidebar toggle
+    (() => {
+        const key = 'adminSidebarCollapsed';
+        if (localStorage.getItem(key) === '1') document.body.classList.add('sidebar-collapsed');
+        document.querySelectorAll('.sidebar-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.body.classList.toggle('sidebar-collapsed');
+                localStorage.setItem(key, document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+            });
+        });
+    })();
+    </script>
+</body>
+</html>

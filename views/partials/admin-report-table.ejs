@@ -1,0 +1,520 @@
+<!-- Gradient Header -->
+<div class="flex justify-between items-center mb-4 bg-gradient-to-r from-blue-900 via-cyan-800 to-green-700 px-6 py-4 rounded-lg shadow-md">
+  <h2 class="text-2xl font-semibold text-white">Statement Of Account</h2>
+  <div class="flex space-x-3">
+    <!-- Download Excel -->
+    <button id="downloadBtn" class="bg-white text-green-700 hover:bg-green-100 px-4 py-2 rounded-lg flex items-center shadow disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition duration-200">
+      <i class="fas fa-download mr-2"></i> Excel
+    </button>
+    <!-- Print Table -->
+    <button id="printBtn" class="bg-white text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-lg flex items-center shadow disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition duration-200">
+      <i class="fas fa-print mr-2"></i> Print
+    </button>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="overflow-x-auto">
+  <table id="medicalTable" class="w-full bg-white shadow rounded-lg border border-gray-200">
+    <thead class="bg-gradient-to-r from-blue-700 via-cyan-600 to-green-500 text-white">
+      <tr>
+        <th class="p-4 text-left">Name Of Patient</th>
+        <th class="p-4 text-left">Age</th>
+        <th class="p-4 text-left">Address</th>
+        <th class="p-4 text-left">Ward</th>
+        <th class="p-4 text-left">Date</th>
+        <th class="p-4 text-left">R&B</th>
+        <th class="p-4 text-left">OR/DR</th>
+        <th class="p-4 text-left">Diagnostic Fee</th>
+        <th class="p-4 text-left">Laboratory Fee</th>
+        <th class="p-4 text-left">Medicines</th>
+        <th class="p-4 text-left">Medical Supplies</th>
+        <th class="p-4 text-left">Oxygen</th>
+        <th class="p-4 text-left">Implant</th>
+        <th class="p-4 text-left">Others</th>
+        <th class="p-4 text-left font-bold">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (patients.length === 0) { %>
+        <tr>
+          <td colspan="15" class="p-4 text-center text-gray-500">No records found. </td>
+        </tr>
+      <% } else { %>
+        <% patients.forEach(patient => { %>
+          <tr class="border-b hover:bg-gray-100 transition duration-150">
+            <td class="p-4"><%= patient.name %></td>
+            <td class="p-4"><%= patient.age %></td>
+            <td class="p-4"><%= patient.address %></td>
+            <td class="p-4"><%= patient.ward %></td>
+            <td class="p-4"><%= patient.date ? new Date(patient.date).toLocaleDateString() : '-' %></td>
+            <td class="p-4"><%= patient.rb %></td>
+            <td class="p-4"><%= patient.or_dr %></td>
+            <td class="p-4"><%= patient.diagnostic_fee %></td>
+            <td class="p-4"><%= patient.laboratory_fee %></td>
+            <td class="p-4"><%= patient.medicines %></td>
+            <td class="p-4"><%= patient.medical_supplies %></td>
+            <td class="p-4"><%= patient.oxygen %></td>
+            <td class="p-4"><%= patient.implant %></td>
+            <td class="p-4"><%= patient.others %></td>
+            <td class="p-4 font-bold text-green-600">₱<%= parseFloat(patient.total).toFixed(2) %></td>
+          </tr>
+        <% }); %>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- DOWNLOAD CONFIRMATION MODAL -->
+<div id="downloadModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm transition-all duration-300">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative transform transition-all duration-300 scale-95 opacity-0">
+    <!-- Icon -->
+    <div class="flex justify-center mb-4">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center animate-pulse">
+        <i class="fas fa-download text-green-600 text-2xl"></i>
+      </div>
+    </div>
+    
+    <h2 class="text-xl font-semibold mb-2 text-center text-gray-800">Download Report</h2>
+    <p class="text-gray-500 text-center mb-6">Are you sure you want to download this report? The file will be saved as Excel format.</p>
+    
+    <div class="flex justify-center gap-3">
+      <button onclick="closeDownloadModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 transition-all cursor-pointer font-medium">
+        Cancel
+      </button>
+      <button id="confirmDownloadBtn" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all cursor-pointer font-medium shadow-md hover:shadow-lg">
+        <i class="fas fa-download mr-2"></i> Download
+      </button>
+    </div>
+    
+    <!-- Close button -->
+    <button onclick="closeDownloadModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition-colors cursor-pointer">
+      <i class="fas fa-times text-xl"></i>
+    </button>
+  </div>
+</div>
+
+<!-- PRINT CONFIRMATION MODAL -->
+<div id="printModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm transition-all duration-300">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative transform transition-all duration-300 scale-95 opacity-0">
+    <!-- Icon -->
+    <div class="flex justify-center mb-4">
+      <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center animate-pulse">
+        <i class="fas fa-print text-blue-600 text-2xl"></i>
+      </div>
+    </div>
+    
+    <h2 class="text-xl font-semibold mb-2 text-center text-gray-800">Print Report</h2>
+    <p class="text-gray-500 text-center mb-6">Are you sure you want to print this report? A print dialog will open.</p>
+    
+    <div class="flex justify-center gap-3">
+      <button onclick="closePrintModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 transition-all cursor-pointer font-medium">
+        Cancel
+      </button>
+      <button id="confirmPrintBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all cursor-pointer font-medium shadow-md hover:shadow-lg">
+        <i class="fas fa-print mr-2"></i> Print
+      </button>
+    </div>
+    
+    <!-- Close button -->
+    <button onclick="closePrintModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition-colors cursor-pointer">
+      <i class="fas fa-times text-xl"></i>
+    </button>
+  </div>
+</div>
+
+<style>
+  /* Modal animation styles */
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9) translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .modal-show {
+    display: flex !important;
+    animation: modalFadeIn 0.3s ease-out;
+  }
+  
+  .modal-show .bg-white {
+    animation: modalSlideIn 0.3s ease-out forwards;
+  }
+  
+  /* Toast animation */
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+  
+  .toast-show {
+    animation: slideInRight 0.3s ease-out forwards;
+  }
+  
+  .toast-hide {
+    animation: slideOutRight 0.3s ease-out forwards;
+  }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+<script>
+  // Get patients data
+  let patients = <%- JSON.stringify(patients) %>;
+  const downloadBtn = document.getElementById('downloadBtn');
+  const printBtn = document.getElementById('printBtn');
+  
+  // Modal elements
+  const downloadModal = document.getElementById('downloadModal');
+  const printModal = document.getElementById('printModal');
+
+  // Function to check if table has data
+  function hasTableData() {
+    return patients && patients.length > 0;
+  }
+
+  // Function to update button states
+  function updateButtonStates() {
+    const hasData = hasTableData();
+    
+    if (!hasData) {
+      downloadBtn.disabled = true;
+      printBtn.disabled = true;
+      downloadBtn.title = "No records available for download";
+      printBtn.title = "No records available for printing";
+    } else {
+      downloadBtn.disabled = false;
+      printBtn.disabled = false;
+      downloadBtn.title = "Download as Excel";
+      printBtn.title = "Print report";
+    }
+  }
+
+  // Modal functions
+  function openDownloadModal() {
+    if (!hasTableData()) {
+      showToast("No records available for download. Please add data first.", "error");
+      return;
+    }
+    downloadModal.classList.remove('hidden');
+    downloadModal.classList.add('modal-show');
+    setTimeout(() => {
+      const modalContent = downloadModal.querySelector('.bg-white');
+      if (modalContent) {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+      }
+    }, 10);
+  }
+
+  function closeDownloadModal() {
+    downloadModal.classList.remove('modal-show');
+    downloadModal.classList.add('hidden');
+  }
+
+  function openPrintModal() {
+    if (!hasTableData()) {
+      showToast("No records available for printing. Please add data first.", "error");
+      return;
+    }
+    printModal.classList.remove('hidden');
+    printModal.classList.add('modal-show');
+    setTimeout(() => {
+      const modalContent = printModal.querySelector('.bg-white');
+      if (modalContent) {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+      }
+    }, 10);
+  }
+
+  function closePrintModal() {
+    printModal.classList.remove('modal-show');
+    printModal.classList.add('hidden');
+  }
+
+  // Toast notification function
+  function showToast(message, type = 'success') {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toastContainer';
+      toastContainer.className = 'fixed bottom-4 right-4 z-50 space-y-2';
+      document.body.appendChild(toastContainer);
+    }
+    
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+    const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+    
+    toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[280px] transform translate-x-full`;
+    toast.innerHTML = `<i class="fas ${icon} text-lg"></i> <span class="flex-1">${message}</span>`;
+    toastContainer.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+      toast.classList.remove('translate-x-full');
+      toast.classList.add('toast-show');
+    }, 10);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      toast.classList.remove('toast-show');
+      toast.classList.add('toast-hide');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // Actual download function
+  function performDownload() {
+    try {
+      let headers = [
+        "Name", "Age", "Address", "Ward", "Date", "R&B", "OR/DR", 
+        "Diagnostic Fee", "Laboratory Fee", "Medicines", "Medical Supplies", 
+        "Oxygen", "Implant", "Others", "Total"
+      ];
+
+      let grandTotal = 0;
+
+      let data = patients.map(patient => {
+        let formatValue = (value) => 
+          (value === null || value === undefined || value === '' || value === '-') ? '-' : value;
+        
+        let totalAmount = parseFloat(patient.total) || 0;
+        grandTotal += totalAmount;
+
+        return [
+          patient.name || '-', 
+          formatValue(patient.age), 
+          patient.address || '-', 
+          formatValue(patient.ward),
+          patient.date ? new Date(patient.date).toLocaleDateString() : '-', 
+          formatValue(patient.rb), 
+          formatValue(patient.or_dr), 
+          formatValue(patient.diagnostic_fee),
+          formatValue(patient.laboratory_fee), 
+          formatValue(patient.medicines), 
+          formatValue(patient.medical_supplies), 
+          formatValue(patient.oxygen), 
+          formatValue(patient.implant), 
+          formatValue(patient.others), 
+          `₱${totalAmount.toFixed(2)}`
+        ];
+      });
+
+      data.unshift(headers);
+      data.push(["", "", "", "", "", "", "", "", "", "", "", "", "", "GRAND TOTAL:", `₱${grandTotal.toFixed(2)}`]);
+
+      let ws = XLSX.utils.aoa_to_sheet(data);
+      
+      // Style the header row
+      let range = XLSX.utils.decode_range(ws['!ref'] || 'A1:O1');
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const address = XLSX.utils.encode_cell({ r: 0, c: C });
+        if (!ws[address]) continue;
+        ws[address].s = { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: "4F46E5" } } };
+      }
+
+      let wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Medical Assistance");
+      XLSX.writeFile(wb, `Medical_Assistance_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+      
+      showToast("Download completed successfully!", "success");
+      
+    } catch (error) {
+      console.error("Download error:", error);
+      showToast("An error occurred while downloading. Please try again.", "error");
+    }
+  }
+
+  // Actual print function
+  function performPrint() {
+    try {
+      let table = document.getElementById('medicalTable').cloneNode(true);
+      let win = window.open('', '', 'width=1200,height=800,toolbar=yes,scrollbars=yes');
+      
+      win.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Statement of Account Report</title>
+            <meta charset="UTF-8">
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { 
+                font-family: 'Segoe UI', Arial, sans-serif; 
+                padding: 30px 20px; 
+                background: white;
+              }
+              h2 { 
+                color: #1e3a8a; 
+                margin-bottom: 10px;
+                font-size: 24px;
+              }
+              .report-header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #e5e7eb;
+              }
+              .report-date {
+                color: #6b7280;
+                font-size: 12px;
+                margin-top: 5px;
+              }
+              table { 
+                width: 100%; 
+                border-collapse: collapse; 
+                margin-top: 20px;
+                font-size: 12px;
+              }
+              th, td { 
+                border: 1px solid #d1d5db; 
+                padding: 10px 8px; 
+                text-align: left; 
+              }
+              th { 
+                background: linear-gradient(to right, #1e3a8a, #0891b2, #15803d); 
+                color: white; 
+                font-weight: 600;
+              }
+              tr:nth-child(even) {
+                background-color: #f9fafb;
+              }
+              .total-row {
+                font-weight: bold;
+                background-color: #fef3c7;
+              }
+              @media print {
+                body { padding: 0; }
+                .no-print { display: none; }
+                th { background: #2563eb !important; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="report-header">
+              <h2>Statement of Account</h2>
+              <p class="report-date">Generated on: ${new Date().toLocaleString()}</p>
+            </div>
+            ${table.outerHTML}
+            <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #9ca3af;">
+              This is a system-generated report. 
+            </div>
+            <script>
+              window.onload = () => {
+                setTimeout(() => {
+                  window.print();
+                  window.onafterprint = () => window.close();
+                }, 100);
+              };
+            <\/script>
+          </body>
+        </html>
+      `);
+      win.document.close();
+      
+      showToast("Print dialog opened successfully!", "success");
+      
+    } catch (error) {
+      console.error("Print error:", error);
+      showToast("An error occurred while preparing the print. Please try again.", "error");
+    }
+  }
+
+  // Initial button state update
+  updateButtonStates();
+
+  // Event listeners for modals
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', openDownloadModal);
+  }
+  
+  if (printBtn) {
+    printBtn.addEventListener('click', openPrintModal);
+  }
+  
+  // Confirm buttons
+  const confirmDownloadBtn = document.getElementById('confirmDownloadBtn');
+  const confirmPrintBtn = document.getElementById('confirmPrintBtn');
+  
+  if (confirmDownloadBtn) {
+    confirmDownloadBtn.addEventListener('click', () => {
+      closeDownloadModal();
+      performDownload();
+    });
+  }
+  
+  if (confirmPrintBtn) {
+    confirmPrintBtn.addEventListener('click', () => {
+      closePrintModal();
+      performPrint();
+    });
+  }
+
+  // Close modals when clicking outside
+  window.addEventListener('click', function(e) {
+    if (e.target === downloadModal) {
+      closeDownloadModal();
+    }
+    if (e.target === printModal) {
+      closePrintModal();
+    }
+  });
+
+  // Close modals with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      if (downloadModal && !downloadModal.classList.contains('hidden')) {
+        closeDownloadModal();
+      }
+      if (printModal && !printModal.classList.contains('hidden')) {
+        closePrintModal();
+      }
+    }
+  });
+
+  // Keyboard shortcut protection (Ctrl+P)
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+      if (!hasTableData()) {
+        e.preventDefault();
+        showToast("No records available for printing.", "error");
+      }
+    }
+  });
+
+  // Optional: Monitor for data changes
+  function refreshPatientsData(newData) {
+    patients = newData;
+    updateButtonStates();
+  }
+</script>

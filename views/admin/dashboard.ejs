@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="icon" type="image/png" href="/img/icon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/admin/dashboard.css">
+    <link rel="stylesheet" href="/css/admin/dashboard-inline-2.css">
+    <link rel="stylesheet" href="/css/admin/admin-theme.css">
+</head>
+<body>
+<div class="min-h-screen flex">
+
+    <aside class="sidebar w-64 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl fixed h-full z-10 text-white">
+        <div class="p-6 border-b border-slate-700 flex items-center justify-between">
+            <h1 class="text-2xl font-bold flex items-center text-white"><i class="fas fa-hospital-user mr-3"></i><span class="nav-text">Malasakit Admin</span></h1>
+            <button type="button" class="sidebar-toggle text-white text-lg"><i class="fas fa-bars"></i></button>
+        </div>
+        <nav class="mt-6 px-4 space-y-2">
+            <a href="/admin/dashboard" class="nav-item flex items-center py-3 px-4 bg-slate-700 text-white rounded-lg"><i class="fas fa-chart-line w-5 mr-3 text-center"></i><span class="nav-label">Dashboard</span></a>
+            <a href="/admin/user-management" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-users-cog w-5 mr-3 text-center"></i><span class="nav-label">User Management</span></a>
+            <a href="/patient/admin" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-notes-medical w-5 mr-3 text-center"></i><span class="nav-label">Patient Concerns</span></a>
+            <a href="/admin/main-form" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-file-invoice-dollar w-5 mr-3 text-center"></i><span class="nav-label">Statement of Account</span></a>
+            <a href="/admin/reports" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-folder-open w-5 mr-3 text-center"></i><span class="nav-label">Report Templates</span></a>
+            <a href="/admin/statistics" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-pie w-5 mr-3 text-center"></i><span class="nav-label">Monthly Statistics</span></a>
+            <a href="/admin/feedback" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-comment-dots w-5 mr-3 text-center"></i><span class="nav-label">Feedback</span></a>
+        </nav>
+    </aside>
+
+    <main class="admin-main flex-1" style="margin-left:16rem; padding: 2.25rem 2.5rem;">
+
+        <!-- Page Header -->
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+            <div>
+                <h1 style="font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:30px;color:#1a1410;line-height:1.15;margin-bottom:3px;">Dashboard Overview</h1>
+                <p style="font-size:13px;color:#9b8f87;font-weight:500;">Monitor patients, assistance, and system activity</p>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <select id="timeRange" class="fi" style="font-size:13px;">
+                    <option value="3">Last 3 months</option>
+                    <option value="6" selected>Last 6 months</option>
+                    <option value="12">Last 12 months</option>
+                    <option value="24">Last 2 years</option>
+                </select>
+                <select id="yearFilter" class="fi" style="font-size:13px;"></select>
+                <button onclick="openModal('historyModal')" class="btn btn-dark" style="font-size:12.5px;padding:8px 14px;">
+                    <i class="fas fa-history" style="font-size:11px;"></i>Delete History
+                </button>
+            </div>
+        </div>
+
+        <!-- STAT CARDS  -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style="margin-bottom:24px;">
+            <div class="stat-card sc-blue">
+                <div class="sc-icon bg-blue-100 text-blue-600"><i class="fas fa-users"></i></div>
+                <div class="sc-value" id="totalPatients">--</div>
+                <div class="sc-label">Total Patients</div>
+                <div class="sc-change"><span id="patientChange" class="sc-up">0%</span> from last month</div>
+            </div>
+            <div class="stat-card sc-green">
+                <div class="sc-icon bg-green-100 text-green-600"><i class="fas fa-hand-holding-medical"></i></div>
+                <div class="sc-value" id="totalAssistance">--</div>
+                <div class="sc-label">Medical Assistance</div>
+                <div class="sc-change"><span id="assistanceChange" class="sc-up">0%</span> from last month</div>
+            </div>
+            <div class="stat-card sc-purple">
+                <div class="sc-icon bg-purple-100 text-purple-600"><i class="fas fa-bell"></i></div>
+                <div class="sc-value" id="pendingConcerns">--</div>
+                <div class="sc-label">Pending Concerns</div>
+                <div class="sc-change"><span id="concernChange" class="sc-down">0%</span> from last month</div>
+            </div>
+            <div class="stat-card sc-red">
+                <div class="sc-icon bg-red-100 text-red-600"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="sc-value" id="totalAmount" style="font-size:22px;">--</div>
+                <div class="sc-label">Total Amount</div>
+                <div class="sc-change"><span id="amountChange" class="sc-up">0%</span> from last month</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" style="margin-bottom:24px;">
+            <div class="chart-card">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+                    <div>
+                        <p class="chart-card-title">New Requests</p>
+                        <p class="chart-card-sub">Per month</p>
+                    </div>
+                    <div class="tf-wrap" id="reqFilters">
+                        <button class="tf-btn active" data-months="3">3M</button>
+                        <button class="tf-btn" data-months="6">6M</button>
+                        <button class="tf-btn" data-months="12">1Y</button>
+                    </div>
+                </div>
+                <div style="position:relative;height:260px;"><canvas id="newRequestsChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+                    <div>
+                        <p class="chart-card-title">Assistance Cost</p>
+                        <p class="chart-card-sub">Medical assistance spend</p>
+                    </div>
+                    <div class="tf-wrap" id="costFilters">
+                        <button class="tf-btn active" data-months="3">3M</button>
+                        <button class="tf-btn" data-months="6">6M</button>
+                        <button class="tf-btn" data-months="12">1Y</button>
+                    </div>
+                </div>
+                <div style="position:relative;height:260px;"><canvas id="costChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+                <div>
+                    <p class="chart-card-title">Registered Patients per Month</p>
+                    <p class="chart-card-sub">Year-over-year breakdown</p>
+                </div>
+                <div class="tf-wrap" id="patientFilters">
+                    <button class="tf-btn active" data-filter="monthly">Monthly</button>
+                    <button class="tf-btn" data-filter="quarterly">Quarterly</button>
+                    <button class="tf-btn" data-filter="yearly">Yearly</button>
+                </div>
+            </div>
+            <div style="position:relative;height:280px;"><canvas id="patientChart"></canvas></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" style="margin-bottom:24px;">
+            <div class="chart-card">
+                <p class="chart-card-title" style="margin-bottom:3px;">Medical Assistance per Month</p>
+                <p class="chart-card-sub" style="margin-bottom:14px;">Requests over time</p>
+                <div style="position:relative;height:260px;"><canvas id="assistanceChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <p class="chart-card-title" style="margin-bottom:3px;">Patient Age Distribution</p>
+                <p class="chart-card-sub" style="margin-bottom:14px;">Breakdown by age group</p>
+                <div style="position:relative;height:260px;"><canvas id="ageChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <p class="chart-card-title" style="margin-bottom:3px;">Gender Distribution by Age Group</p>
+            <p class="chart-card-sub" style="margin-bottom:14px;">Male vs. female per bracket</p>
+            <div style="position:relative;height:280px;"><canvas id="genderAgeChart"></canvas></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Recent Medical Assistance -->
+            <div class="table-card">
+                <div class="table-card-header">
+                    <h2 style="font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:18px;color:#fff;margin-bottom:1px;">Recent Medical Assistance</h2>
+                    <p style="font-size:11.5px;color:#9b9189;">Latest processed billing records</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% recentAssistance.forEach(assist => { %>
+                        <tr>
+                            <td>
+                                <div class="td-name"><%= assist.name %></div>
+                                <div class="td-sub"><%= assist.address ? assist.address.substring(0,22)+'Ã¢â‚¬Â¦' : 'N/A' %></div>
+                            </td>
+                            <td class="td-date"><%= new Date(assist.date).toLocaleDateString() %></td>
+                            <td class="td-amount">&#8369;<%= assist.total.toLocaleString() %></td>
+                        </tr>
+                        <% }) %>
+                        <% if (recentAssistance.length === 0) { %>
+                        <tr><td colspan="3" style="text-align:center;padding:32px 14px;color:#9b8f87;">No records found</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Recent Patient Requests -->
+            <div class="table-card">
+                <div class="table-card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <h2 style="font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:18px;color:#fff;margin-bottom:1px;">Recent Patient Requests</h2>
+                        <p style="font-size:11.5px;color:#9b9189;">Latest concern submissions</p>
+                    </div>
+                        <a href="/patient/admin" style="font-size:12px;color:#c4b8ae;font-weight:600;text-decoration:none;white-space:nowrap;">View All <i class="fas fa-arrow-right" style="margin-left:4px;font-size:11px;"></i></a>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Concern</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% recentRequests.forEach(request => { %>
+                        <tr>
+                            <td>
+                                <div class="td-name"><%= request.fullname %></div>
+                                <div class="td-sub"><%= request.contact_number %></div>
+                            </td>
+                            <td style="font-size:12.5px;color:#6b6259;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                <%= request.concern.substring(0,42) %>
+                            </td>   
+                            <td>
+                                <span class="badge badge-<%= request.status %>">
+                                    <span class="badge-dot"></span><%= request.status %>
+                                </span>
+                            </td>
+                        </tr>
+                        <% }) %>
+                        <% if (recentRequests.length === 0) { %>
+                        <tr><td colspan="3" style="text-align:center;padding:32px 14px;color:#9b8f87;">No requests found</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div id="loadingIndicator" class="hidden">
+    <div style="background:#faf8f5;border-radius:16px;padding:32px 40px;display:flex;flex-direction:column;align-items:center;gap:16px;border:1px solid #ede8e2;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+        <div class="spinner"></div>
+        <p style="font-family:'DM Sans',sans-serif;font-size:13.5px;color:#4a4340;font-weight:500;">Loading analytics data</p>
+    </div>
+</div>
+
+<div id="historyModal" class="modal">
+    <div class="modal-box">
+        <div class="modal-stripe ms-dark"></div>
+        <div class="modal-head">
+            <div>
+                <div class="modal-icon-wrap mi-dark">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="modal-tag mt-dark"><span class="modal-dot md-dark"></span>Audit Log</div>
+                <h3 class="modal-title">Deletion History</h3>
+            </div>
+            <button onclick="closeModal('historyModal')" class="modal-close-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" style="padding:0;">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Entity Type</th>
+                        <th>ID</th>
+                        <th>Deleted By</th>
+                        <th>Deleted At</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (deleteHistory.length === 0) { %>
+                    <tr><td colspan="5" style="text-align:center;padding:48px 14px;color:#9b8f87;">
+                        <i class="fas fa-history" style="font-size:32px;display:block;margin-bottom:10px;color:#ede8e2;"></i>
+                        No deletion history available
+                    </td></tr>
+                    <% } else { deleteHistory.forEach(history => { %>
+                    <tr>
+                        <td><span class="entity-tag"><%= history.entity_type %></span></td>
+                        <td style="font-size:12.5px;color:#6b6259;font-weight:600;">#<%= history.entity_id %></td>
+                        <td style="font-size:13px;color:#4a4340;"><%= history.deleted_by %></td>
+                        <td style="font-size:12px;color:#9b8f87;"><%= history.formatted_date %></td>
+                        <td>
+                            <% if (history.details) { %>
+                            <button onclick="showDetails('<%= history.entity_type %>','<%= history.entity_id %>',`<%- JSON.stringify(history.details).replace(/"/g,'&quot;') %>`)"
+                                style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#1d4ed8;background:none;border:none;cursor:pointer;padding:0;">
+                                <i class="fas fa-eye" style="font-size:10px;"></i>View
+                            </button>
+                            <% } else { %>
+                            <span style="font-size:12px;color:#c4b8ae;">Ã¢â‚¬â€</span>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <% }) } %>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-foot" style="justify-content:space-between;">
+            <span style="font-size:12.5px;color:#9b8f87;"><%= deleteHistory.length %> record<%= deleteHistory.length !== 1 ? 's' : '' %></span>
+            <button onclick="closeModal('historyModal')" class="btn btn-ghost" style="font-size:13px;padding:8px 16px;">Close</button>
+        </div>
+    </div>
+</div>
+
+
+<div id="detailsModal" class="modal">
+    <div class="modal-box sm">
+        <div class="modal-stripe ms-blue"></div>
+        <div class="modal-head">
+            <div>
+                <div class="modal-icon-wrap mi-blue">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <div class="modal-tag mt-blue"><span class="modal-dot md-blue"></span>Record Details</div>
+                <h3 class="modal-title" id="detailsTitle">Deletion Details</h3>
+            </div>
+            <button onclick="closeModal('detailsModal')" class="modal-close-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <pre class="details-pre" id="detailsContent"></pre>
+        </div>
+        <div class="modal-foot">
+            <button onclick="closeModal('detailsModal')" class="btn btn-ghost" style="font-size:13px;padding:8px 16px;">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal(id)  { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow = 'auto'; }
+    document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); }));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') ['historyModal','detailsModal'].forEach(closeModal); });
+
+    function showDetails(entityType, entityId, detailsJson) {
+        try {
+            document.getElementById('detailsTitle').textContent = `${entityType} #${entityId}`;
+            document.getElementById('detailsContent').textContent = JSON.stringify(JSON.parse(detailsJson), null, 2);
+        } catch(e) {
+            document.getElementById('detailsTitle').textContent = `${entityType} #${entityId}`;
+            document.getElementById('detailsContent').textContent = detailsJson;
+        }
+        openModal('detailsModal');
+    }
+
+    const warmDark   = '#1a1410';
+    const warmGrid   = '#f0ece7';
+    const fontFamily = "'DM Sans', sans-serif";
+
+    const baseScales = {
+        y: { beginAtZero:true, grid:{ color:warmGrid }, ticks:{ font:{family:fontFamily,size:11}, color:'#9b8f87' } },
+        x: { grid:{ display:false }, ticks:{ font:{family:fontFamily,size:11}, color:'#9b8f87' } }
+    };
+    const baseLegend = { position:'top', labels:{ padding:16, usePointStyle:true, font:{family:fontFamily,size:12}, color:'#4a4340' } };
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const costPerMonth        = <%- JSON.stringify(costPerMonth) %>;
+        const newRequestsPerMonth = <%- JSON.stringify(newRequestsPerMonth) %>;
+
+        function sliceData(data, months) {
+            const s = data.slice(-months);
+            return {
+                labels: s.map(i => { const [y,m] = i.month.split('-'); return new Date(y,m-1).toLocaleString('default',{month:'short'})+' '+y; }),
+                values: s.map(i => i.total_cost || i.total_requests)
+            };
+        }
+
+        const reqChart = new Chart(document.getElementById('newRequestsChart').getContext('2d'), {
+            type: 'bar',
+            data: { labels: sliceData(newRequestsPerMonth,3).labels, datasets: [{ label:'New Requests', data:sliceData(newRequestsPerMonth,3).values, backgroundColor:warmDark, borderRadius:6 }] },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c=>`Requests: ${c.parsed.y}` } } }, scales:baseScales }
+        });
+
+        const costChart = new Chart(document.getElementById('costChart').getContext('2d'), {
+            type: 'line',
+            data: { labels: sliceData(costPerMonth,3).labels, datasets: [{ label:'Total Cost', data:sliceData(costPerMonth,3).values, borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.05)', borderWidth:2.5, pointBackgroundColor:'#ef4444', pointRadius:4, fill:true, tension:0.3 }] },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c=>`\u20B1${c.parsed.y.toLocaleString()}` } } }, scales:{ ...baseScales, y:{ ...baseScales.y, ticks:{ ...baseScales.y.ticks, callback:v=>'\u20B1'+v.toLocaleString() } } } }
+        });
+
+        function bindFilters(wrapperId, chart, dataSource) {
+            document.getElementById(wrapperId).querySelectorAll('.tf-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById(wrapperId).querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
+                    this.classList.add('active');
+                    const d = sliceData(dataSource, parseInt(this.dataset.months));
+                    chart.data.labels = d.labels; chart.data.datasets[0].data = d.values; chart.update();
+                });
+            });
+        }
+        bindFilters('reqFilters',  reqChart,  newRequestsPerMonth);
+        bindFilters('costFilters', costChart, costPerMonth);
+
+        document.getElementById('timeRange').addEventListener('change', function() {
+            const months = parseInt(this.value);
+            const rd = sliceData(newRequestsPerMonth, months);
+            const cd = sliceData(costPerMonth, months);
+            reqChart.data.labels = rd.labels; reqChart.data.datasets[0].data = rd.values; reqChart.update();
+            costChart.data.labels = cd.labels; costChart.data.datasets[0].data = cd.values; costChart.update();
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const patientChart = new Chart(document.getElementById('patientChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                datasets: [{ label:'Registered Patients', data:[], backgroundColor:'rgba(59,130,246,0.7)', borderColor:'rgba(59,130,246,1)', borderWidth:1.5, borderRadius:5 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ font:{family:fontFamily,size:12}, color:'#4a4340', usePointStyle:true } }, tooltip:{ callbacks:{ label:c=>c.parsed.y+' patients' } } }, scales:baseScales }
+        });
+
+        const assistanceChart = new Chart(document.getElementById('assistanceChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                datasets: [{ label:'Assistance Requests', data:[], fill:true, backgroundColor:'rgba(20,184,166,0.08)', borderColor:'#14b8a6', borderWidth:2.5, tension:0.3, pointBackgroundColor:'#14b8a6', pointRadius:4 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ font:{family:fontFamily,size:12}, color:'#4a4340', usePointStyle:true } }, tooltip:{ callbacks:{ label:c=>c.parsed.y+' requests' } } }, scales:baseScales }
+        });
+
+        const ageChart = new Chart(document.getElementById('ageChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['0-18','19-35','36-61','61+'],
+                datasets: [{ label:'Age Distribution', data:[], backgroundColor:['rgba(239,68,68,.75)','rgba(59,130,246,.75)','rgba(234,179,8,.75)','rgba(20,184,166,.75)'], borderColor:['#ef4444','#3b82f6','#eab308','#14b8a6'], borderWidth:2, hoverOffset:8 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:{ position:'right', labels:{ font:{family:fontFamily,size:12}, color:'#4a4340', usePointStyle:true } }, tooltip:{ callbacks:{ label:c=>{ const t=c.dataset.data.reduce((a,b)=>a+b,0); return `${c.label}: ${c.parsed} (${Math.round(c.parsed/t*100)}%)`; } } } } }
+        });
+
+        const genderAgeChart = new Chart(document.getElementById('genderAgeChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['0-18','19-35','36-61','61+'],
+                datasets: [
+                    { label:'Male',   data:[], backgroundColor:'rgba(59,130,246,.7)', borderColor:'rgba(59,130,246,1)', borderWidth:1.5, borderRadius:4 },
+                    { label:'Female', data:[], backgroundColor:'rgba(239,68,68,.7)',  borderColor:'rgba(239,68,68,1)',  borderWidth:1.5, borderRadius:4 }
+                ]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ font:{family:fontFamily,size:12}, color:'#4a4340', usePointStyle:true } } }, scales:baseScales }
+        });
+
+        /* patient filter buttons */
+        document.getElementById('patientFilters').querySelectorAll('.tf-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('patientFilters').querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        /* fetch analytics */
+        async function fetchAnalyticsData(year = new Date().getFullYear()) {
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+        ['totalPatients','totalAssistance','pendingConcerns','totalAmount'].forEach(id => document.getElementById(id).textContent = '...');
+            try {
+                const res = await fetch(`/analytics/data?year=${year}`);
+                if (!res.ok) throw new Error('HTTP '+res.status);
+                const data = await res.json();
+
+                /* year filter options */
+                const yf = document.getElementById('yearFilter');
+                yf.innerHTML = '';
+                (data.availableYears?.length ? data.availableYears : [new Date().getFullYear()]).forEach(yr => {
+                    const o = document.createElement('option');
+                    o.value = yr; o.textContent = yr;
+                    if (yr == year) o.selected = true;
+                    yf.appendChild(o);
+                });
+
+                patientChart.data.datasets[0].data = data.patientsByMonth || Array(12).fill(0); patientChart.update();
+                assistanceChart.data.datasets[0].data = data.assistanceByMonth || Array(12).fill(0); assistanceChart.update();
+                ageChart.data.datasets[0].data = data.ageDistribution || Array(4).fill(0); ageChart.update();
+                genderAgeChart.data.datasets[0].data = data.genderAgeDistribution?.male   || Array(4).fill(0);
+                genderAgeChart.data.datasets[1].data = data.genderAgeDistribution?.female || Array(4).fill(0);
+                genderAgeChart.update();
+
+                if (data.stats) {
+                    document.getElementById('totalPatients').textContent  = data.stats.totalPatients?.toLocaleString() || '0';
+                    document.getElementById('totalAssistance').textContent = data.stats.totalAssistance?.toLocaleString() || '0';
+                    document.getElementById('pendingConcerns').textContent = data.stats.pendingConcerns?.toLocaleString() || '0';
+                    document.getElementById('totalAmount').textContent     = '\u20B1' + (data.stats.totalAmount?.toLocaleString() || '0');
+
+                    function setChange(id, val) {
+                        const el = document.getElementById(id);
+                        el.textContent = `${val>0?'+':''}${val||0}%`;
+                        el.className = val>=0 ? 'sc-up' : 'sc-down';
+                    }
+                    setChange('patientChange',    data.stats.patientChange);
+                    setChange('assistanceChange', data.stats.assistanceChange);
+                    setChange('concernChange',    data.stats.concernChange);
+                    setChange('amountChange',     data.stats.amountChange);
+                }
+            } catch(err) {
+                console.error(err);
+                ['totalPatients','totalAssistance','pendingConcerns','totalAmount'].forEach(id => document.getElementById(id).textContent = 'Error');
+            } finally {
+                document.getElementById('loadingIndicator').classList.add('hidden');
+            }
+        }
+
+        document.getElementById('yearFilter').addEventListener('change', function() { fetchAnalyticsData(this.value); });
+        fetchAnalyticsData();
+    });
+</script>
+<script>
+(() => {
+    const key = 'adminSidebarCollapsed';
+    if (localStorage.getItem(key) === '1') document.body.classList.add('sidebar-collapsed');
+    document.querySelectorAll('.sidebar-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-collapsed');
+            localStorage.setItem(key, document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+        });
+    });
+})();
+</script>
+</body>
+</html>

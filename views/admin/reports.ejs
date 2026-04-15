@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports</title>
+    <link rel="icon" type="image/png" href="/img/icon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Shared font stack across all pages -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+
+        <link rel="stylesheet" href="/css/admin/reports.css">
+        <link rel="stylesheet" href="/css/partials/admin-report-table.css">
+    <link rel="stylesheet" href="/css/admin/admin-theme.css">
+</head>
+
+<body>
+    <div class="min-h-screen flex">
+
+        <aside class="sidebar w-64 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl fixed h-full z-10 text-white">
+            <div class="p-6 border-b border-slate-700 flex items-center justify-between">
+                <h1 class="text-2xl font-bold flex items-center text-white">
+                    <i class="fas fa-hospital-user mr-3"></i><span class="nav-text">Malasakit Admin</span>
+                </h1>
+                <button type="button" class="sidebar-toggle text-white text-lg"><i class="fas fa-bars"></i></button>
+            </div>
+            <nav class="mt-6 px-4 space-y-2">
+                <a href="/admin/dashboard" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-line w-5 mr-3 text-center"></i><span class="nav-label">Dashboard</span></a>
+                <a href="/admin/user-management" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-users-cog w-5 mr-3 text-center"></i><span class="nav-label">User Management</span></a>
+                <a href="/patient/admin" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-notes-medical w-5 mr-3 text-center"></i><span class="nav-label">Patient Concerns</span></a>
+                <a href="/admin/main-form" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-file-invoice-dollar w-5 mr-3 text-center"></i><span class="nav-label">Statement of Account</span></a>
+                <a href="/admin/reports" class="nav-item flex items-center py-3 px-4 bg-slate-700 text-white rounded-lg"><i class="fas fa-folder-open w-5 mr-3 text-center"></i><span class="nav-label">Report Templates</span></a>
+                <a href="/admin/statistics" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-pie w-5 mr-3 text-center"></i><span class="nav-label">Monthly Statistics</span></a>
+                <a href="/admin/feedback" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-comment-dots w-5 mr-3 text-center"></i><span class="nav-label">Feedback</span></a>
+            </nav>
+        </aside>
+
+        <main class="admin-main flex-1 p-8 mt-1" style="margin-left:16rem;">
+            <div class="max-w-6xl mx-auto">
+
+                <!-- Page heading -->
+                <div class="mb-6">
+                    <h1 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:32px;color:#1a1410;line-height:1.15;margin-bottom:3px;">
+                        Report Templates
+                    </h1>
+                    <p style="font-size:13.5px;color:#9b8f87;font-weight:500;">Medical assistance records and billing transaction overview</p>
+                </div>
+
+                <!-- Tabs -->
+                <div class="mb-6" style="border-bottom:1px solid #ede8e2;">
+                    <nav class="flex space-x-8">
+                        <button data-tab="medical" class="tab-link active">Medical</button>
+                    </nav>
+                </div>
+
+                <div id="medical" class="tab-content active">
+
+                    <% if (statistics) { %>
+
+                    <!-- Row 1: 4 primary cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+
+                        <!-- Total Transactions -->
+                        <div class="stat-card c-blue">
+                            <div class="stat-icon bg-blue-100 text-blue-600">
+                                <i class="fas fa-file-invoice"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value text-blue-600"><%= statistics.totalTransactions %></div>
+                                <div class="stat-label">Total Transactions</div>
+                            </div>
+                            <div class="stat-progress"><div class="stat-progress-fill" style="width:100%"></div></div>
+                        </div>
+
+                        <!-- Total Amount -->
+                        <div class="stat-card c-green">
+                            <div class="stat-icon bg-green-100 text-green-600">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div style="min-width:0;">
+                        <div class="stat-value compact text-green-600" title="&#8369;<%= statistics.totalAmount %>">
+                            &#8369;<%= statistics.totalAmount %>
+                                </div>
+                                <div class="stat-label">Total Amount</div>
+                            </div>
+                            <div class="stat-progress"><div class="stat-progress-fill" style="width:100%"></div></div>
+                        </div>
+
+                        <!-- Average Bill -->
+                        <div class="stat-card c-purple">
+                            <div class="stat-icon bg-purple-100 text-purple-600">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <div style="min-width:0;">
+                                <div class="stat-value compact text-purple-600" title="<%= statistics.averageBill %>">
+                                    <%= statistics.averageBill %>
+                                </div>
+                                <div class="stat-label">Average Bill</div>
+                            </div>
+                            <div class="stat-progress"><div class="stat-progress-fill" style="width:100%"></div></div>
+                        </div>
+
+                        <!-- Today's Transactions -->
+                        <div class="stat-card c-orange">
+                            <div class="stat-icon bg-orange-100 text-orange-600">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value text-orange-600"><%= statistics.todaysTransactions %></div>
+                                <div class="stat-label">Today's Transactions</div>
+                            </div>
+                            <div class="stat-progress"><div class="stat-progress-fill" style="width:<%= statistics.todaysTransactions > 0 ? '100' : '0' %>%"></div></div>
+                        </div>
+
+                    </div>
+
+                    <!-- Row 2: Min/Max + Today's Total -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+                        <!-- Min / Max Bill -->
+                        <div class="stat-card c-red">
+                            <div class="stat-icon bg-red-100 text-red-600">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="minmax-row">
+                                <div class="minmax-item">
+                                    <div class="stat-label">Min Bill</div>
+                                    <div class="minmax-value text-red-600" title="<%= statistics.minBill %>"><%= statistics.minBill %></div>
+                                </div>
+                                <i class="fas fa-arrow-right minmax-arrow"></i>
+                                <div class="minmax-item right">
+                                    <div class="stat-label">Max Bill</div>
+                                    <div class="minmax-value text-red-600" title="<%= statistics.maxBill %>"><%= statistics.maxBill %></div>
+                                </div>
+                            </div>
+                            <div class="stat-progress"><div class="stat-progress-fill" style="width:100%"></div></div>
+                        </div>
+
+                        <!-- Today's Total Amount -->
+                        <div class="stat-card c-teal">
+                            <div class="stat-icon bg-teal-100 text-teal-600">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div style="min-width:0;">
+                                <div class="stat-value compact text-teal-600" title="<%= statistics.todaysTotal %>">
+                                    <%= statistics.todaysTotal %>
+                                </div>
+                                <div class="stat-label">Today's Total Amount</div>
+                            </div>
+                            <div class="stat-progress"><div class="stat-progress-fill" style="width:<%= statistics.todaysTotal > 0 ? '100' : '0' %>%"></div></div>
+                        </div>
+
+                    </div>
+
+                    <!-- Summary Banner -->
+                    <div class="summary-banner">
+                        <div class="flex flex-wrap justify-between items-center gap-2">
+                            <div>
+                                <h3 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:17px;color:#1a1410;margin-bottom:4px;">Transaction Summary</h3>
+                                <p style="font-size:12px;color:#9b8f87;line-height:1.6;">Based on all billing records in the system, including inpatient and outpatient records.</p>
+                            </div>
+                            <div style="display:flex;flex-wrap:wrap;gap:16px;font-size:12.5px;color:#6b6259;">
+                                <span>Patients: <strong style="font-family:'EB Garamond',Georgia,serif;font-size:15px;color:#1a1410;"><%= patients.length %></strong></span>
+                                <span>Transactions: <strong style="font-family:'EB Garamond',Georgia,serif;font-size:15px;color:#3b82f6;"><%= statistics.totalTransactions %></strong></span>
+                    <span>Total: <strong style="font-family:'EB Garamond',Georgia,serif;font-size:15px;color:#1a7a42;">&#8369;<%= statistics.totalAmount %></strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <% } %>
+
+                    <!-- Report Table -->
+                    <div class="table-card">
+                        <div class="table-card-header">
+                            <h2 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:20px;color:#fff;margin-bottom:3px;">
+                                Medical Assistance for Indigent Patients
+                            </h2>
+                            <p style="font-size:12px;color:#9b9189;">Medical Assistance by the Government</p>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <%- include('../partials/admin-report-table') %>
+                        </div>
+                    </div>
+
+                </div><!-- /medical -->
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ”€”€ TABS ”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€
+        document.querySelectorAll('.tab-link').forEach(link => {
+            link.addEventListener('click', function () {
+                document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab)?.classList.add('active');
+            });
+        });
+
+        // ”€”€ PROFILE DROPDOWN ”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€
+        document.addEventListener('DOMContentLoaded', function () {
+            const profileBtn = document.getElementById('profileBtn');
+            const profileDropdown = document.getElementById('profileDropdown');
+            if (profileBtn && profileDropdown) {
+                profileBtn.addEventListener('click', e => { e.stopPropagation(); profileDropdown.classList.toggle('hidden'); });
+                document.addEventListener('click', e => {
+                    if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
+                        profileDropdown.classList.add('hidden');
+                });
+            }
+        });
+
+        // ”€”€ FORM AUTO-CALCULATION ”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€
+        function setupAutoCalculation(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            const inputs = form.querySelectorAll('input[type="number"]');
+            const totalEl = form.querySelector('.total-amount');
+            const calc = () => {
+                let total = 0;
+                inputs.forEach(i => total += parseFloat(i.value) || 0);
+                if (totalEl) totalEl.textContent = `${total.toFixed(2)}`;
+            };
+            inputs.forEach(i => i.addEventListener('input', calc));
+            calc();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupAutoCalculation('medicalForm');
+            setupAutoCalculation('burialForm');
+            setupAutoCalculation('financialForm');
+        });
+
+        // ”€”€ ADD CATEGORY ROW ”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€
+        document.getElementById('add-category')?.addEventListener('click', function () {
+            const container = document.getElementById('category-container');
+            const row = document.createElement('div');
+            row.className = 'category-row flex space-x-4 mb-4';
+            row.innerHTML = `
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700">Category</label>
+                    <select name="category[]" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                        <option value="">Select Category</option>
+                        <option value="Vent">Vent</option>
+                        <option value="Suction">Suction</option>
+                        <option value="Cardiac">Cardiac</option>
+                        <option value="Compress Air">Compress Air</option>
+                        <option value="Nebu">Nebu</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700">Quantity</label>
+                    <input type="number" name="quantity[]" min="0" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        placeholder="Enter quantity">
+                </div>
+                <div class="flex items-end">
+                    <button type="button" class="remove-category px-3 py-2 text-red-600 hover:text-red-800">Remove</button>
+                </div>`;
+            container.appendChild(row);
+        });
+
+        document.addEventListener('click', e => {
+            if (e.target?.classList.contains('remove-category'))
+                e.target.closest('.category-row').remove();
+        });
+
+        // ”€”€ 15 SERVICES FORM VALIDATION ”€”€”€”€”€”€”€”€”€”€”€”€”€”€
+        document.getElementById('fifteenServicesForm')?.addEventListener('submit', function (e) {
+            const hasValue = [...this.querySelectorAll('input[type="number"]')].some(i => parseInt(i.value) > 0);
+            if (!hasValue) {
+                e.preventDefault();
+                alert('Please enter at least one quantity greater than zero before submitting.');
+            }
+        });
+
+        // ”€”€ ADD SERVICE ROW ”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€”€
+        let serviceIndex = 1;
+        document.getElementById('addServiceRow')?.addEventListener('click', function () {
+            const container = document.getElementById('servicesContainer');
+            const row = document.createElement('div');
+            row.classList.add('grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-4', 'service-row', 'pt-2');
+            row.innerHTML = `
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Type of Service</label>
+                    <select name="services[${serviceIndex}][type]" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 border p-2">
+                        <option value="">Select Service</option>
+                        <option value="hospital_bill">Hospital Bill</option>
+                        <option value="medicines">Medicines</option>
+                        <option value="laboratory">Laboratory</option>
+                        <option value="implants">Implants</option>
+                        <option value="diagnostic">Diagnostic</option>
+                        <option value="others">Others</option>
+                        <option value="medical_supplies">Medical Supplies</option>
+                        <option value="oxygen">Oxygen</option>
+                        <option value="or_dr">OR Dr</option>
+                        <option value="rnb">RNB</option>
+                        <option value="epoetin">Epoetin</option>
+                        <option value="hemodialysis_sessions">Hemodialysis Sessions</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Amount Utilized</label>
+                    <input type="number" step="0.01" name="services[${serviceIndex}][amount]" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 border p-2"
+                        placeholder="e.g. 5000">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Funding Source</label>
+                    <select name="services[${serviceIndex}][funding_source]" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 border p-2">
+                        <option value="">Select Source</option>
+                        <option value="PHIC">PHIC</option>
+                        <option value="PCSO">PCSO</option>
+                        <option value="DSWD">DSWD</option>
+                        <option value="MAIP">MAIP</option>
+                        <option value="OP-SCPF">OP-SCPF</option>
+                        <option value="OTHERS">OTHERS</option>
+                    </select>
+                </div>`;
+            container.appendChild(row);
+            serviceIndex++;
+        });
+
+        // AUTO-REFRESH REMOVED - Page will no longer reload automatically
+        
+</script>
+<script>
+(() => {
+    const key = 'adminSidebarCollapsed';
+    if (localStorage.getItem(key) === '1') document.body.classList.add('sidebar-collapsed');
+    document.querySelectorAll('.sidebar-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-collapsed');
+            localStorage.setItem(key, document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+        });
+    });
+})();
+</script>
+</body>
+</html>

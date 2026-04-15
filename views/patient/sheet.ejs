@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Unified Intake Sheet | Malasakit Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #e2e8f0;
+      font-family: 'IBM Plex Sans', sans-serif;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+     /* 150% zoom base adjustment - scale everything up */
+    html {
+      zoom: 1.25;
+      -moz-transform: scale(1.25);
+      -moz-transform-origin: top left;
+    }
+
+    /* For browsers that don't support zoom, use transform */
+    @media screen and (-webkit-min-device-pixel-ratio: 0) {
+      html {
+        zoom: 1.25;
+      }
+    }
+
+    body {
+      background: #e2e8f0;
+      font-family: 'IBM Plex Sans', sans-serif;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      max-width: 950px;
+      width: 100%;
+      background: #1e293b;
+      color: white;
+      padding: 20px 20px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .toolbar-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .toolbar-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      border: none;
+      background: #334155;
+      color: white;
+      padding: 5px 16px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-print { background: #2c6e9e; }
+    .btn-print:hover { background: #1e4a76; }
+    .btn-submit { background: #10b981; }
+    .btn-submit:hover { background: #059669; }
+    .btn-reset { background: #6c757d; }
+    .btn-reset:hover { background: #5a6268; }
+
+    .sheet-wrap {
+      max-width: 1200px;
+      width: 100%;
+      background: white;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.25);
+    }
+
+    /* TIGHT 2-PAGE PRINT LAYOUT */
+    .page {
+      background: white;
+      padding: 20px 24px 24px 24px;
+      position: relative;
+      break-inside: avoid;
+      page-break-after: avoid;
+    }
+    .page:first-child {
+      page-break-after: always;
+    }
+    .page:last-child {
+      page-break-after: auto;
+    }
+    .page-label {
+      font-size: 7px;
+      color: #94a3b8;
+      border-bottom: 1px dashed #cbd5e1;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .header {
+      margin-bottom: 10px;
+    }
+    .logo-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+    .logo-row img {
+      height: 38px;
+      object-fit: contain;
+    }
+    .header-title {
+      text-align: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem;
+      color: #0f172a;
+      border-top: 2px solid #b91c1c;
+      padding-top: 6px;
+    }
+    .header-title span {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: #334155;
+    }
+
+    .form-card {
+      margin-top: 2px;
+    }
+    .row-2, .row-3 {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .cell {
+      flex: 1;
+      min-width: 150px;
+    }
+    .field-label {
+      font-size: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #4b5563;
+      margin-bottom: 2px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 5px 7px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 10.5px;
+      font-weight: 500;
+      border: 1px solid #cbd5e1;
+      background: #fefefe;
+      border-radius: 0px;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #b91c1c;
+    }
+    .row-group {
+      margin-bottom: 8px;
+    }
+    .shaded {
+      background: #f8fafc;
+      padding: 4px 10px;
+    }
+    .sec-bar {
+      background: #1e3a5f;
+      color: white;
+      padding: 3px 12px;
+      font-weight: 600;
+      font-size: 0.7rem;
+      margin: 12px 0 8px 0;
+      display: inline-block;
+    }
+    .sec-num {
+      background: #ffcd4a;
+      color: #1e293b;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 10px;
+      margin-right: 6px;
+    }
+    .name-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .name-row > div {
+      flex: 1;
+      min-width: 85px;
+    }
+    .fam-table, .rec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5px;
+      margin: 6px 0 8px;
+    }
+    .fam-table th, .fam-table td, .rec-table th, .rec-table td {
+      border: 1px solid #cbd5e1;
+      padding: 4px 3px;
+    }
+    .fam-table th {
+      background: #eef2ff;
+      font-weight: 700;
+    }
+    .fam-table input, .fam-table select {
+      font-size: 8px;
+      padding: 3px 2px;
+    }
+    .income-split {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      background: #f9f9fb;
+      margin-bottom: 8px;
+      padding: 8px;
+    }
+    .expense-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      margin-top: 4px;
+      border-bottom: 1px dotted #cbd5e1;
+      padding: 3px 0;
+    }
+    .expense-row input {
+      width: 95px;
+      padding: 3px;
+    }
+    .prob-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+    .prob-cell {
+      font-size: 10px;
+      background: white;
+      padding: 4px 8px;
+    }
+    .prob-cell input {
+      margin-top: 4px;
+      font-size: 9px;
+    }
+    .oath-block {
+      background: #fef9e3;
+      border-left: 4px solid #b45309;
+      padding: 8px 10px;
+      font-size: 9px;
+      font-weight: 500;
+      margin: 8px 0;
+    }
+    .oath-block input {
+      width: auto;
+      display: inline-block;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #b45309;
+      padding: 1px 4px;
+    }
+    .sig-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 12px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .sig-line {
+      flex: 2;
+      border-bottom: 1.5px solid #334155;
+      padding-bottom: 3px;
+    }
+    .sig-line input {
+      border: none;
+      background: transparent;
+      padding: 2px 0;
+      font-size: 11px;
+    }
+    .thumb-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .thumb-box {
+      width: 70px;
+      height: 70px;
+      background: #fefce8;
+      border: 2px solid #2d3e50;
+    }
+    .thumb-label {
+      text-align: center;
+      font-size: 8px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 4px;
+    }
+    .thumb-label span {
+      display: block;
+      font-size: 7px;
+      font-weight: 500;
+      color: #4b5563;
+    }
+    .assess-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 6px 0 10px;
+    }
+    .assess-cell {
+      background: #f1f5f9;
+      padding: 4px 10px;
+      font-size: 9.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rec-check {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .rec-check label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9px;
+    }
+    .bottom-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      gap: 20px;
+    }
+    .bottom-box {
+      flex: 1;
+      background: #f8fafc;
+      padding: 6px;
+      text-align: center;
+      font-size: 9px;
+    }
+    .bsig {
+      height: 32px;
+      border-bottom: 1px solid #334155;
+      margin: 4px 0;
+    }
+    .b-name {
+      font-weight: 700;
+      font-size: 9px;
+    }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #10b981;
+      color: white;
+      padding: 8px 16px;
+      font-weight: 600;
+      font-size: 11px;
+      opacity: 0;
+      transition: 0.25s;
+      pointer-events: none;
+      z-index: 1000;
+    }
+    .toast.show { opacity: 1; }
+
+    /* CRITICAL: FORCE 2 PAGES IN PRINT */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .toolbar {
+        display: none;
+      }
+      .sheet-wrap {
+        box-shadow: none;
+        max-width: 100%;
+      }
+      .page {
+        padding: 0.35in 0.35in;
+        break-inside: avoid;
+        page-break-after: avoid;
+      }
+      .page:first-child {
+        page-break-after: always;
+      }
+      .page:last-child {
+        page-break-after: auto;
+      }
+      .page-label {
+        display: none;
+      }
+      input, select, textarea {
+        border: 1px solid #aaa;
+        background: white;
+      }
+      .sec-bar {
+        margin: 8px 0 6px;
+      }
+      .logo-row img {
+        height: 34px;
+      }
+      .header-title {
+        font-size: 1.2rem;
+      }
+      .fam-table td, .fam-table th {
+        font-size: 7.5px;
+        padding: 3px 2px;
+      }
+      .row-2, .row-3 {
+        margin-bottom: 5px;
+      }
+      .thumb-box {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+<div class="toolbar">
+  <div class="toolbar-title">Unified Intake Sheet — Malasakit Center</div>
+  <div class="toolbar-actions">
+    <button class="btn btn-print" onclick="window.print()">Print</button>
+    <button class="btn btn-reset" onclick="document.getElementById('intakeForm').reset();">Reset</button>
+    <button class="btn btn-submit" onclick="submitIntake()"> Submit</button>
+    <button class="btn btn-ghost" onclick="window.location.href='/patient/dashboard'">Back to Dashboard</button>
+  </div>
+</div>
+<div class="toast" id="toastMsg"> Form submitted successfully!</div>
+
+
+<form id="intakeForm" action="/patient/intake/create" method="POST" enctype="multipart/form-data">
+<div class="sheet-wrap">
+  <!-- PAGE 1 -->
+  <div class="page">
+    <div class="page-label">PAGE 1 · CLIENT INFORMATION</div>
+    <div class="header">
+      <div class="logo-row">
+        <img src="/uploads/DOH.png" alt="DOH" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 50%27%3E%3Crect width=%27120%27 height=%2750%27 fill=%27%231455a4%27/%3E%3Ctext x=%2712%27 y=%2730%27 fill=%27white%27 font-size=%2714%27 font-weight=%27bold%27%3EDOH%3C/text%3E%3C/svg%3E'">
+        <img src="/uploads/Philhealth.png" alt="PhilHealth" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 50%27%3E%3Crect width=%27120%27 height=%2750%27 fill=%27%230c2340%27/%3E%3Ctext x=%278%27 y=%2730%27 fill=%27%23b8860b%27 font-size=%2712%27 font-weight=%27bold%27%3EPHILHEALTH%3C/text%3E%3C/svg%3E'">
+        <img src="/uploads/PCSO.png" alt="PCSO" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 50%27%3E%3Crect width=%27120%27 height=%2750%27 fill=%27%23b8860b%27/%3E%3Ctext x=%2718%27 y=%2730%27 fill=%27white%27 font-size=%2714%27%3EPCSO%3C/text%3E%3C/svg%3E'">
+        <img src="/uploads/DSWD.png" alt="DSWD" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 50%27%3E%3Crect width=%27120%27 height=%2750%27 fill=%27%231f7a5a%27/%3E%3Ctext x=%2712%27 y=%2730%27 fill=%27white%27 font-size=%2714%27%3EDSWD%3C/text%3E%3C/svg%3E'">
+        <img src="/uploads/MALASAKITCENTER.png" alt="Malasakit Center" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 140 50%27%3E%3Crect width=%27140%27 height=%2750%27 fill=%27%238b0000%27/%3E%3Ctext x=%276%27 y=%2730%27 fill=%27%23ffd966%27 font-size=%2712%27 font-weight=%27bold%27%3EMALASAKIT%3C/text%3E%3C/svg%3E'">
+      </div>
+      <div class="header-title">Unified Intake Sheet <span>Malasakit Center · Whole-of-Government Approach</span></div>
+    </div>
+
+    <div class="form-card">
+      <div class="row-2">
+        <div class="cell"><div class="field-label">PhilHealth ID No.</div><input type="text" name="philhealth_no" placeholder="XX-XXXXXXXXX-X"></div>
+        <div class="cell"><div class="field-label">Hospital No.</div><input type="text" name="hospital_no" placeholder="Hospital ref#"></div>
+      </div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Date of Intake</div><input type="date" name="intake_date"></div>
+        <div class="cell"><div class="field-label">Time of Interview</div><input type="time" name="intake_time"></div>
+      </div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Name of Informant</div><input type="text" name="informant_name" placeholder="Full name"></div>
+        <div class="cell"><div class="field-label">Relation to Patient</div><select name="relation_to_patient"><option>Spouse</option><option>Parent</option><option>Child</option><option>Sibling</option><option>Guardian</option><option>Other</option></select></div>
+      </div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Informant Address</div><input type="text" name="informant_address" placeholder="Street, Barangay, City"></div>
+        <div class="cell"><div class="field-label">Contact Number</div><input type="text" name="contact_number" placeholder="09XXXXXXXXX"></div>
+      </div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Patient Email</div><input type="email" name="patient_email" placeholder="example@email.com"></div>
+        <div class="cell"><div class="field-label">Supporting Doc</div><input type="file" name="document" accept=".jpg,.jpeg,.png,.pdf"></div>
+      </div>
+
+      <div class="sec-bar"><span class="sec-num">A</span> IDENTIFYING INFORMATION</div>
+      <div class="name-row">
+        <div><div class="field-label">Last Name</div><input type="text" name="last_name" placeholder="Apelyido"></div>
+        <div><div class="field-label">First Name</div><input type="text" name="first_name" placeholder="Pangalan"></div>
+        <div><div class="field-label">Middle Name</div><input type="text" name="middle_name" placeholder="Gitna"></div>
+        <div><div class="field-label">Ext</div><input type="text" name="extension" placeholder="Jr."></div>
+        <div><div class="field-label">Sex</div><select name="sex"><option>Male</option><option>Female</option><option>Other</option></select></div>
+      </div>
+      <div class="row-3">
+        <div class="cell"><div class="field-label">Date of Birth</div><input type="date" name="birth_date"></div>
+        <div class="cell"><div class="field-label">Age</div><input type="number" name="age" min="0"></div>
+        <div class="cell"><div class="field-label">Place of Birth</div><input type="text" name="place_of_birth" placeholder="City"></div>
+      </div>
+      <div class="row-group"><div class="field-label">Permanent Address</div><input type="text" name="permanent_address" placeholder="Street, Barangay, City"></div>
+      <div class="row-group shaded"><div class="field-label">Present Address</div><input type="text" name="present_address" placeholder="Street, Barangay, City"></div>
+      <div class="row-group"><div class="field-label">Civil Status</div><select name="civil_status"><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option><option>Divorced</option></select></div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Religion</div><input type="text" name="religion" placeholder="Religion"></div>
+        <div class="cell"><div class="field-label">Nationality</div><input type="text" name="nationality" value="Filipino"></div>
+      </div>
+      <div class="row-group shaded"><div class="field-label">Highest Educational Attainment</div><select name="education"><option>No formal education</option><option>Elementary</option><option>High School</option><option>College level</option><option>College graduate</option><option>Vocational</option></select></div>
+      <div class="row-2">
+        <div class="cell"><div class="field-label">Occupation</div><input type="text" name="occupation" placeholder="Job title"></div>
+        <div class="cell"><div class="field-label">Monthly Income (₱)</div><input type="number" name="monthly_income" step="0.01"></div>
+      </div>
+
+      <div class="sec-bar"><span class="sec-num">B</span> FAMILY COMPOSITION (Max 5)</div>
+      <table class="fam-table">
+        <thead><tr><th>#</th><th>Full Name</th><th>Sex</th><th>Age</th><th>Civil Status</th><th>Relation</th><th>Education</th><th>Occupation</th><th>Monthly Income</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" name="fm_name_1" placeholder="Name"></td><td><select name="fm_sex_1"><option>Male</option><option>Female</option></select></td><td><input type="number" name="fm_age_1" placeholder="Age"></td><td><select name="fm_civil_1"><option>Single</option><option>Married</option><option>Widowed</option></select></td><td><select name="fm_relation_1"><option>Spouse</option><option>Child</option><option>Parent</option><option>Sibling</option></select></td><td><select name="fm_educ_1"><option>Elementary</option><option>High School</option><option>College</option><option>Vocational</option></select></td><td><input type="text" name="fm_occ_1" placeholder="Occ"></td><td><input type="number" name="fm_income_1" placeholder="Income"></td></tr>
+          <tr><td>2</td><td><input type="text" name="fm_name_2" placeholder="Name"></td><td><select name="fm_sex_2"><option>Male</option><option>Female</option></select></td><td><input type="number" name="fm_age_2" placeholder="Age"></td><td><select name="fm_civil_2"><option>Single</option><option>Married</option><option>Widowed</option></select></td><td><select name="fm_relation_2"><option>Spouse</option><option>Child</option><option>Parent</option><option>Sibling</option></select></td><td><select name="fm_educ_2"><option>Elementary</option><option>High School</option><option>College</option><option>Vocational</option></select></td><td><input type="text" name="fm_occ_2" placeholder="Occ"></td><td><input type="number" name="fm_income_2" placeholder="Income"></td></tr>
+          <tr><td>3</td><td><input type="text" name="fm_name_3" placeholder="Name"></td><td><select name="fm_sex_3"><option>Male</option><option>Female</option></select></td><td><input type="number" name="fm_age_3" placeholder="Age"></td><td><select name="fm_civil_3"><option>Single</option><option>Married</option><option>Widowed</option></select></td><td><select name="fm_relation_3"><option>Spouse</option><option>Child</option><option>Parent</option><option>Sibling</option></select></td><td><select name="fm_educ_3"><option>Elementary</option><option>High School</option><option>College</option><option>Vocational</option></select></td><td><input type="text" name="fm_occ_3" placeholder="Occ"></td><td><input type="number" name="fm_income_3" placeholder="Income"></td></tr>
+          <tr><td>4</td><td><input type="text" name="fm_name_4" placeholder="Name"></td><td><select name="fm_sex_4"><option>Male</option><option>Female</option></select></td><td><input type="number" name="fm_age_4" placeholder="Age"></td><td><select name="fm_civil_4"><option>Single</option><option>Married</option><option>Widowed</option></select></td><td><select name="fm_relation_4"><option>Spouse</option><option>Child</option><option>Parent</option><option>Sibling</option></select></td><td><select name="fm_educ_4"><option>Elementary</option><option>High School</option><option>College</option><option>Vocational</option></select></td><td><input type="text" name="fm_occ_4" placeholder="Occ"></td><td><input type="number" name="fm_income_4" placeholder="Income"></td></tr>
+          <tr><td>5</td><td><input type="text" name="fm_name_5" placeholder="Name"></td><td><select name="fm_sex_5"><option>Male</option><option>Female</option></select></td><td><input type="number" name="fm_age_5" placeholder="Age"></td><td><select name="fm_civil_5"><option>Single</option><option>Married</option><option>Widowed</option></select></td><td><select name="fm_relation_5"><option>Spouse</option><option>Child</option><option>Parent</option><option>Sibling</option></select></td><td><select name="fm_educ_5"><option>Elementary</option><option>High School</option><option>College</option><option>Vocational</option></select></td><td><input type="text" name="fm_occ_5" placeholder="Occ"></td><td><input type="number" name="fm_income_5" placeholder="Income"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PAGE 2 -->
+  <div class="page">
+    <div class="page-label">PAGE 2 · ASSESSMENT</div>
+    <div class="form-card">
+      <div class="sec-bar"><span class="sec-num">C</span> HOUSEHOLD PROFILE & EXPENSES</div>
+      <div class="income-split">
+        <div style="flex:1">
+          <div class="field-label">House/Lot</div><select name="house_status"><option>Owned</option><option>Rented</option><option>Living with relatives</option></select>
+          <div class="field-label">Light Source</div><select name="light_source"><option>Electricity</option><option>Candle</option><option>Kerosene</option></select>
+          <div class="field-label">Water Source</div><select name="water_source"><option>District</option><option>Deep well</option><option>Shared</option></select>
+        </div>
+        <div style="flex:1">
+          <div class="field-label">Monthly Expenses (₱)</div>
+          <div class="expense-row"><span>Food</span><input type="number" name="food_expense" placeholder="0"></div>
+          <div class="expense-row"><span>Education</span><input type="number" name="education_expense" placeholder="0"></div>
+          <div class="expense-row"><span>Medical</span><input type="number" name="medical_expense" placeholder="0"></div>
+          <div class="expense-row"><span>Transportation</span><input type="number" name="transportation_expense" placeholder="0"></div>
+          <div class="expense-row"><span>Others</span><input type="number" name="other_expense" placeholder="0"></div>
+        </div>
+      </div>
+
+      <div class="sec-bar"><span class="sec-num">D</span> PROBLEM PRESENTED</div>
+      <div class="prob-grid">
+        <div class="prob-cell"><label>Health</label><input type="text" name="problem_health" placeholder="Specify"></div>
+        <div class="prob-cell"><label>Economic</label><input type="text" name="problem_economic" placeholder="Specify"></div>
+        <div class="prob-cell"><label>Food/Nutrition</label><input type="text" name="problem_food" placeholder="Specify"></div>
+        <div class="prob-cell"><label>Housing</label><input type="text" name="problem_housing" placeholder="Specify"></div>
+        <div class="prob-cell"><label>Employment</label><input type="text" name="problem_employment" placeholder="Specify"></div>
+        <div class="prob-cell"><label>Others</label><input type="text" name="problem_others" placeholder="Specify"></div>
+      </div>
+
+      <div class="oath-block">
+        AKO SI, <input type="text" name="client_name_signature" style="width: 200px;" placeholder="Buong Pangalan">, AY NAGPAPATUNAY NA TAMA AT TOTOO ANG IMPORMASYON. PINAPAYAGAN KO ANG MALASAKIT CENTER NA IBAHAGI ITO SA MGA KAAKIBAT NA AHENSIYA.
+      </div>
+
+      <div class="sig-row">
+        <div class="sig-line">
+          <input type="text" name="signature_display" placeholder="Pangalan at Lagda">
+          <span class="field-label">Signature of Client</span>
+        </div>
+        <div class="thumb-container">
+          <div class="thumb-box"></div>
+          <div class="thumb-label">⬤ THUMB MARK<span>(left thumb)</span></div>
+        </div>
+      </div>
+
+      <div class="sec-bar"><span class="sec-num">E</span> SOCIAL WORKER'S ASSESSMENT</div>
+      <div class="assess-grid">
+        <label class="assess-cell"><input type="checkbox" name="assessment_financially_capable"> Financially capable but needs assistance</label>
+        <label class="assess-cell"><input type="checkbox" name="assessment_lack_resources"> Lacks resources for health needs</label>
+        <label class="assess-cell"><input type="checkbox" name="assessment_medical_checkup"> Needs medical check-up</label>
+        <label class="assess-cell"><input type="checkbox" name="assessment_resources_exhausted"> Resources exhausted</label>
+      </div>
+
+      <div class="sec-bar"><span class="sec-num">F</span> RECOMMENDATION & ASSISTANCE</div>
+      <table class="rec-table">
+        <thead><tr><th>Type of Assistance</th><th>Amount (₱)</th><th>Mode</th><th>Fund Source</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="rec-check"><label><input type="checkbox" name="assist_hospital_bill"> Hospital Bill</label><label><input type="checkbox" name="assist_lab_diagnostic"> Lab/Diagnostic</label><label><input type="checkbox" name="assist_medical_supplies"> Medical Supplies</label></div></td>
+            <td><input type="number" name="assistance_amount" placeholder="0.00"></td>
+            <td><select name="assistance_mode"><option>Medical Assistance</option><option>Guarantee Letter</option><option>Cash</option></select></td>
+            <td><select name="fund_source"><option>MC-MAIP</option><option>PCSO</option><option>DSWD</option><option>PhilHealth</option></select></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="bottom-row">
+        <div class="bottom-box">
+          <div class="field-label">Interviewed by:</div>
+          <div class="bsig"></div>
+          <div>Medical Social Worker</div>
+        </div>
+        <div class="bottom-box">
+          <div>Reviewed & Approved:</div>
+          <div class="b-name">DOROTHY JOY C. ZAMORA, RSW</div>
+          <div>Lic. No. 0031864</div>
+          <div>OIC - Medical Social Service</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+
+
+
+
+<script>
+  function submitIntake() {
+    const form = document.getElementById('intakeForm');
+    const required = ['last_name', 'first_name'];
+    let missing = [];
+    required.forEach(f => {
+      const el = form.querySelector(`[name="${f}"]`);
+      if (el && !el.value.trim()) missing.push(f.replace('_',' ').toUpperCase());
+    });
+    if (missing.length) {
+      alert('Please fill required fields: ' + missing.join(', '));
+      return;
+    }
+    const formData = new FormData(form);
+    fetch('/patient/intake/create', {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        const toast = document.getElementById('toastMsg');
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+          form.reset();
+        }, 1500);
+      } else {
+        alert('Error: ' + (data.message || 'Submission failed'));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Connection error. Please try again.');
+    });
+  }
+</script>
+</body>
+</html>

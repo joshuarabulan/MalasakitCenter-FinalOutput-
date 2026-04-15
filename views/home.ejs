@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Permissions-Policy" content="unload=(self)">
+    <title>Malasakit Center - Government Medical Assistance</title>
+    <link rel="icon" type="image/png" href="/img/icon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/home.css">
+    <style>
+        /* Password toggle button styles */
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #9ca3af;
+            transition: color 0.2s ease;
+            z-index: 10;
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .password-toggle:hover {
+            color: #c0392b;
+        }
+        .relative {
+            position: relative;
+        }
+        .glass-input.pr-10 {
+            padding-right: 40px;
+        }
+        
+        /* Custom Alert Modal Animations */
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        @keyframes modalFadeOut {
+            from {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+        }
+        
+        .alert-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        .alert-modal.closing {
+            animation: modalFadeOut 0.3s ease-out forwards;
+        }
+        
+        .alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        .alert-overlay.closing {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+        
+        .alert-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        
+        .alert-icon i {
+            font-size: 32px;
+        }
+        
+        .alert-success .alert-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .alert-error .alert-icon {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .alert-warning .alert-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .alert-info .alert-icon {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        
+        /* Loading spinner */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+        
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Cursor glow -->
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- ===== HEADER ===== -->
+<header class="fixed w-full top-0 z-50" id="mainHeader">
+    <nav class="container mx-auto px-4 lg:px-8">
+        <div class="flex justify-between items-center h-20">
+            <div class="flex items-center space-x-4">
+                <div class="logo-ring">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-U-EAbzrGa8jqNacjwPrLY24E3DO0r4_Rqw&s"
+                        alt="Malasakit Logo"
+                        class="h-14 w-14 rounded-full object-contain bg-white p-1">
+                </div>
+                <div>
+                    <span class="text-xl font-bold text-red-900 tracking-tight block leading-tight">Malasakit Center</span>
+                    <span class="text-xs text-gray-400 tracking-widest uppercase">Government Medical Aid</span>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#services" class="nav-link text-gray-600 hover:text-red-700 transition-colors text-sm">Services</a>
+                <a href="#process" class="nav-link text-gray-600 hover:text-red-700 transition-colors text-sm">Process</a>
+                <a href="#videos" class="nav-link text-gray-600 hover:text-red-700 transition-colors text-sm">Media</a>
+                <a href="#about" class="nav-link text-gray-600 hover:text-red-700 transition-colors text-sm">About</a>
+                <div class="flex space-x-3">
+                    <button onclick="openLoginModal()"
+                        class="ripple-btn border border-red-200 text-red-700 px-5 py-2 rounded-full text-sm font-semibold hover:bg-red-50 transition-all hover:border-red-400">
+                        Login
+                    </button>
+                    <button onclick="openRegisterModal()"
+                        class="ripple-btn bg-red-700 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-red-800 transition-all shadow-md hover:shadow-red-200 hover:shadow-lg">
+                        Register
+                    </button>
+                </div>
+            </div>
+
+            <button id="menu-toggle" class="md:hidden text-red-900 p-2">
+                <i class='bx bx-menu text-3xl'></i>
+            </button>
+        </div>
+    </nav>
+</header>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" class="md:hidden fixed w-full bg-white/95 backdrop-blur-lg shadow-xl hidden z-40 top-20 border-t border-red-50">
+    <div class="px-4 py-4 space-y-1">
+        <a href="#services" class="mobile-nav-link"><i class='bx bx-plus-medical'></i> Services</a>
+        <a href="#process" class="mobile-nav-link"><i class='bx bx-list-ol'></i> Process</a>
+        <a href="#videos" class="mobile-nav-link"><i class='bx bx-video'></i> Media</a>
+        <a href="#about" class="mobile-nav-link"><i class='bx bx-info-circle'></i> About</a>
+        <div class="pt-4 border-t border-gray-100 flex flex-col gap-3">
+            <button onclick="openLoginModal()" class="w-full border border-red-200 text-red-700 py-2.5 rounded-full font-semibold text-sm">Login</button>
+            <button onclick="openRegisterModal()" class="w-full bg-red-700 text-white py-2.5 rounded-full font-semibold text-sm">Register</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero-section pt-20">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="hero-grid"></div>
+
+    <div class="container mx-auto px-4 text-center text-white relative z-10 py-24">
+        <div class="hero-anim-1">
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                Republic Act No. 11463 · Malasakit Centers Act of 2019
+            </div>
+        </div>
+
+        <h1 class="hero-title text-white mb-6 hero-anim-2">
+            Access Comprehensive<br>
+            <span style="background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Medical Assistance</span>
+        </h1>
+
+        <p class="text-base md:text-lg mb-10 max-w-2xl mx-auto text-white/75 leading-relaxed hero-anim-3">
+            Your gateway to integrated healthcare support from the Philippine government —
+            serving every Filipino in need with compassion and care.
+        </p>
+
+        <div class="flex flex-col sm:flex-row justify-center gap-4 hero-anim-4">
+            <a href="#services" class="hero-btn-primary ripple-btn">
+                Explore Services <i class='bx bx-chevron-right'></i>
+            </a>
+            <a href="#contact" class="hero-btn-secondary">
+                <i class='bx bx-phone-call'></i> Emergency Contact
+            </a>
+        </div>
+    </div>
+
+    <div class="scroll-indicator">
+        <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+        <span>Scroll</span>
+    </div>
+</section>
+
+<!-- ===== STATS STRIP ===== -->
+<div class="stats-strip">
+    <div class="container mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-4">
+            <div class="stat-item text-center reveal">
+                <div class="stat-number" data-target="500">500+</div>
+                <div class="text-xs text-gray-500 mt-1 uppercase tracking-widest">Centers Nationwide</div>
+            </div>
+            <div class="stat-item text-center reveal reveal-delay-1">
+                <div class="stat-number">1M+</div>
+                <div class="text-xs text-gray-500 mt-1 uppercase tracking-widest">Patients Assisted</div>
+            </div>
+            <div class="stat-item text-center reveal reveal-delay-2">
+                <div class="stat-number">4</div>
+                <div class="text-xs text-gray-500 mt-1 uppercase tracking-widest">Partner Agencies</div>
+            </div>
+            <div class="stat-item text-center reveal reveal-delay-3">
+                <div class="stat-number">24/7</div>
+                <div class="text-xs text-gray-500 mt-1 uppercase tracking-widest">Support Available</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SERVICES ===== -->
+<section id="services" class="py-24 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16 reveal">
+            <p class="section-eyebrow">What We Offer</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Our Services</h2>
+            <div class="section-underline mx-auto"></div>
+            <p class="text-gray-500 max-w-2xl mx-auto mt-5 leading-relaxed text-sm">
+                Sa ilalim ng <strong>REPUBLIC ACT NO. 11463</strong>, ang mga Malasakit Centers ay nagsisilbing one-stop shop
+                sa pagbibigay ng medikal at pinansyal na tulong mula sa DOH, DSWD, PCSO, at PHIC para sa mga pilipinong
+                nabibilang sa klasipikasyong "Indigent" o sa mga indibidwal na sumasailalim sa malaking hamon pinansyal.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Card 1 -->
+            <div class="service-card card-red reveal reveal-delay-1">
+                <div class="icon-wrap bg-red-100">
+                    <i class='bx bx-first-aid text-red-600'></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-3">Medical Financial Aid</h3>
+                <div class="service-desc">
+                    Immediate financial support for critical medical needs, treatments, medicines, and hospital bills for qualified patients.
+                </div>
+                <a href="#" class="inline-flex items-center gap-1.5 text-red-600 text-sm font-semibold mt-6 hover:gap-3 transition-all">
+                    Learn more <i class='bx bx-arrow-back rotate-180'></i>
+                </a>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="service-card card-teal reveal reveal-delay-2">
+                <div class="icon-wrap bg-emerald-100">
+                    <i class='bx bx-clinic text-emerald-600'></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-3">Hospital Coordination</h3>
+                <div class="service-desc" style="border-color: rgba(5,150,105,0.15)">
+                    Seamless coordination with government hospitals and healthcare providers to streamline patient services.
+                </div>
+                <a href="#" class="inline-flex items-center gap-1.5 text-emerald-600 text-sm font-semibold mt-6 hover:gap-3 transition-all">
+                    Learn more <i class='bx bx-arrow-back rotate-180'></i>
+                </a>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="service-card card-indigo reveal reveal-delay-3">
+                <div class="icon-wrap bg-indigo-100">
+                    <i class='bx bx-group text-indigo-600'></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-3">Patient Advocacy</h3>
+                <div class="service-desc" style="border-color: rgba(79,70,229,0.15)">
+                    Dedicated support for patient rights, healthcare navigation, and ensuring every voice is heard and respected.
+                </div>
+                <a href="#" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm font-semibold mt-6 hover:gap-3 transition-all">
+                    Learn more <i class='bx bx-arrow-back rotate-180'></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== VIDEO GALLERY ===== -->
+<section id="videos" class="video-section py-24">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-14 reveal">
+            <p class="section-eyebrow" style="color: rgba(251,191,36,0.9)">Watch & Learn</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-3">Video Gallery</h2>
+            <div class="h-px w-12 mx-auto" style="background: linear-gradient(90deg, #fbbf24, #f59e0b);"></div>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="video-card reveal reveal-delay-1">
+                <div class="w-full h-64 md:h-72 bg-gray-900">
+                    <iframe class="w-full h-full"
+                        src="https://www.facebook.com/plugins/video.php?href=https://www.facebook.com/61567793804320/videos/578953544817120&show_text=false"
+                        frameborder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
+                    </iframe>
+                </div>
+                <div class="p-5 bg-white/5 backdrop-blur-sm">
+                    <p class="text-white font-semibold">Patient Testimonial</p>
+                    <a href="https://www.facebook.com/61567793804320/videos/578953544817120" target="_blank"
+                        class="text-sm text-yellow-400 font-medium hover:text-yellow-300 flex items-center gap-1 mt-1">
+                        Watch on Facebook <i class='bx bx-link-external'></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="video-card youtube-container reveal reveal-delay-2">
+                <div class="w-full h-64 md:h-72 bg-gray-900">
+                    <iframe id="yt1" class="w-full h-full"
+                        src="https://www.youtube.com/embed/txWMjgq-iCo?enablejsapi=1"
+                        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
+                </div>
+                <div class="p-5 bg-white/5 backdrop-blur-sm">
+                    <p class="text-white font-semibold">Ano ang Malasakit Center?</p>
+                    <a href="https://www.youtube.com/watch?v=txWMjgq-iCo" target="_blank"
+                        class="text-sm text-yellow-400 font-medium hover:text-yellow-300 flex items-center gap-1 mt-1">
+                        Watch on YouTube <i class='bx bx-link-external'></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="video-card youtube-container reveal reveal-delay-3">
+                <div class="w-full h-64 md:h-72 bg-gray-900">
+                    <iframe id="yt2" class="w-full h-full"
+                        src="https://www.youtube.com/embed/EdR2BlWnBhk?enablejsapi=1"
+                        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
+                </div>
+                <div class="p-5 bg-white/5 backdrop-blur-sm">
+                    <p class="text-white font-semibold">How Malasakit Works</p>
+                    <a href="https://www.youtube.com/watch?v=EdR2BlWnBhk" target="_blank"
+                        class="text-sm text-yellow-400 font-medium hover:text-yellow-300 flex items-center gap-1 mt-1">
+                        Watch on YouTube <i class='bx bx-link-external'></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- YouTube hover autoplay -->
+<script>
+    function postToPlayer(player, command) {
+        if (player && player.contentWindow) {
+            player.contentWindow.postMessage(JSON.stringify({ event:'command', func:command, args:[] }), "*");
+        }
+    }
+    document.querySelectorAll('.youtube-container').forEach(container => {
+        const iframe = container.querySelector('iframe');
+        container.addEventListener('mouseenter', () => postToPlayer(iframe, 'playVideo'));
+        container.addEventListener('mouseleave', () => postToPlayer(iframe, 'pauseVideo'));
+    });
+</script>
+
+<!-- ===== PROCESS ===== -->
+<section id="process" class="process-section py-24">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16 reveal">
+            <p class="section-eyebrow">How It Works</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">4-Step Assistance Process</h2>
+            <div class="section-underline mx-auto"></div>
+            <p class="text-gray-500 mt-5 text-sm">Simple and transparent procedure for everyone</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+            <div class="connector"></div>
+
+            <div class="step-card reveal reveal-delay-1">
+                <div class="step-num step-num-blue">1</div>
+                <h3 class="font-bold text-gray-900 mb-2">Document Verification</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Submit required medical documents and valid identification</p>
+                <div class="mt-4 inline-flex items-center gap-1.5 text-blue-600 text-xs font-semibold bg-blue-50 px-3 py-1.5 rounded-full">
+                    <i class='bx bx-time-five'></i> 1-2 days
+                </div>
+            </div>
+
+            <div class="step-card reveal reveal-delay-2">
+                <div class="step-num step-num-blue">2</div>
+                <h3 class="font-bold text-gray-900 mb-2">Eligibility Check</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Automatic assessment of qualification criteria and needs</p>
+                <div class="mt-4 inline-flex items-center gap-1.5 text-blue-600 text-xs font-semibold bg-blue-50 px-3 py-1.5 rounded-full">
+                    <i class='bx bx-time-five'></i> 1 day
+                </div>
+            </div>
+
+            <div class="step-card reveal reveal-delay-3">
+                <div class="step-num step-num-blue">3</div>
+                <h3 class="font-bold text-gray-900 mb-2">Approval Process</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Quick review by our dedicated medical assistance team</p>
+                <div class="mt-4 inline-flex items-center gap-1.5 text-blue-600 text-xs font-semibold bg-blue-50 px-3 py-1.5 rounded-full">
+                    <i class='bx bx-time-five'></i> 2-3 days
+                </div>
+            </div>
+
+            <div class="step-card reveal reveal-delay-4">
+                <div class="step-num step-num-green">4</div>
+                <h3 class="font-bold text-gray-900 mb-2">Benefit Release</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Direct hospital billing or financial assistance release</p>
+                <div class="mt-4 inline-flex items-center gap-1.5 text-emerald-600 text-xs font-semibold bg-emerald-50 px-3 py-1.5 rounded-full">
+                    <i class='bx bx-check-circle'></i> Immediate
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-14 text-center reveal reveal-delay-5">
+            <a href="#contact" class="ripple-btn inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                style="background: linear-gradient(135deg, #c0392b, #1a5276);">
+                Start Your Application <i class='bx bx-chevron-right text-lg'></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FEEDBACK BUTTON ===== -->
+<div class="fixed bottom-8 left-8 z-40">
+    <button onclick="openFeedbackModal()" class="feedback-btn">
+        <i class='bx bx-message-square-detail text-xl'></i>
+        <span class="font-semibold text-sm">Give Feedback</span>
+    </button>
+</div>
+
+<!-- ===== FEEDBACK MODAL ===== -->
+<div id="feedbackModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden bg-black/60">
+    <div class="modal-card w-full max-w-4xl mx-4 overflow-hidden">
+        <div class="sticky top-0 z-10 p-6 text-white" style="background: linear-gradient(135deg, #7b1010, #c0392b);">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold">Medical Social Service Feedback</h2>
+                    <p class="text-xs text-red-200 mt-0.5">Oriental Mindoro Provincial Hospital Sta. Isabel, Calapan City</p>
+                </div>
+                <button onclick="closeFeedbackModal()" class="p-1.5 text-red-200 rounded-full hover:bg-white/10 transition-colors">
+                    <i class='bx bx-x text-2xl'></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="max-h-[80vh] overflow-y-auto bg-gray-50">
+            <form id="feedbackForm" class="p-6 space-y-5" onsubmit="submitFeedback(event)">
+                <div class="p-5 bg-white rounded-xl border border-gray-100">
+                    <h3 class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold">1</span>
+                        Service Information
+                    </h3>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Section Process</label>
+                            <select id="section" name="section" class="glass-input" required>
+                                <option value="" disabled selected>Select a section...</option>
+                                <option value="classified">CLASSIFIED</option>
+                                <option value="malasakit">MALASAKIT</option>
+                                <option value="referral">REFERRAL</option>
+                                <option value="postenrollment">POST ENROLLMENT</option>
+                                <option value="portregistration">PORT REGISTRATION</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Date</label>
+                            <input type="date" id="feedbackDate" name="feedbackDate" class="glass-input" required>
+                        </div>
+                    </div>
+                    <div class="grid gap-4 mt-4 md:grid-cols-2">
+                        <div>
+                            <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Time Started</label>
+                            <input type="time" id="timeStarted" name="timeStarted" class="glass-input" required>
+                        </div>
+                        <div>
+                            <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Time Ended</label>
+                            <input type="time" id="timeEnded" name="timeEnded" class="glass-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-5 bg-white rounded-xl border border-gray-100">
+                    <h3 class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold">2</span>
+                        Service Satisfaction
+                    </h3>
+                    <p class="text-xs text-gray-500 mb-5">Rate your satisfaction from <strong>1 (lowest)</strong> to <strong>5 (highest)</strong></p>
+                    <div class="space-y-5">
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-2">1. Magalang ang pagbibigay ng serbisyo.</p>
+                            <div class="flex gap-3">
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective1" value="1" required class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">1</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective1" value="2" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">2</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective1" value="3" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">3</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective1" value="4" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">4</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective1" value="5" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">5</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-2">2. Mabilis natugunan ang pangangailangan.</p>
+                            <div class="flex gap-3">
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective2" value="1" required class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">1</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective2" value="2" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">2</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective2" value="3" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">3</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective2" value="4" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">4</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective2" value="5" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">5</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-2">3. Maayos at malinaw ang pagpapaliwanag tungkol sa serbisyo.</p>
+                            <div class="flex gap-3">
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective3" value="1" required class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">1</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective3" value="2" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">2</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective3" value="3" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">3</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective3" value="4" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">4</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective3" value="5" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">5</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-2">4. Natugunan ng tama ang serbisyong kailangan.</p>
+                            <div class="flex gap-3">
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective4" value="1" required class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">1</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective4" value="2" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">2</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective4" value="3" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">3</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective4" value="4" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">4</span></label>
+                                <label class="flex flex-col items-center cursor-pointer group"><input type="radio" name="objective4" value="5" class="sr-only peer"><span class="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:border-red-400 peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 transition-all">5</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-5 bg-white rounded-xl border border-gray-100">
+                    <h3 class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold">3</span>
+                        Comments & Suggestions
+                    </h3>
+                    <textarea id="comments" name="comments" rows="4" class="glass-input resize-none"
+                        placeholder="Please share your comments or suggestions..."></textarea>
+                </div>
+
+                <div class="p-5 bg-white rounded-xl border border-gray-100">
+                    <h3 class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold">4</span>
+                        Personal Information <span class="text-xs text-gray-400 font-normal">(Optional)</span>
+                    </h3>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Name</label>
+                            <input type="text" id="name" name="name" class="glass-input" placeholder="Your name">
+                        </div>
+                        <div>
+                            <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Contact No.</label>
+                            <input type="tel" id="contact" name="contact" class="glass-input" placeholder="09XXXXXXXXX">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Address</label>
+                        <input type="text" id="address" name="address" class="glass-input" placeholder="Your complete address">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeFeedbackModal()"
+                        class="px-5 py-2.5 text-gray-600 bg-white border border-gray-200 rounded-full hover:bg-gray-50 text-sm font-semibold transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="ripple-btn flex items-center gap-2 px-6 py-2.5 text-white rounded-full text-sm font-semibold transition-all hover:opacity-90"
+                        style="background: linear-gradient(135deg, #c0392b, #7b1010);">
+                        <i class='bx bx-send'></i> Submit Feedback
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<section id="about">
+    <footer class="pt-16 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-10 pb-12">
+                <div class="reveal">
+                    <div class="flex items-center mb-5">
+                        <div class="logo-ring mr-4">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-U-EAbzrGa8jqNacjwPrLY24E3DO0r4_Rqw&s"
+                                alt="Logo" class="h-12 w-12 rounded-full bg-white p-1">
+                        </div>
+                        <div>
+                            <span class="text-white text-lg font-bold block leading-tight">Malasakit Center</span>
+                            <span class="text-red-300/60 text-xs">Government Medical Aid</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-white/50 leading-relaxed">
+                        A One-Stop-Shop service center within government hospitals where participating agencies
+                        (PhilHealth, PCSO, DSWD, DOH) process requests for medical and financial assistance.
+                    </p>
+                </div>
+
+                <div class="reveal reveal-delay-1">
+                    <h4 class="text-white font-bold mb-5 text-sm uppercase tracking-widest">Quick Links</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="#services" class="text-white/50 hover:text-white text-sm transition-colors flex items-center gap-2 group"><i class='bx bx-chevron-right text-red-400 group-hover:translate-x-1 transition-transform'></i> Services</a></li>
+                        <li><a href="#process" class="text-white/50 hover:text-white text-sm transition-colors flex items-center gap-2 group"><i class='bx bx-chevron-right text-red-400 group-hover:translate-x-1 transition-transform'></i> Process</a></li>
+                        <li><a href="#videos" class="text-white/50 hover:text-white text-sm transition-colors flex items-center gap-2 group"><i class='bx bx-chevron-right text-red-400 group-hover:translate-x-1 transition-transform'></i> Media</a></li>
+                        <li><a href="#" class="text-white/50 hover:text-white text-sm transition-colors flex items-center gap-2 group"><i class='bx bx-chevron-right text-red-400 group-hover:translate-x-1 transition-transform'></i> FAQs</a></li>
+                    </ul>
+                </div>
+
+                <div class="reveal reveal-delay-2">
+                    <h4 class="text-white font-bold mb-5 text-sm uppercase tracking-widest">Contact</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3 text-white/50 text-sm">
+                            <i class='bx bx-map text-red-400 mt-0.5 shrink-0'></i>
+                            ITRMC Compound, Brgy. San Vicente, Ilagan City, Isabela
+                        </li>
+                        <li class="flex items-center gap-3 text-white/50 text-sm">
+                            <i class='bx bx-phone text-red-400'></i> +63561688397
+                        </li>
+                        <li class="flex items-center gap-3 text-white/50 text-sm">
+                            <i class='bx bx-envelope text-red-400'></i> help@malasakit.gov.ph
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="reveal reveal-delay-3">
+                    <h4 class="text-white font-bold mb-5 text-sm uppercase tracking-widest">Follow Us</h4>
+                    <div class="flex gap-3 mb-8">
+                        <a href="https://www.facebook.com/profile.php?id=61567793804320"
+                            class="w-10 h-10 rounded-full bg-white/10 hover:bg-red-600 flex items-center justify-center text-white transition-all hover:scale-110">
+                            <i class='bx bxl-facebook'></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 hover:bg-sky-500 flex items-center justify-center text-white transition-all hover:scale-110">
+                            <i class='bx bxl-twitter'></i>
+                        </a>
+                        <a href="https://www.youtube.com/watch?v=txWMjgq-iCo" class="w-10 h-10 rounded-full bg-white/10 hover:bg-red-500 flex items-center justify-center text-white transition-all hover:scale-110">
+                            <i class='bx bxl-youtube'></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 hover:bg-red-400 flex items-center justify-center text-white transition-all hover:scale-110">
+                            <i class='bx bxl-gmail'></i>
+                        </a>
+                    </div>
+                    <h4 class="text-white font-bold mb-3 text-sm uppercase tracking-widest">Newsletter</h4>
+                    <form class="flex gap-2">
+                        <input type="email" placeholder="Your email" class="flex-1 px-4 py-2 rounded-full text-gray-900 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                        <button type="submit" class="px-4 py-2 rounded-full text-white font-semibold text-sm transition-all hover:opacity-90"
+                            style="background: linear-gradient(135deg, #d4ac0d, #b8860b);">
+                            <i class='bx bx-send'></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-6 text-center">
+                <p class="text-xs text-white/30">
+                    © 2025 Malasakit Center. All rights reserved. · Department of Health Republic of the Philippines
+                </p>
+            </div>
+        </div>
+    </footer>
+</section>
+
+<!-- Back to Top -->
+<button id="backToTop" class="fixed bottom-8 right-8 w-12 h-12 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:scale-110">
+    <i class='bx bx-chevron-up text-2xl'></i>
+</button>
+
+<!-- ===== LOGIN MODAL ===== -->
+<div id="loginModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden bg-black/60">
+    <div class="modal-card w-full max-w-sm mx-4 p-7 relative">
+        <div class="text-center mb-6">
+            <div class="mx-auto flex items-center justify-center w-14 h-14 bg-red-50 rounded-2xl mb-4">
+                <i class='bx bx-log-in text-2xl text-red-600'></i>
+            </div>
+            <h1 class="text-xl font-bold text-gray-900">Welcome Back!</h1>
+            <p class="text-gray-400 text-xs mt-1">Login to your account</p>
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-300 hover:text-gray-500 transition-colors">
+                <i class='bx bx-x text-2xl'></i>
+            </button>
+        </div>
+
+        <form class="space-y-4" id="loginForm" onsubmit="submitLoginForm(event)">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Email Address</label>
+                <div class="relative">
+                    <input type="email" id="loginEmail" name="email" required class="glass-input pr-10" placeholder="john@example.com">
+                    <i class='bx bx-envelope absolute right-3 top-2.5 text-gray-300'></i>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Password</label>
+                <div class="relative">
+                    <input type="password" id="loginPassword" name="password" required class="glass-input pr-10" placeholder="Enter your password">
+                    <i class='bx bx-lock-alt absolute right-3 top-2.5 text-gray-300'></i>
+                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
+                        <i class='bx bx-hide'></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" id="loginSubmitBtn" class="ripple-btn w-full text-white py-3 rounded-full font-bold text-sm transition-all hover:opacity-90 mt-2"
+                style="background: linear-gradient(135deg, #c0392b, #922b21);">
+                Login <i class='bx bx-right-arrow-alt ml-1 align-middle'></i>
+            </button>
+        </form>
+
+        <div class="mt-5 text-center text-xs text-gray-400">
+            <p>Forgot password? <a href="/forgot-password" class="text-red-600 font-semibold hover:underline">Click here</a></p>
+            <p class="mt-2">Don't have an account? <button onclick="switchToRegister()" class="text-red-600 font-semibold hover:underline">Sign up</button></p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== REGISTER MODAL ===== -->
+<div id="registerModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden bg-black/60">
+    <div class="modal-card w-full max-w-sm mx-4 p-7 relative">
+        <div class="text-center mb-6">
+            <div class="mx-auto flex items-center justify-center w-14 h-14 bg-red-50 rounded-2xl mb-4">
+                <i class='bx bx-user-plus text-2xl text-red-600'></i>
+            </div>
+            <h1 class="text-xl font-bold text-gray-900">Create Account</h1>
+            <p class="text-gray-400 text-xs mt-1">Join thousands of users who trust us</p>
+            <button onclick="closeRegisterModal()" class="absolute top-4 right-4 text-gray-300 hover:text-gray-500 transition-colors">
+                <i class='bx bx-x text-2xl'></i>
+            </button>
+        </div>
+
+        <form class="space-y-4" id="registerForm" onsubmit="submitRegisterForm(event)">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Full Name</label>
+                <div class="relative">
+                    <input type="text" id="registerName" name="name" required class="glass-input pr-10" placeholder="John Doe">
+                    <i class='bx bx-user absolute right-3 top-2.5 text-gray-300'></i>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Email Address</label>
+                <div class="relative">
+                    <input type="email" id="registerEmail" name="email" required class="glass-input pr-10" placeholder="john@example.com">
+                    <i class='bx bx-envelope absolute right-3 top-2.5 text-gray-300'></i>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Password</label>
+                <div class="relative">
+                    <input type="password" id="registerPassword" name="password" required class="glass-input pr-10" placeholder="••••••••">
+                    <i class='bx bx-lock-alt absolute right-3 top-2.5 text-gray-300'></i>
+                    <button type="button" class="password-toggle" onclick="togglePassword('registerPassword', this)">
+                        <i class='bx bx-hide'></i>
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">Minimum 8 characters</p>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Account Type</label>
+                <div class="relative">
+                    <select id="registerRole" name="role" class="glass-input appearance-none pr-10">
+                        <option value="User">Regular User</option>
+                        <option value="Admin">Administrator</option>
+                    </select>
+                    <i class='bx bx-chevron-down absolute right-3 top-2.5 text-gray-300 pointer-events-none'></i>
+                </div>
+            </div>
+            <div class="flex items-start gap-2 text-xs text-gray-500">
+                <input type="checkbox" id="agreeTerms" name="agreeTerms" required class="mt-0.5 w-4 h-4 text-red-600 border-gray-300 rounded">
+                <label for="agreeTerms">
+                    I agree to the
+                    <a href="#" onclick="openInfoModal('Our Terms of Service outline your responsibilities when using this platform, including acceptable use, account security, and prohibited activities.')" class="text-red-600 hover:underline">Terms of Service</a> and
+                    <a href="#" onclick="openInfoModal('Our Privacy Policy explains how we collect, use, and protect your personal data. We do not sell your information.')" class="text-red-600 hover:underline">Privacy Policy</a>.
+                </label>
+            </div>
+            <button type="submit" id="registerSubmitBtn" class="ripple-btn w-full text-white py-3 rounded-full font-bold text-sm transition-all hover:opacity-90"
+                style="background: linear-gradient(135deg, #c0392b, #922b21);">
+                Create Account <i class='bx bx-right-arrow-alt ml-1 align-middle'></i>
+            </button>
+        </form>
+
+        <div class="mt-5 text-center text-xs text-gray-400">
+            Already have an account? <button onclick="switchToLogin()" class="text-red-600 font-semibold hover:underline">Sign in</button>
+        </div>
+    </div>
+</div>
+
+<!-- INFO MODAL -->
+<div id="infoModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden bg-black/60">
+    <div class="modal-card bg-white max-w-sm mx-4 p-6 text-center">
+        <div class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <i class='bx bx-info-circle text-red-600 text-2xl'></i>
+        </div>
+        <p id="infoModalText" class="text-sm text-gray-600 leading-relaxed"></p>
+        <button onclick="closeInfoModal()" class="mt-5 bg-red-600 hover:bg-red-700 text-white text-sm px-6 py-2 rounded-full font-semibold transition-all">
+            Close
+        </button>
+    </div>
+</div>
+
+<script>
+    // Custom Alert Modal System
+    function showAlertModal(title, message, type = 'success', autoClose = true) {
+        // Remove existing modals
+        const existingOverlay = document.querySelector('.alert-overlay');
+        const existingModal = document.querySelector('.alert-modal');
+        if (existingOverlay) existingOverlay.remove();
+        if (existingModal) existingModal.remove();
+        
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'alert-overlay';
+        document.body.appendChild(overlay);
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = `alert-modal alert-${type}`;
+        
+        let iconClass = '';
+        switch(type) {
+            case 'success':
+                iconClass = 'bx-check-circle';
+                break;
+            case 'error':
+                iconClass = 'bx-x-circle';
+                break;
+            case 'warning':
+                iconClass = 'bx-error';
+                break;
+            default:
+                iconClass = 'bx-info-circle';
+        }
+        
+        modal.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md mx-4 p-8 text-center" style="min-width: 320px;">
+                <div class="alert-icon">
+                    <i class='bx ${iconClass} text-white text-3xl'></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">${title}</h3>
+                <p class="text-gray-600 text-sm leading-relaxed">${message}</p>
+                <button onclick="closeAlertModal()" class="mt-6 px-6 py-2.5 rounded-xl font-semibold text-sm transition-all w-full ${
+                    type === 'success' ? 'bg-green-600 hover:bg-green-700 text-white' :
+                    type === 'error' ? 'bg-red-600 hover:bg-red-700 text-white' :
+                    type === 'warning' ? 'bg-orange-600 hover:bg-orange-700 text-white' :
+                    'bg-blue-600 hover:bg-blue-700 text-white'
+                }">
+                    Okay
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Auto close after 3 seconds if specified
+        if (autoClose) {
+            setTimeout(() => {
+                closeAlertModal();
+            }, 3000);
+        }
+    }
+    
+    function closeAlertModal() {
+        const overlay = document.querySelector('.alert-overlay');
+        const modal = document.querySelector('.alert-modal');
+        
+        if (modal) {
+            modal.classList.add('closing');
+        }
+        if (overlay) {
+            overlay.classList.add('closing');
+        }
+        
+        setTimeout(() => {
+            if (overlay) overlay.remove();
+            if (modal) modal.remove();
+        }, 300);
+    }
+    
+    // Password visibility toggle function
+    function togglePassword(inputId, buttonElement) {
+        const passwordInput = document.getElementById(inputId);
+        const icon = buttonElement.querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('bx-hide');
+            icon.classList.add('bx-show');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('bx-show');
+            icon.classList.add('bx-hide');
+        }
+    }
+
+    // ===== CURSOR GLOW =====
+    const cursorGlow = document.getElementById('cursorGlow');
+    if (cursorGlow) {
+        document.addEventListener('mousemove', e => {
+            cursorGlow.style.left = e.clientX + 'px';
+            cursorGlow.style.top = e.clientY + 'px';
+        });
+    }
+
+    // ===== HEADER SCROLL =====
+    const header = document.getElementById('mainHeader');
+    window.addEventListener('scroll', () => {
+        if (header) header.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ===== MOBILE MENU =====
+    const menuToggle = document.getElementById('menu-toggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+    }
+
+    // ===== SMOOTH SCROLL =====
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('mobile-menu').classList.add('hidden');
+            }
+        });
+    });
+
+    // ===== BACK TO TOP =====
+    const btt = document.getElementById('backToTop');
+    if (btt) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                btt.classList.remove('opacity-0', 'invisible');
+                btt.classList.add('opacity-100', 'visible');
+            } else {
+                btt.classList.remove('opacity-100', 'visible');
+                btt.classList.add('opacity-0', 'invisible');
+            }
+        });
+        btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    }
+
+    // ===== REVEAL ON SCROLL =====
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ===== MODALS =====
+    function openLoginModal() { 
+        document.getElementById('loginModal').classList.remove('hidden'); 
+        // Clear form
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+    }
+    
+    function closeLoginModal() {
+        document.getElementById('loginModal').classList.add('hidden');
+    }
+    
+    function openRegisterModal() { 
+        document.getElementById('registerModal').classList.remove('hidden'); 
+    }
+    
+    function closeRegisterModal() {
+        document.getElementById('registerModal').classList.add('hidden');
+    }
+    
+    function switchToRegister() { closeLoginModal(); setTimeout(openRegisterModal, 150); }
+    function switchToLogin() { closeRegisterModal(); setTimeout(openLoginModal, 150); }
+    function openFeedbackModal() { document.getElementById('feedbackModal').classList.remove('hidden'); }
+    function closeFeedbackModal() { document.getElementById('feedbackModal').classList.add('hidden'); }
+    function openInfoModal(msg) {
+        document.getElementById('infoModalText').textContent = msg;
+        document.getElementById('infoModal').classList.remove('hidden');
+    }
+    function closeInfoModal() { document.getElementById('infoModal').classList.add('hidden'); }
+
+    // Close on overlay click
+    ['loginModal','registerModal','feedbackModal','infoModal'].forEach(id => {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    if (id === 'loginModal') closeLoginModal();
+                    else if (id === 'registerModal') closeRegisterModal();
+                    else if (id === 'feedbackModal') closeFeedbackModal();
+                    else closeInfoModal();
+                }
+            });
+        }
+    });
+
+    // ===== LOGIN FORM WITH ALERT MODAL =====
+    async function submitLoginForm(event) {
+        event.preventDefault();
+        
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const submitBtn = document.getElementById('loginSubmitBtn');
+        const originalText = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.innerHTML = '<span class="spinner"></span> Logging in...';
+        submitBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/login', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Show success modal
+                showAlertModal(
+                    'Login Successful!',
+                    `Welcome back, ${result.user?.name || 'User'}! You are being redirected to your dashboard.`,
+                    'success',
+                    true
+                );
+                // Redirect after 1.5 seconds
+                setTimeout(() => {
+                    window.location.href = result.redirect || '/dashboard';
+                }, 1500);
+            } else {
+                // Show error modal for failed login
+                showAlertModal(
+                    'Login Failed',
+                    result.error || 'Invalid email or password. Please check your credentials and try again.',
+                    'error',
+                    false
+                );
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            showAlertModal(
+                'Connection Error',
+                'Unable to connect to the server. Please check your internet connection and try again.',
+                'error',
+                false
+            );
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    // ===== REGISTER FORM WITH ALERT MODAL =====
+    async function submitRegisterForm(event) {
+        event.preventDefault();
+        
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const role = document.getElementById('registerRole').value;
+        const agreeTerms = document.getElementById('agreeTerms').checked;
+        const submitBtn = document.getElementById('registerSubmitBtn');
+        const originalText = submitBtn.innerHTML;
+        
+        // Validation
+        if (!name || !email || !password) {
+            showAlertModal('Registration Failed', 'Please fill in all required fields.', 'error', false);
+            return;
+        }
+        
+        if (password.length < 8) {
+            showAlertModal('Registration Failed', 'Password must be at least 8 characters long.', 'error', false);
+            return;
+        }
+        
+        if (!agreeTerms) {
+            showAlertModal('Registration Failed', 'Please agree to the Terms of Service and Privacy Policy.', 'error', false);
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.innerHTML = '<span class="spinner"></span> Creating account...';
+        submitBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/register', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password, role })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showAlertModal(
+                    'Registration Successful!',
+                    `Account created for ${name}. You can now login with your credentials.`,
+                    'success',
+                    true
+                );
+                // Close register modal and open login after 1.5 seconds
+                setTimeout(() => {
+                    closeRegisterModal();
+                    openLoginModal();
+                }, 1500);
+            } else {
+                showAlertModal('Registration Failed', result.error || 'Unable to create account. Please try again.', 'error', false);
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            showAlertModal('Connection Error', 'Unable to connect to the server. Please try again later.', 'error', false);
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    // ===== FEEDBACK FORM =====
+    function submitFeedback(event) {
+        event.preventDefault();
+        const form = document.getElementById('feedbackForm');
+        
+        fetch('/feedback/submit', { 
+            method: 'POST', 
+            body: new URLSearchParams(new FormData(form)) 
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showAlertModal('Thank You!', 'Your feedback has been submitted successfully.', 'success', true);
+                form.reset();
+                setTimeout(() => {
+                    closeFeedbackModal();
+                }, 1500);
+            } else {
+                showAlertModal('Submission Failed', data.error || 'Unable to submit feedback. Please try again.', 'error', false);
+            }
+        })
+        .catch(error => {
+            console.error('Feedback error:', error);
+            showAlertModal('Connection Error', 'Unable to submit feedback. Please check your connection.', 'error', false);
+        });
+    }
+</script>
+</body>
+</html>

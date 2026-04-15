@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link rel="icon" type="image/png" href="/img/icon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/admin/user-management.css">
+    <link rel="stylesheet" href="/css/admin/admin-theme.css">
+    <style>
+        /* Additional styles for user details */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0ece7;
+        }
+        .detail-row .lbl {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9b8f87;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .detail-row .val {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1a1410;
+        }
+        .mono {
+            font-family: monospace;
+            font-size: 11px;
+            background: #f5f2ed;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+        .btn-yellow {
+            background: #fef3c7;
+            color: #b45309;
+        }
+        .btn-yellow:hover {
+            background: #fde68a;
+        }
+    </style>
+</head>
+<body>
+<div class="min-h-screen flex">
+
+    <aside class="sidebar w-64 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl fixed h-full z-10 text-white">
+        <div class="p-6 border-b border-slate-700 flex items-center justify-between">
+            <h1 class="text-2xl font-bold flex items-center text-white">
+                <i class="fas fa-hospital-user mr-3"></i><span class="nav-text">Malasakit Admin</span>
+            </h1>
+            <button type="button" class="sidebar-toggle text-white text-lg"><i class="fas fa-bars"></i></button>
+        </div>
+        <nav class="mt-6 px-4 space-y-2">
+            <a href="/admin/dashboard" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-line w-5 mr-3 text-center"></i><span class="nav-label">Dashboard</span></a>
+            <a href="/admin/user-management" class="nav-item flex items-center py-3 px-4 bg-slate-700 text-white rounded-lg"><i class="fas fa-users-cog w-5 mr-3 text-center"></i><span class="nav-label">User Management</span></a>
+            <a href="/patient/admin" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-notes-medical w-5 mr-3 text-center"></i><span class="nav-label">Patient Concerns</span></a>
+            <a href="/admin/main-form" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-file-invoice-dollar w-5 mr-3 text-center"></i><span class="nav-label">Statement of Account</span></a>
+            <a href="/admin/reports" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-folder-open w-5 mr-3 text-center"></i><span class="nav-label">Report Templates</span></a>
+            <a href="/admin/statistics" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-pie w-5 mr-3 text-center"></i><span class="nav-label">Monthly Statistics</span></a>
+            <a href="/admin/feedback" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-comment-dots w-5 mr-3 text-center"></i><span class="nav-label">Feedback</span></a>
+        </nav>
+    </aside>
+
+    <%- include('../partials/header') %>
+
+    <main class="admin-main flex-1" style="margin-left:16rem; padding: 2.25rem 2.5rem; padding-top: 5.5rem;">
+
+        <!-- Page Header -->
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;">
+            <div>
+                <h1 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:32px;color:#1a1410;line-height:1.15;margin-bottom:3px;">User Management</h1>
+                <p style="font-size:13.5px;color:#9b8f87;font-weight:500;">Manage system users and their permissions</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <% if (stats) { %>
+                <div class="stat-chips">
+                    <div class="stat-chip chip-total"><span class="chip-dot"></span><%= stats.totalUsers || 0 %> Total</div>
+                    <div class="stat-chip chip-active"><span class="chip-dot"></span><%= stats.activeLast7Days || 0 %> Active</div>
+                    <div class="stat-chip chip-inactive"><span class="chip-dot"></span><%= stats.neverLoggedIn || 0 %> Inactive</div>
+                    <div class="stat-chip chip-admin"><span class="chip-dot"></span><%= stats.adminCount || 0 %> Admins</div>
+                </div>
+                <% } %>
+                <button onclick="openDeleteAllModal()" class="btn btn-red" style="margin-left:8px;">
+                    <i class="fas fa-trash" style="font-size:11px;"></i>Delete All
+                </button>
+            </div>
+        </div>
+
+        <% if (stats) { %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="stat-card c-blue">
+                <div class="stat-icon bg-blue-100 text-blue-600"><i class="fas fa-users"></i></div>
+                <div class="stat-value text-blue-600"><%= stats.totalUsers || 0 %></div>
+                <div class="stat-label">Total Users</div>
+                <div class="stat-sub">Admins: <%= stats.adminCount || 0 %> <span style="font-family:'EB Garamond',Georgia,serif;font-size:13px;"><%= stats.adminPercentage || 0 %>%</span></div>
+                <div class="stat-progress"><div class="stat-progress-fill" style="width:<%= stats.adminPercentage || 0 %>%"></div></div>
+            </div>
+            <div class="stat-card c-green">
+                <div class="stat-icon bg-green-100 text-green-600"><i class="fas fa-user-check"></i></div>
+                <div class="stat-value text-green-600"><%= stats.activeLast7Days || 0 %></div>
+                <div class="stat-label">Active (Last 7 Days)</div>
+                <div class="stat-sub">Activity Rate: <span style="font-family:'EB Garamond',Georgia,serif;font-size:13px;"><%= stats.activePercentage || 0 %>%</span></div>
+                <div class="stat-progress"><div class="stat-progress-fill" style="width:<%= stats.activePercentage || 0 %>%"></div></div>
+            </div>
+            <div class="stat-card c-purple">
+                <div class="stat-icon bg-purple-100 text-purple-600"><i class="fas fa-chart-pie"></i></div>
+                <div class="stat-value compact">
+                    <span style="color:#7e22ce;"><%= stats.adminCount || 0 %></span>
+                    <span style="color:#ede8e2;font-size:18px;margin:0 4px;">|</span>
+                    <span style="color:#1d4ed8;"><%= stats.userCount || 0 %></span>
+                </div>
+                <div class="stat-label">Distribution</div>
+                <div class="stat-sub">Admins / Regular Users</div>
+            </div>
+            <div class="stat-card c-orange">
+                <div class="stat-icon bg-orange-100 text-orange-600"><i class="fas fa-user-times"></i></div>
+                <div class="stat-value text-orange-600"><%= stats.neverLoggedIn || 0 %></div>
+                <div class="stat-label">Never Logged In</div>
+                <% if (stats.totalUsers > 0) { %>
+                <div class="stat-sub">Inactive: <span style="font-family:'EB Garamond',Georgia,serif;font-size:13px;"><%= Math.round((stats.neverLoggedIn / stats.totalUsers) * 100) %>%</span></div>
+                <div class="stat-progress"><div class="stat-progress-fill" style="width:<%= Math.round((stats.neverLoggedIn / stats.totalUsers) * 100) %>%"></div></div>
+                <% } %>
+            </div>
+        </div>
+
+        <% if (monthlyRegistrations) { %>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <div class="chart-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div>
+                        <p style="font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:17px;color:#1a1410;">Registrations</p>
+                        <p style="font-size:11.5px;color:#9b8f87;margin-top:1px;">Last 6 months</p>
+                    </div>
+                    <div class="chart-toggle">
+                        <button class="chart-toggle-btn active" id="reg-bar-btn" onclick="changeChartType('registration','bar');setActive('reg','bar')"><i class="fas fa-chart-bar"></i></button>
+                        <button class="chart-toggle-btn" id="reg-line-btn" onclick="changeChartType('registration','line');setActive('reg','line')"><i class="fas fa-chart-line"></i></button>
+                    </div>
+                </div>
+                <canvas id="registrationChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div>
+                        <p style="font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:17px;color:#1a1410;">Role Distribution</p>
+                        <p style="font-size:11.5px;color:#9b8f87;margin-top:1px;">Admin vs. regular users</p>
+                    </div>
+                    <div class="chart-toggle">
+                        <button class="chart-toggle-btn active" id="role-pie-btn" onclick="changeChartType('role','pie');setActive('role','pie')"><i class="fas fa-circle"></i></button>
+                        <button class="chart-toggle-btn" id="role-doughnut-btn" onclick="changeChartType('role','doughnut');setActive('role','doughnut')"><i class="fas fa-circle-notch"></i></button>
+                    </div>
+                </div>
+                <canvas id="roleChart"></canvas>
+            </div>
+        </div>
+        <% } %>
+        <% } %>
+
+        <div class="table-card">
+            <div class="table-card-header">
+                <h2 style="font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:20px;color:#fff;margin-bottom:2px;">All Users</h2>
+                <p style="font-size:12px;color:#9b9189;" id="tableSubtitle">
+                    Showing <span id="visibleCount"><%= users.length %></span> of <%= users.length %> users
+                    <% if (stats) { %> · <span style="color:#6ee7a8;"><%= stats.activeLast7Days %> active</span> · <span style="color:#f87171;"><%= stats.neverLoggedIn %> never logged in</span><% } %>
+                </p>
+            </div>
+            <div style="padding:14px 18px;border-bottom:1px solid #f0ece7;display:flex;justify-content:space-between;align-items:center;background:#faf8f5;">
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <div class="search-wrap">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchUsers" class="fi" placeholder="Search name or email…">
+                    </div>
+                    <select id="filterRole" class="fi" onchange="filterTable()">
+                        <option value="">All Roles</option>
+                        <option value="Admin">Admin</option>
+                        <option value="User">User</option>
+                    </select>
+                </div>
+                <button onclick="openAddUserModal()" class="btn btn-dark" style="font-size:12.5px;padding:7px 14px;">
+                    <i class="fas fa-user-plus" style="font-size:11px;"></i>Add User
+                </button>
+            </div>
+            <div class="table-scroll">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Created</th>
+                            <th>Last Login</th>
+                            <th>Status</th>
+                            <th style="text-align:right;padding-right:20px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (users.length === 0) { %>
+                        <tr><td colspan="7" style="text-align:center;padding:40px 14px;color:#9b8f87;">
+                            <i class="fas fa-users" style="font-size:32px;display:block;margin-bottom:10px;color:#ede8e2;"></i>
+                            No users found
+                        </td></tr>
+                        <% } else { users.forEach(user => {
+                            const isActive = user.last_login ? (new Date() - new Date(user.last_login) < 7*24*60*60*1000) : false;
+                            const neverLoggedIn = !user.last_login;
+                        %>
+                        <tr class="user-row" data-role="<%= user.role %>" data-name="<%= user.name.toLowerCase() %>" data-email="<%= user.email.toLowerCase() %>" 
+                            data-user-id="<%= user.id %>" data-user-name="<%= user.name.replace(/'/g, "\\'") %>" data-user-email="<%= user.email %>" 
+                            data-user-role="<%= user.role %>" data-user-created="<%= user.created_at %>" data-user-lastlogin="<%= user.last_login || '' %>" 
+                            data-user-lastlogout="<%= user.last_logout || '' %>">
+                            <td>
+                                <div class="user-name"><%= user.name %></div>
+                            </td>
+                            <td><span style="font-size:13px;color:#6b6259;"><%= user.email %></span></td>
+                            <td>
+                                <span class="role-badge <%= user.role === 'Admin' ? 'role-admin' : 'role-user' %>">
+                                    <%= user.role %>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="date-main"><%= new Date(user.created_at).toLocaleDateString() %></div>
+                                <div class="date-sub"><%= new Date(user.created_at).toLocaleTimeString() %></div>
+                            </td>
+                            <td>
+                                <% if (user.last_login) { %>
+                                <div class="date-main"><%= new Date(user.last_login).toLocaleDateString() %></div>
+                                <div class="date-sub"><%= new Date(user.last_login).toLocaleTimeString() %></div>
+                                <% } else { %>
+                                <span style="font-size:12.5px;font-weight:600;color:#dc2626;">Never</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (neverLoggedIn) { %>
+                                <span class="status-wrap s-inactive"><span class="status-dot"></span>Inactive</span>
+                                <% } else if (isActive) { %>
+                                <span class="status-wrap s-active"><span class="status-dot"></span>Active</span>
+                                <% } else { %>
+                                <span class="status-wrap s-idle"><span class="status-dot"></span>Idle</span>
+                                <% } %>
+                            </td>
+                            <td style="padding-right:20px;">
+                                <div style="display:flex;gap:5px;justify-content:flex-end;">
+                                    <button onclick="viewUserDetails(this)" class="act-btn act-view has-tip" data-user-id="<%= user.id %>" data-user-name="<%= user.name.replace(/'/g, "\\'") %>" data-user-email="<%= user.email %>" data-user-role="<%= user.role %>" data-user-created="<%= user.created_at %>" data-user-lastlogin="<%= user.last_login || '' %>" data-user-lastlogout="<%= user.last_logout || '' %>">
+                                        <i class="fas fa-eye"></i><span class="tip">View Details</span>
+                                    </button>
+                                    <button onclick="openEditModal('<%= user.id %>','<%= user.name.replace(/'/g, "\\'") %>','<%= user.email %>','<%= user.role %>')" class="act-btn act-edit has-tip">
+                                        <i class="fas fa-edit"></i><span class="tip">Edit User</span>
+                                    </button>
+                                    <button onclick="openDeleteModal('<%= user.id %>','<%= user.name.replace(/'/g, "\\'") %>')" class="act-btn act-delete has-tip">
+                                        <i class="fas fa-trash"></i><span class="tip">Delete User</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }) } %>
+                    </tbody>
+                </table>
+            </div>
+            <div style="padding:12px 20px;border-top:1px solid #f0ece7;display:flex;justify-content:space-between;align-items:center;background:#faf8f5;">
+                <span style="font-size:12.5px;color:#9b8f87;">Total: <strong style="color:#1a1410;font-family:'EB Garamond',Georgia,serif;font-size:14px;"><%= users.length %></strong> users</span>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="toastContainer"></div>
+
+<!-- Add User Modal -->
+<div id="addUserModal" class="modal">
+    <div class="modal-box">
+        <div class="modal-stripe ms-dark"></div>
+        <div class="modal-inner">
+            <div class="modal-icon-wrap mi-dark">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            </div>
+            <div class="modal-tag mt-dark"><span class="modal-dot md-dark"></span>New User</div>
+            <h3 class="modal-title">Add a new user</h3>
+            <form id="addUserForm">
+                <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:4px;">
+                    <div>
+                        <div class="section-label">Full Name</div>
+                        <input type="text" name="name" class="modal-fi" placeholder="Name" required>
+                    </div>
+                    <div>
+                        <div class="section-label">Email Address</div>
+                        <input type="email" name="email" class="modal-fi" placeholder="email@example.com" required>
+                    </div>
+                    <div>
+                        <div class="section-label">Role</div>
+                        <select name="role" class="modal-fi" required>
+                            <option value="User">User</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#4a4340;cursor:pointer;">
+                        <input type="checkbox" name="sendEmail" class="accent-amber-600" style="width:15px;height:15px;border-radius:4px;">
+                        Send welcome email with credentials
+                    </label>
+                </div>
+                <div class="modal-divider"></div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeAddUserModal()" class="btn btn-ghost">Cancel</button>
+                    <button type="submit" class="btn btn-dark"><i class="fas fa-user-plus" style="font-size:11px;"></i>Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-box">
+        <div class="modal-stripe ms-blue"></div>
+        <div class="modal-inner">
+            <div class="modal-icon-wrap mi-blue">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <div class="modal-tag mt-blue"><span class="modal-dot md-blue"></span>Edit User</div>
+            <h3 class="modal-title">Update user details</h3>
+            <form id="editForm">
+                <input type="hidden" name="id" id="editUserId">
+                <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:4px;">
+                    <div>
+                        <div class="section-label">Full Name</div>
+                        <input type="text" name="name" id="editUserName" class="modal-fi" required>
+                    </div>
+                    <div>
+                        <div class="section-label">Email Address</div>
+                        <input type="email" name="email" id="editUserEmail" class="modal-fi" required>
+                    </div>
+                    <div>
+                        <div class="section-label">Role</div>
+                        <select name="role" id="editUserRole" class="modal-fi" required>
+                            <option value="Admin">Admin</option>
+                            <option value="User">User</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-divider"></div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeEditModal()" class="btn btn-ghost">Cancel</button>
+                    <button type="submit" class="btn btn-blue"><i class="fas fa-save" style="font-size:11px;"></i>Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-box">
+        <div class="modal-stripe ms-red"></div>
+        <div class="modal-inner">
+            <div class="modal-icon-wrap mi-red">
+                <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+            </div>
+            <div class="modal-tag mt-red"><span class="modal-dot md-red"></span>Delete User</div>
+            <h3 class="modal-title">Delete this user?</h3>
+            <div class="modal-warning">
+                <p class="w-title"><i class="fas fa-exclamation-triangle mr-1"></i>This cannot be undone</p>
+                <p>The account for <strong id="deleteUserName"></strong> and its related requests, intake sheets, and notifications will be permanently removed.</p>
+            </div>
+            <div class="modal-divider"></div>
+            <div class="modal-actions">
+                <button onclick="closeDeleteModal()" class="btn btn-ghost">Cancel</button>
+                <button onclick="confirmDelete()" class="btn btn-red"><i class="fas fa-trash" style="font-size:11px;"></i>Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete All Modal -->
+<div id="deleteAllModal" class="modal">
+    <div class="modal-box">
+        <div class="modal-stripe ms-red"></div>
+        <div class="modal-inner">
+            <div class="modal-icon-wrap mi-red">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="modal-tag mt-red"><span class="modal-dot md-red"></span>Delete All</div>
+            <h3 class="modal-title">Delete all users?</h3>
+            <div class="modal-warning">
+                <p class="w-title"><i class="fas fa-exclamation-triangle mr-1"></i>This cannot be undone</p>
+                <p>All user accounts will be removed except your own, including their related requests, intake sheets, and notifications. This action is irreversible.</p>
+            </div>
+            <div class="modal-divider"></div>
+            <div class="modal-actions">
+                <button onclick="closeDeleteAllModal()" class="btn btn-ghost">Cancel</button>
+                <button onclick="confirmDeleteAll()" class="btn btn-red"><i class="fas fa-trash" style="font-size:11px;"></i>Delete All</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Details Modal (FIXED - Now uses data from table row instead of API call) -->
+<div id="userDetailsModal" class="modal">
+    <div class="modal-box wide">
+        <div class="modal-stripe ms-green"></div>
+        <div class="modal-inner">
+            <div class="modal-icon-wrap mi-green">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="modal-tag mt-green"><span class="modal-dot md-green"></span>User Details</div>
+            <h3 class="modal-title" id="detailsModalTitle">User Profile</h3>
+            <div id="userDetailsContent"></div>
+            <div class="modal-divider"></div>
+            <div class="modal-actions">
+                <button onclick="closeUserDetailsModal()" class="btn btn-ghost">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let userIdToDelete = null;
+    let registrationChart = null;
+    let roleChart = null;
+    let currentViewUserId = null;
+
+    function openModal(id)  { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow = 'auto'; }
+
+    function openAddUserModal()    { openModal('addUserModal'); }
+    function closeAddUserModal()   { closeModal('addUserModal'); }
+    function openEditModal(id, name, email, role) {
+        document.getElementById('editUserId').value    = id;
+        document.getElementById('editUserName').value  = name;
+        document.getElementById('editUserEmail').value = email;
+        document.getElementById('editUserRole').value  = role;
+        openModal('editModal');
+    }
+    function closeEditModal()      { closeModal('editModal'); }
+    function openDeleteModal(id, name) {
+        userIdToDelete = id;
+        document.getElementById('deleteUserName').textContent = name;
+        openModal('deleteModal');
+    }
+    function closeDeleteModal()    { closeModal('deleteModal'); userIdToDelete = null; }
+    function openDeleteAllModal()  { openModal('deleteAllModal'); }
+    function closeDeleteAllModal() { closeModal('deleteAllModal'); }
+    function closeUserDetailsModal() { closeModal('userDetailsModal'); }
+
+    /* FIXED: viewUserDetails - Now uses data from the button's data attributes instead of API call */
+    function viewUserDetails(buttonElement) {
+        // Get user data from the button's data attributes
+        const userId = buttonElement.getAttribute('data-user-id');
+        const userName = buttonElement.getAttribute('data-user-name');
+        const userEmail = buttonElement.getAttribute('data-user-email');
+        const userRole = buttonElement.getAttribute('data-user-role');
+        const userCreated = buttonElement.getAttribute('data-user-created');
+        const userLastLogin = buttonElement.getAttribute('data-user-lastlogin');
+        const userLastLogout = buttonElement.getAttribute('data-user-lastlogout');
+        
+        // Find the parent row to get additional data if needed
+        const row = buttonElement.closest('tr');
+        
+        // Determine status
+        const isActive = userLastLogin ? (new Date() - new Date(userLastLogin) < 7*24*60*60*1000) : false;
+        const neverLoggedIn = !userLastLogin;
+        
+        let statusLabel = '';
+        if (neverLoggedIn) {
+            statusLabel = '<span style="color:#dc2626;font-weight:600;">Inactive (Never logged in)</span>';
+        } else if (isActive) {
+            statusLabel = '<span style="color:#1a7a42;font-weight:600;">Active (Last 7 days)</span>';
+        } else {
+            statusLabel = '<span style="color:#d97706;font-weight:600;">Idle (More than 7 days ago)</span>';
+        }
+        
+        const roleColor = userRole === 'Admin' ? '#7e22ce' : '#1d4ed8';
+        
+        document.getElementById('detailsModalTitle').textContent = userName;
+        document.getElementById('userDetailsContent').innerHTML = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;">
+                <div class="detail-row"><span class="lbl">Full Name</span><span class="val">${escapeHtml(userName)}</span></div>
+                <div class="detail-row"><span class="lbl">Role</span><span class="val" style="color:${roleColor};">${escapeHtml(userRole)}</span></div>
+                <div class="detail-row" style="grid-column:span 2"><span class="lbl">Email</span><span class="val">${escapeHtml(userEmail)}</span></div>
+                <div class="detail-row"><span class="lbl">Created</span><span class="val">${userCreated ? new Date(userCreated).toLocaleString() : 'Unknown'}</span></div>
+                <div class="detail-row"><span class="lbl">Last Login</span><span class="val">${userLastLogin ? new Date(userLastLogin).toLocaleString() : 'Never'}</span></div>
+                <div class="detail-row"><span class="lbl">Last Logout</span><span class="val">${userLastLogout ? new Date(userLastLogout).toLocaleString() : 'Never'}</span></div>
+                <div class="detail-row"><span class="lbl">Status</span><span class="val">${statusLabel}</span></div>
+                <div class="detail-row" style="grid-column:span 2"><span class="lbl">User ID</span><span class="val mono">${escapeHtml(userId)}</span></div>
+            </div>
+            <div style="display:flex;gap:8px;padding-top:4px;">
+                <button onclick="closeUserDetailsModal();openEditModal('${userId}','${escapeHtml(userName)}','${escapeHtml(userEmail)}','${userRole}')" class="btn btn-blue" style="font-size:12.5px;padding:7px 14px;"><i class="fas fa-edit" style="font-size:11px;"></i>Edit User</button>
+                <button onclick="resetUserPassword('${userId}')" class="btn btn-yellow" style="font-size:12.5px;padding:7px 14px;"><i class="fas fa-key" style="font-size:11px;"></i>Reset Password</button>
+            </div>`;
+        openModal('userDetailsModal');
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function resetUserPassword(userId) {
+        if (!confirm("Reset this user's password? A new password will be emailed to them.")) return;
+        fetch(`/users/reset-password/${userId}`, { method: 'POST' })
+            .then(r => r.json())
+            .then(d => { 
+                if (d.success) { 
+                    showToast('Password reset email sent successfully!'); 
+                    closeUserDetailsModal(); 
+                } else showToast(d.message, 'error'); 
+            })
+            .catch(() => showToast('Error resetting password', 'error'));
+    }
+
+    /* Backdrop + ESC */
+    document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); }));
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') ['addUserModal','editModal','deleteModal','deleteAllModal','userDetailsModal'].forEach(closeModal);
+    });
+
+    function showToast(message, type = 'success') {
+        const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', info:'fa-info-circle', warning:'fa-exclamation-triangle' };
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.innerHTML = `<i class="fas ${icons[type]||'fa-info-circle'}"></i><span style="flex:1;">${message}</span><button class="toast-close">&times;</button>`;
+        document.getElementById('toastContainer').appendChild(t);
+        setTimeout(() => t.classList.add('show'), 10);
+        t.querySelector('.toast-close').addEventListener('click', () => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); });
+        setTimeout(() => { if (t.parentNode) { t.classList.remove('show'); setTimeout(() => t.remove(), 300); } }, 5000);
+    }
+
+    function filterTable() {
+        const q = document.getElementById('searchUsers').value.toLowerCase();
+        const r = document.getElementById('filterRole').value;
+        let vis = 0;
+        document.querySelectorAll('.user-row').forEach(row => {
+            const match = (row.dataset.name.includes(q) || row.dataset.email.includes(q)) && (!r || row.dataset.role === r);
+            row.style.display = match ? '' : 'none';
+            if (match) vis++;
+        });
+        document.getElementById('visibleCount').textContent = vis;
+    }
+    document.getElementById('searchUsers').addEventListener('input', filterTable);
+
+    /* CHARTS */
+    function setActive(chart, type) {
+        if (chart === 'reg') {
+            document.getElementById('reg-bar-btn').classList.toggle('active', type === 'bar');
+            document.getElementById('reg-line-btn').classList.toggle('active', type === 'line');
+        } else {
+            document.getElementById('role-pie-btn').classList.toggle('active', type === 'pie');
+            document.getElementById('role-doughnut-btn').classList.toggle('active', type === 'doughnut');
+        }
+    }
+
+    function changeChartType(name, type) {
+        const chart = name === 'registration' ? registrationChart : roleChart;
+        if (chart) { chart.config.type = type; chart.update(); }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        <% if (stats && monthlyRegistrations) { %>
+        const regCtx = document.getElementById('registrationChart')?.getContext('2d');
+        if (regCtx) {
+            const md = JSON.parse('<%- JSON.stringify(monthlyRegistrations) %>');
+            registrationChart = new Chart(regCtx, {
+                type: 'bar',
+                data: {
+                    labels: md.map(i => new Date(i.month+'-01').toLocaleDateString('en-US',{month:'short',year:'numeric'})),
+                    datasets: [{ label: 'New Users', data: md.map(i => i.count), backgroundColor: 'rgba(26,20,16,0.75)', borderColor: '#1a1410', borderWidth: 1, borderRadius: 6 }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0ece7' } }, x: { grid: { display: false } } } }
+            });
+        }
+
+        const roleCtx = document.getElementById('roleChart')?.getContext('2d');
+        if (roleCtx) {
+            roleChart = new Chart(roleCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Admins', 'Regular Users'],
+                    datasets: [{ data: [<%= stats.adminCount||0 %>, <%= stats.userCount||0 %>], backgroundColor: ['rgba(126,34,206,0.8)', 'rgba(29,78,216,0.8)'], borderColor: ['rgba(126,34,206,1)', 'rgba(29,78,216,1)'], borderWidth: 2 }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } }, tooltip: { callbacks: { label: ctx => { const t = ctx.dataset.data.reduce((a,b)=>a+b,0); return `${ctx.label}: ${ctx.parsed} (${Math.round(ctx.parsed/t*100)}%)`; } } } } }
+            });
+        }
+        <% } %>
+    });
+
+    /* CRUD ACTIONS */
+    function confirmDelete() {
+        if (!userIdToDelete) return;
+        fetch(`/users/delete/${userIdToDelete}`, { method: 'POST', headers: {'Content-Type':'application/json'} })
+            .then(r => r.json())
+            .then(d => { if (d.success) { showToast('User deleted successfully!'); setTimeout(() => location.reload(), 1000); } else showToast(d.message, 'error'); closeDeleteModal(); })
+            .catch(() => { showToast('Error deleting user', 'error'); closeDeleteModal(); });
+    }
+
+    function confirmDeleteAll() {
+        fetch('/users/delete-all', { method: 'DELETE', headers: {'Content-Type':'application/json'} })
+            .then(r => r.json())
+            .then(d => { if (d.success) { showToast('All users deleted!'); setTimeout(() => location.reload(), 1000); } else showToast(d.message, 'error'); closeDeleteAllModal(); })
+            .catch(() => { showToast('Error deleting users', 'error'); closeDeleteAllModal(); });
+    }
+
+    /* FORM SUBMISSIONS */
+    document.getElementById('addUserForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(this).entries());
+        fetch('/users/add', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) })
+            .then(r => r.json())
+            .then(d => { if (d.success) { showToast('User added successfully!'); closeAddUserModal(); setTimeout(() => location.reload(), 1500); } else showToast(d.message, 'error'); })
+            .catch(() => showToast('Error adding user', 'error'));
+    });
+
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const data = { id: document.getElementById('editUserId').value, name: document.getElementById('editUserName').value, email: document.getElementById('editUserEmail').value, role: document.getElementById('editUserRole').value };
+        fetch(`/users/edit/${data.id}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) })
+            .then(r => r.json())
+            .then(d => { if (d.success) { showToast('User updated successfully!'); setTimeout(() => location.reload(), 1500); } else showToast(d.message, 'error'); closeEditModal(); })
+            .catch(() => { showToast('Error updating user', 'error'); closeEditModal(); });
+    });
+</script>
+<script>
+(() => {
+    const key = 'adminSidebarCollapsed';
+    if (localStorage.getItem(key) === '1') document.body.classList.add('sidebar-collapsed');
+    document.querySelectorAll('.sidebar-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-collapsed');
+            localStorage.setItem(key, document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+        });
+    });
+})();
+</script>
+</body>
+</html>

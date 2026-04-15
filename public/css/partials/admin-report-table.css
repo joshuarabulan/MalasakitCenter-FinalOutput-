@@ -1,0 +1,11 @@
+#downloadBtn:disabled,
+#printBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: auto;
+}
+
+#downloadBtn:disabled:hover,
+#printBtn:disabled:hover {
+    background-color: white !important;
+}

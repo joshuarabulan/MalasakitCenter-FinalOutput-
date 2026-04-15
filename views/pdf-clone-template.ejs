@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Statement of Account</title>
+    <style>
+        @page {
+            size: A4;
+            page per sheet: 1;
+            margin: 5mm;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.2;
+            color: #000;
+            background: white;
+            padding: 10px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        .main-border {
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            padding-top: 10px;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .logo {
+            position: absolute;
+            left: 20%;
+            top: 40%;
+            transform: translate(-160px, -50%);
+            width: 64px;
+            height: 64px;
+        }
+        
+        .logo img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+        }
+        
+        .header-text {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .header-text div {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        
+        .title {
+            font-weight: bold;
+            font-size: 18px;
+            text-decoration: underline;
+            margin-top: 10px;
+            color: #0066cc;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            font-size: 11px;
+        }
+        
+        .table th,
+        .table td {
+            border: 1px solid #000;
+            padding: 4px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        .table th {
+            font-weight: bold;
+            background-color: #f0f8ff;
+        }
+        
+        .table .text-center {
+            text-align: center;
+        }
+        
+        .table .font-semibold {
+            font-weight: bold;
+        }
+        
+        .patient-table {
+            font-size: 10px;
+        }
+        
+        .patient-table td:first-child {
+            width: 16.666%;
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+        
+        .patient-table td:nth-child(2) {
+            width: 33.333%;
+        }
+        
+        .patient-table td:nth-child(3) {
+            width: 16.666%;
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+        
+        .patient-table td:nth-child(4) {
+            width: 33.333%;
+        }
+        
+        .charges-table th:first-child {
+            text-align: left;
+            width: 25%;
+        }
+        
+        .charges-table th {
+            text-align: center;
+            width: 15%;
+        }
+        
+        .summary-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+            background: #e6f2ff;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .classification {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .classification-box {
+            border: 1px solid #000;
+            padding: 24px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        
+        .signatures {
+            margin-bottom: 8px;
+            margin-top: 16px;
+            font-size: 10px;
+        }
+        
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .signature-table td {
+            width: 50%;
+            padding: 0 20px;
+            vertical-align: top;
+            border: none;
+        }
+        
+        .signature-group {
+            margin-bottom: 20px;
+        }
+        
+        .signature-label {
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-align: left;
+        }
+        
+        .signature-line {
+            border-bottom: 1px solid #000;
+            height: 48px;
+            position: relative;
+            margin-bottom: 4px;
+        }
+        
+        .signature-name {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 9px;
+        }
+        
+        .signature-name div {
+            line-height: 1.1;
+        }
+        
+        .acknowledgment {
+            border-top: 2px solid #000;
+            padding-top: 16px;
+            margin-top: 16px;
+        }
+        
+        .acknowledgment-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 16px;
+            color: #0066cc;
+        }
+        
+        .acknowledgment-text {
+            font-size: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .acknowledgment-text p {
+            margin-bottom: 8px;
+        }
+        
+        .underline-blank {
+            border-bottom: 1px solid #000;
+            display: inline-block;
+            margin: 0 8px;
+            padding: 0 32px;
+        }
+        
+        .underline-small {
+            padding: 0 16px;
+        }
+        
+        .receipt-signature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .receipt-signature-table td {
+            width: 50%;
+            padding: 0 20px;
+            vertical-align: top;
+            border: none;
+        }
+        
+        .receipt-signature-line {
+            border-bottom: 1px solid #000;
+            height: 48px;
+            margin-bottom: 8px;
+        }
+        
+        .receipt-label {
+            text-align: center;
+            font-size: 9px;
+        }
+        
+        .empty-row {
+            height: 24px;
+        }
+        
+        .subtotal-row {
+            font-weight: bold;
+            background-color: #e6f2ff;
+        }
+        
+        .total-row {
+            font-weight: bold;
+            background-color: #d9edf7;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="main-border">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-content">
+                    <div class="logo">
+                        <img src="https://i.ibb.co/Xxmvg20N/pgom.png" alt="capitol logo">
+                    </div>
+                    <div class="header-text">
+                        <div>PROVINCE OF ORIENTAL MINDORO</div>
+                        <div>CITY OF CALAPAN</div>
+                        <div>ORIENTAL MINDORO PROVINCIAL HOSPITAL</div>
+                    </div>
+                </div>
+                <div class="title">STATEMENT OF ACCOUNT</div>
+            </div>
+
+            <!-- Patient Information -->
+            <table class="table patient-table">
+                <tbody>
+                <tr>
+                    <td class="font-semibold">Name</td>
+                    <td><%= record.name %></td>
+                    <td class="font-semibold">ICD/IVS</td>
+                    <td><%= record.icd_ivs %></td>
+                </tr>
+                <tr>
+                    <td class="font-semibold">Address</td>
+                    <td><%= record.address %></td>
+                    <td class="font-semibold">Ward</td>
+                    <td><%= record.ward %></td>
+                </tr>
+                <tr>
+                    <td class="font-semibold">Confinement Period</td>
+                    <td>
+                        <%= new Date(record.confinement_start).toLocaleDateString() %> to
+                        <%= new Date(record.confinement_end).toLocaleDateString() %>
+                    </td>
+                    <td class="font-semibold">Age</td>
+                    <td><%= record.age %></td>
+                </tr>
+                <tr>
+                    <td class="font-semibold">Hospital Number</td>
+                    <td><%= record.hospital_number %></td>
+                    <td class="font-semibold">Date</td>
+                    <td><%= new Date(record.date).toLocaleDateString() %></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- Hospital Charges Table -->
+            <table class="table charges-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Hospital Charges:</th>
+                        <th>Actual Charges</th>
+                        <th>Discounts (SC/PWD)</th>
+                        <th>Philhealth Case Rate</th>
+                        <th>Amount Due</th>
+                        <th>Breakdown of Amount for Medical Assistance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% 
+                    const serviceTypes = [
+                        "Drugs and Medicines",
+                        "Laboratory",
+                        "Medical Supplies",
+                        "X-ray",
+                        "ECG",
+                        "CT Scan",
+                        "Ultrasound",
+                        "Oxygen",
+                        "R&B",
+                        "OR/DR",
+                        "Diagnostic",
+                        "Implant"
+                    ];
+                    
+                    let subtotal = {
+                        actualCharges: 0,
+                        discounts: 0,
+                        philhealth: 0,
+                        amountDue: 0,
+                        breakdown: 0
+                    };
+                    
+                    const serviceMap = {};
+                    services.forEach(service => {
+                        serviceMap[service.service] = service;
+                    });
+                    
+                    serviceTypes.forEach(type => {
+                        const service = serviceMap[type] || {
+                            amount: 0,
+                            discount: 0,
+                            philhealth: 0,
+                            amount_due: 0
+                        };
+                        
+                        const amount = parseFloat(service.amount) || 0;
+                        const discount = parseFloat(service.discount) || 0;
+                        const philhealth = parseFloat(service.philhealth_case_rate) || 0;
+                        const amountDue = parseFloat(service.amount_due) || 0;
+                        
+                        subtotal.actualCharges += amount;
+                        subtotal.discounts += discount;
+                        subtotal.philhealth += philhealth;
+                        subtotal.amountDue += amountDue;
+                        subtotal.breakdown += amountDue;
+                    %>
+                    <tr>
+                        <td><%= type %></td>
+                        <td class="text-center"><%= amount.toFixed(2) %></td>
+                        <td class="text-center"><%= discount.toFixed(2) %></td>
+                        <td class="text-center"><%= philhealth.toFixed(2) %></td>
+                        <td class="text-center"><%= amountDue.toFixed(2) %></td>
+                        <td class="text-center"><%= amountDue.toFixed(2) %></td>
+                    </tr>
+                    <% }); %>
+                    
+                    <% for (let i = 0; i < 3; i++) { %>
+                    <tr class="empty-row">
+                        <td></td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                    </tr>
+                    <% } %>
+                    
+                    <tr class="subtotal-row">
+                        <td>SUBTOTAL</td>
+                        <td class="text-center"><%= subtotal.actualCharges.toFixed(2) %></td>
+                        <td class="text-center"><%= subtotal.discounts.toFixed(2) %></td>
+                        <td class="text-center"><%= subtotal.philhealth.toFixed(2) %></td>
+                        <td class="text-center"><%= subtotal.amountDue.toFixed(2) %></td>
+                        <td class="text-center"><%= subtotal.breakdown.toFixed(2) %></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Summary of Charges -->
+            <div class="summary-title">SUMMARY OF CHARGES</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">PARTICULARS</th>
+                        <th>Actual Charges</th>
+                        <th>Discounts (SC/PWD)</th>
+                        <th>Amount Due</th>
+                        <th>Breakdown of Amount for Medical Assistance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>HOSPITAL CHARGES</td>
+                        <td class="text-center"><%= subtotal.actualCharges.toFixed(2) %></td>
+                        <td class="text-center"><%= subtotal.discounts.toFixed(2) %></td>
+                        <td class="text-center"><%= subtotal.amountDue.toFixed(2) %></td>
+                        <td class="text-center"><%= subtotal.breakdown.toFixed(2) %></td>
+                    </tr>
+                    <tr>
+                        <td>Non-PHF Meds</td>
+                        <td class="text-center"><%= (parseFloat(record.non_phf_meds) || 0).toFixed(2) %></td>
+                        <td class="text-center">-</td>
+                        <td class="text-center"><%= (parseFloat(record.non_phf_meds) || 0).toFixed(2) %></td>
+                        <td class="text-center"><%= (parseFloat(record.non_phf_meds) || 0).toFixed(2) %></td>
+                    </tr>
+                    <tr>
+                        <td>Hemodialysis Treatment</td>
+                        <td class="text-center"><%= (parseFloat(record.hemodialysis) || 0).toFixed(2) %></td>
+                        <td class="text-center">-</td>
+                        <td class="text-center"><%= (parseFloat(record.hemodialysis) || 0).toFixed(2) %></td>
+                        <td class="text-center"><%= (parseFloat(record.hemodialysis) || 0).toFixed(2) %></td>
+                    </tr>
+                    <tr>
+                        <td>Implant</td>
+                        <td class="text-center"><%= (parseFloat(record.implant) || 0).toFixed(2) %></td>
+                        <td class="text-center">-</td>
+                        <td class="text-center"><%= (parseFloat(record.implant) || 0).toFixed(2) %></td>
+                        <td class="text-center"><%= (parseFloat(record.implant) || 0).toFixed(2) %></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td>TOTAL</td>
+                        <td class="text-center">
+                            <%= (subtotal.actualCharges + 
+                                (parseFloat(record.non_phf_meds) || 0) + 
+                                (parseFloat(record.hemodialysis) || 0) + 
+                                (parseFloat(record.implant) || 0)).toFixed(2) %>
+                        </td>
+                        <td class="text-center"><%= subtotal.discounts.toFixed(2) %></td>
+                        <td class="text-center">
+                            <%= (subtotal.amountDue + 
+                                (parseFloat(record.non_phf_meds) || 0) + 
+                                (parseFloat(record.hemodialysis) || 0) + 
+                                (parseFloat(record.implant) || 0)).toFixed(2) %>
+                        </td>
+                        <td class="text-center">
+                            <%= (subtotal.breakdown + 
+                                (parseFloat(record.non_phf_meds) || 0) + 
+                                (parseFloat(record.hemodialysis) || 0) + 
+                                (parseFloat(record.implant) || 0)).toFixed(2) %>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Classification -->
+            <div class="classification">
+                <div class="classification-box">
+                    CLASSIFICATION: OBS
+                </div>
+            </div>
+
+            <!-- Signatures -->
+            <div class="signatures">
+                <table class="signature-table">
+                    <tr>
+                        <!-- Left Column: Prepared -->
+                        <td>
+                            <div class="signature-group">
+                                <div class="signature-label">Prepared:</div>
+                                <div class="signature-line">
+                                    <div class="signature-name">
+                                        <div>NHOODZ JOHN NIXON E. ESCALONA</div>
+                                        <div>BILLING CLERK</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <!-- Right Column: Noted -->
+                        <td>
+                            <div class="signature-group">
+                                <div class="signature-label">Noted:</div>
+                                <div class="signature-line">
+                                    <div class="signature-name">
+                                        <div>DANTE A. NUESTRO, MD, MHA.</div>
+                                        <div>OIC - Chief of Hospital</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- Left Column: Certified Correct -->
+                        <td>
+                            <div class="signature-group">
+                                <div class="signature-label">Certified Correct:</div>
+                                <div class="signature-line">
+                                    <div class="signature-name">
+                                        <div>MYRNA I. LAYUG</div>
+                                        <div>BILLING OFFICE - In Charge</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <!-- Right Column: Empty -->
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Acknowledgment Receipt -->
+            <div class="acknowledgment">
+                <div class="acknowledgment-title">ACKNOWLEDGEMENT RECEIPT FOR MEDICAL ASSISTANCE</div>
+
+                <div class="acknowledgment-text">
+                    <p>
+                        This is to acknowledge the receipt of medical assistance from
+                        <span class="underline-blank"></span>
+                        amounting to
+                        <span class="underline-blank"></span>
+                        in payment for
+                        <span class="underline-blank"></span>
+                    </p>
+                </div>
+
+                <div class="acknowledgment-text">
+                    <p>
+                        Signed this <span class="underline-blank underline-small"></span> day of
+                        <span class="underline-blank"></span>, 2025.
+                    </p>
+                </div>
+
+                <!-- Receipt Signatures: Approved and Received (same row) -->
+                <table class="receipt-signature-table">
+                    <tr>
+                        <td>
+                            <div class="signature-label">Approved:</div>
+                            <div class="receipt-signature-line"></div>
+                        </td>
+                        
+                        <td>
+                            <div class="signature-label">Received:</div>
+                            <div class="receipt-signature-line"></div>
+                            <div class="receipt-label">Signature over Printed Name</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

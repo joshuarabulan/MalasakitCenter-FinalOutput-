@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Analytics</title>
+    <link rel="icon" type="image/png" href="/img/icon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/admin/feedback.css">
+    <link rel="stylesheet" href="/css/admin/feedback-inline-2.css">
+<link rel="stylesheet" href="/css/admin/admin-theme.css">
+</head>
+
+<body class="bg-gray-50">
+    <div id="toastContainer"></div>
+
+    <div class="min-h-screen flex">
+        <aside class="sidebar w-64 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl fixed h-full z-10 text-white">
+            <div class="p-6 border-b border-slate-700 flex items-center justify-between">
+                <h1 class="text-2xl font-bold flex items-center text-white">
+                    <i class="fas fa-hospital-user mr-3"></i><span class="nav-text">Malasakit Admin</span>
+                </h1>
+                <button type="button" class="sidebar-toggle text-white text-lg"><i class="fas fa-bars"></i></button>
+            </div>
+            <nav class="mt-6 px-4 space-y-2">
+                <a href="/admin/dashboard" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-line w-5 mr-3 text-center"></i><span class="nav-label">Dashboard</span></a>
+                <a href="/admin/user-management" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-users-cog w-5 mr-3 text-center"></i><span class="nav-label">User Management</span></a>
+                <a href="/patient/admin" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-notes-medical w-5 mr-3 text-center"></i><span class="nav-label">Patient Concerns</span></a>
+                <a href="/admin/main-form" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-file-invoice-dollar w-5 mr-3 text-center"></i><span class="nav-label">Statement of Account</span></a>
+                <a href="/admin/reports" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-folder-open w-5 mr-3 text-center"></i><span class="nav-label">Report Templates</span></a>
+                <a href="/admin/statistics" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-pie w-5 mr-3 text-center"></i><span class="nav-label">Monthly Statistics</span></a>
+                <a href="/admin/feedback" class="nav-item flex items-center py-3 px-4 bg-slate-700 text-white rounded-lg"><i class="fas fa-comment-dots w-5 mr-3 text-center"></i><span class="nav-label">Feedback</span></a>
+            </nav>
+        </aside>
+
+        <div class="admin-main flex-1 mt-1" style="margin-left:16rem;">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
+                   <div>
+                    <h1 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:32px;color:#1a1410;line-height:1.15;margin-bottom:3px;">Feedback Analytics</h1>
+                    <p style="font-size:13.5px;color:#9b8f87;font-weight:500;">Real-time analytics on patient feedback, satisfaction distribution, and service quality metrics</p>
+                </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="confirmDownloadPDF()" class="btn-pdf">
+                            <i class="fas fa-file-pdf"></i>
+                            <span id="downloadText">Download All Feedback</span>
+                            <i id="downloadSpinner" class="fas fa-spinner fa-spin hidden"></i>
+                        </button>
+                        <button onclick="confirmDeleteAll()" class="btn-delete-all">
+                            <i class="fas fa-trash-alt"></i>
+                            <span>Delete All Feedback</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="deleteSingleModal" class="sd-modal-overlay hidden">
+                    <div class="sd-modal-box">
+                        <div class="sd-stripe"></div>
+                        <div class="sd-body">
+                            <div class="sd-icon-wrap">
+                                <svg viewBox="0 0 24 24">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                                    <path d="M10 11v6M14 11v6"/>
+                                    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+                                </svg>
+                            </div>
+                            <div id="sdPatientChip" class="sd-patient-chip">
+                                <i class="fas fa-user"></i>
+                                <span id="sdPatientName">Ã¢â‚¬â€</span>
+                            </div>
+                            <h3 class="sd-title">Delete this feedback?</h3>
+                            <p class="sd-desc">
+                                This entry will be <strong style="color:#1a1410;">permanently removed</strong> and cannot be recovered.
+                            </p>
+                            <div class="sd-divider"></div>
+                            <div class="sd-actions">
+                                <button onclick="closeSingleDeleteModal()" class="dm-btn dm-btn-cancel">Cancel</button>
+                                <button onclick="confirmSingleDelete()" class="dm-btn dm-btn-delete">
+                                    <i class="fas fa-trash-alt" style="margin-right:6px;font-size:12px;"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="downloadPDFModal" class="dm-modal-overlay hidden">
+                    <div class="dm-modal-box">
+                        <div class="dm-modal-stripe dm-modal-stripe--pdf"></div>
+                        <div class="dm-modal-body">
+                            <div class="dm-icon-wrap dm-icon-wrap--pdf">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="12" y1="18" x2="12" y2="12"/>
+                                    <line x1="9" y1="15" x2="15" y2="15"/>
+                                </svg>
+                            </div>
+                            <div class="dm-warning-tag dm-warning-tag--pdf">
+                                <span class="dm-warning-dot dm-warning-dot--pdf"></span>
+                                Full report export
+                            </div>
+                            <h3 class="dm-modal-title">Download PDF Report?</h3>
+                            <p class="dm-modal-desc">
+                                You're about to export <strong>all feedback analytics</strong> as a PDF report.
+                                This will include all charts, summaries, and feedback entries currently visible.
+                            </p>
+                            <div class="dm-divider"></div>
+                            <div class="dm-modal-actions">
+                                <button onclick="closePDFModal()" class="dm-btn dm-btn-cancel">Cancel</button>
+                                <button onclick="proceedDownloadPDF()" class="dm-btn dm-btn-download">
+                                    <i class="fas fa-download" style="margin-right:6px;"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="deleteAllModal" class="dm-modal-overlay hidden">
+                    <div class="dm-modal-box">
+                        <div class="dm-modal-stripe"></div>
+                        <div class="dm-modal-body">
+                            <div class="dm-icon-wrap">
+                                <svg viewBox="0 0 24 24">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                                    <path d="M10 11v6M14 11v6"/>
+                                    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+                                </svg>
+                            </div>
+                            <div class="dm-warning-tag">
+                                <span class="dm-warning-dot"></span>
+                                Irreversible action
+                            </div>
+                            <h3 class="dm-modal-title">Delete all feedback?</h3>
+                            <p class="dm-modal-desc">
+                                You're about to permanently remove <strong>all feedback entries</strong>.
+                                This action cannot be undone and the data will be lost forever.
+                            </p>
+                            <div class="dm-divider"></div>
+                            <div class="dm-modal-actions">
+                                <button onclick="closeModal()" class="dm-btn dm-btn-cancel">Cancel</button>
+                                <button onclick="deleteAllFeedback()" class="dm-btn dm-btn-delete">Delete All</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow p-5 flex items-center">
+                        <div class="rounded-full bg-red-100 p-3 mr-4">
+                            <i class="fas fa-comments text-red-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Total Feedback</p>
+                            <p class="text-2xl font-bold"><%= stats.total %></p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-5 flex items-center">
+                        <div class="rounded-full bg-green-100 p-3 mr-4">
+                            <i class="fas fa-smile text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">High Satisfaction</p>
+                            <p class="text-2xl font-bold"><%= stats.scoreDistribution.high %></p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-5 flex items-center">
+                        <div class="rounded-full bg-yellow-100 p-3 mr-4">
+                            <i class="fas fa-chart-pie text-yellow-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Top Section</p>
+                            <p class="text-xl font-bold truncate"><%= stats.topSections[0]?.name || 'N/A' %></p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-5 flex items-center">
+                        <div class="rounded-full bg-green-100 p-3 mr-4">
+                            <i class="fas fa-clock text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Recent Feedback</p>
+                            <p class="text-2xl font-bold"><%= stats.recent.length %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow">
+                        <h3 class="font-bold text-lg mb-4 text-gray-700">Satisfaction Distribution</h3>
+                        <div class="h-64"><canvas id="satisfactionChart"></canvas></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow">
+                        <h3 class="font-bold text-lg mb-4 text-gray-700">Feedback by Section</h3>
+                        <div class="h-64"><canvas id="sectionChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <div class="table-header-top">
+                            <h2 style="font-family:'Sans Serif',serif;font-style:italic;font-size:22px;color:#1a1410;margin:0;">
+                                Feedback Details
+                            </h2>
+                            <div class="search-wrap">
+                                <i class="fas fa-search"></i>
+                                <input
+                                    type="text"
+                                    id="feedbackSearch"
+                                    placeholder="Search patient, section, comments..."
+                                    oninput="filterSearch(this.value)"
+                                />
+                            </div>
+                        </div>
+                        <div class="table-header-filters">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="high">High Satisfaction</button>
+                            <button class="filter-btn" data-filter="medium">Medium Satisfaction</button>
+                            <button class="filter-btn" data-filter="low">Low Satisfaction</button>
+                            <button class="filter-btn" data-filter="recent">Recent</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Section</th>
+                                    <th>Satisfaction</th>
+                                    <th>Comments</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% feedbacks.forEach((feedback) => {
+                                    const avgScore = feedback.avg_score;
+                                    const scoreClass = avgScore >= 3.5 ? 'score-high' : avgScore >= 2 ? 'score-medium' : 'score-low';
+                                    const scoreIcon  = avgScore >= 3.5 ? 'fa-smile' : avgScore >= 2 ? 'fa-meh' : 'fa-frown';
+                                    const barColor   = avgScore >= 3.5 ? '#2ecc71' : avgScore >= 2 ? '#f0b429' : '#c0392b';
+                                    const isRecent   = (new Date() - new Date(feedback.feedback_date)) / 86400000 <= 7;
+                                %>
+                                <tr id="feedback-<%= feedback.id %>"
+                                    data-priority="<%= avgScore >= 3.5 ? 'high' : avgScore >= 2 ? 'medium' : 'low' %>"
+                                    data-recent="<%= isRecent ? 'true' : 'false' %>">
+
+                                    <td>
+                                        <div class="flex items-center gap-3">
+                                            <div class="patient-avatar"><i class="fas fa-user"></i></div>
+                                            <div>
+                                                <div style="font-weight:500;font-size:13.5px;"><%= feedback.name %></div>
+                                                <div style="font-size:12px;color:#9b8f87;"><%= feedback.contact || 'No contact' %></div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div style="font-weight:500;font-size:13.5px;"><%= feedback.section %></div>
+                                        <div style="font-size:12px;color:#9b8f87;"><%= feedback.time_started %>  <%= feedback.time_ended %></div>
+                                    </td>
+
+                                    <td>
+                                        <span class="score-pill <%= scoreClass %>">
+                                            <i class="fas <%= scoreIcon %>"></i>
+                                            <%= Number(avgScore).toFixed(2) %>/5
+                                        </span>
+                                        <div class="score-bar-track">
+                                            <div class="score-bar-fill" style="width:<%= (avgScore/5)*100 %>%;background:<%= barColor %>;"></div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:#6b6259;">
+                                            <%= feedback.comments || 'No comments' %>
+                                        </div>
+                                    </td>
+
+                                    <td style="font-size:12.5px;color:#9b8f87;white-space:nowrap;">
+                                        <%= feedback.feedback_date.toISOString().split('T')[0] %>
+                                    </td>
+
+                                    <td>
+                                        <button onclick="deleteFeedback('<%= feedback.id %>')" class="row-delete-btn">
+                                            <i class="fas fa-trash-alt"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterSearch(query) {
+            const q = query.toLowerCase().trim();
+            const scrollY = window.scrollY;
+            document.querySelectorAll('tbody tr').forEach(row => {
+                const patient  = row.querySelector('td:nth-child(1)')?.textContent.toLowerCase() ?? '';
+                const section  = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() ?? '';
+                const comments = row.querySelector('td:nth-child(4)')?.textContent.toLowerCase() ?? '';
+                const matches  = !q || patient.includes(q) || section.includes(q) || comments.includes(q);
+                row.style.display = matches ? '' : 'none';
+            });
+            window.scrollTo({ top: scrollY, behavior: 'instant' });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            new Chart(document.getElementById('satisfactionChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['High Satisfaction (3.5-5)', 'Medium Satisfaction (2-3.4)', 'Low Satisfaction (0-1.9)'],
+                    datasets: [{
+                        data: [<%= stats.scoreDistribution.high %>, <%= stats.scoreDistribution.medium %>, <%= stats.scoreDistribution.low %>],
+                        backgroundColor: ['rgba(72,187,120,0.85)', 'rgba(246,194,62,0.85)', 'rgba(245,101,101,0.85)'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw / <%= stats.total %> * 100)}%)` } }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('sectionChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(<%- JSON.stringify(stats.sections) %>),
+                    datasets: [{
+                        label: 'Feedback Count',
+                        data: Object.values(<%- JSON.stringify(stats.sections) %>),
+                        backgroundColor: 'rgba(79,70,229,0.7)',
+                        borderColor: 'rgba(79,70,229,1)',
+                        borderWidth: 1, borderRadius: 5
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+            });
+
+            const rows = document.querySelectorAll('tbody tr');
+            const tabs = document.querySelectorAll('.filter-btn');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('feedbackSearch').value = '';
+                    const filter = tab.dataset.filter;
+                    rows.forEach(row => {
+                        switch (filter) {
+                            case 'all':    row.style.display = ''; break;
+                            case 'high':   row.style.display = row.dataset.priority === 'high'   ? '' : 'none'; break;
+                            case 'medium': row.style.display = row.dataset.priority === 'medium' ? '' : 'none'; break;
+                            case 'low':    row.style.display = row.dataset.priority === 'low'    ? '' : 'none'; break;
+                            case 'recent': row.style.display = row.dataset.recent   === 'true'   ? '' : 'none'; break;
+                        }
+                    });
+                });
+            });
+        });
+
+        async function downloadPDF() {
+            const btn     = document.querySelector('.btn-pdf');
+            const txt     = document.getElementById('downloadText');
+            const spinner = document.getElementById('downloadSpinner');
+            txt.textContent = 'Generating PDF...';
+            spinner.classList.remove('hidden');
+            btn.style.pointerEvents = 'none';
+            try {
+                const res = await fetch('/admin/feedback/pdf', { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+                if (!res.ok) throw new Error();
+                const blob = await res.blob();
+                const url  = window.URL.createObjectURL(blob);
+                const a    = document.createElement('a');
+                a.href = url;
+                a.download = `feedback-analytics-${new Date().toISOString().split('T')[0]}.pdf`;
+                document.body.appendChild(a); a.click();
+                window.URL.revokeObjectURL(url); document.body.removeChild(a);
+                showNotification('PDF downloaded successfully!', 'success');
+            } catch {
+                showNotification('Failed to download PDF. Please try again.', 'error');
+            } finally {
+                txt.textContent = 'Download PDF Report';
+                spinner.classList.add('hidden');
+                btn.style.pointerEvents = 'auto';
+            }
+        }
+
+        let _pendingDeleteId = null;
+
+        function deleteFeedback(id) {
+            _pendingDeleteId = id;
+            const row = document.getElementById(`feedback-${id}`);
+            const name = row?.querySelector('td:nth-child(1) div > div')?.textContent.trim() || 'this patient';
+            document.getElementById('sdPatientName').textContent = name;
+            document.getElementById('deleteSingleModal').classList.remove('hidden');
+        }
+
+        function closeSingleDeleteModal() {
+            document.getElementById('deleteSingleModal').classList.add('hidden');
+            _pendingDeleteId = null;
+        }
+
+        async function confirmSingleDelete() {
+            const id = _pendingDeleteId;
+            closeSingleDeleteModal();
+            if (!id) return;
+            try {
+                const res = await fetch(`/feedback/feedback/${id}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error();
+                document.getElementById(`feedback-${id}`)?.remove();
+                showNotification('Feedback deleted successfully!', 'success');
+            } catch {
+                showNotification('Failed to delete feedback. Please try again.', 'error');
+            }
+        }
+
+        function confirmDeleteAll() { document.getElementById('deleteAllModal').classList.remove('hidden'); }
+        function closeModal()       { document.getElementById('deleteAllModal').classList.add('hidden'); }
+
+        async function deleteAllFeedback() {
+            closeModal();
+            try {
+                const res = await fetch('/feedback/feedback', { method: 'DELETE' });
+                if (!res.ok) throw new Error();
+                document.querySelectorAll('tbody tr').forEach(r => r.remove());
+                showNotification('All feedback deleted successfully!', 'success');
+            } catch {
+                showNotification('Failed to delete all feedback. Please try again.', 'error');
+            }
+        }
+
+        function showNotification(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3200);
+        }
+
+        function confirmDownloadPDF() { document.getElementById('downloadPDFModal').classList.remove('hidden'); }
+        function closePDFModal()      { document.getElementById('downloadPDFModal').classList.add('hidden'); }
+        function proceedDownloadPDF() { closePDFModal(); downloadPDF(); }
+
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'deleteSingleModal') closeSingleDeleteModal();
+            if (e.target.id === 'deleteAllModal')    closeModal();
+            if (e.target.id === 'downloadPDFModal')  closePDFModal();
+        });
+        (() => {
+            const key = 'adminSidebarCollapsed';
+            if (localStorage.getItem(key) === '1') document.body.classList.add('sidebar-collapsed');
+            document.querySelectorAll('.sidebar-toggle').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.body.classList.toggle('sidebar-collapsed');
+                    localStorage.setItem(key, document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

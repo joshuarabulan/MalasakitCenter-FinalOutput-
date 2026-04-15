@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Concerns</title>
+    <link rel="icon" type="image/png" href="/img/icon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/admin/patient.css">
+    <link rel="stylesheet" href="/css/admin/admin-theme.css">
+    <link rel="stylesheet" href="/css/admin/patient-inline-2.css">
+</head>
+<body>
+<div class="min-h-screen flex">
+
+    <aside class="sidebar w-64 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl fixed h-full z-10 text-white">
+            <div class="p-6 border-b border-slate-700 flex items-center justify-between">
+                <h1 class="text-2xl font-bold flex items-center text-white">
+                    <i class="fas fa-hospital-user mr-3"></i><span class="nav-text">Malasakit Admin</span>
+                </h1>
+                <button type="button" class="sidebar-toggle text-white text-lg"><i class="fas fa-bars"></i></button>
+            </div>
+            <nav class="mt-6 px-4 space-y-2">
+                <a href="/admin/dashboard" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-line w-5 mr-3 text-center"></i><span class="nav-label">Dashboard</span></a>
+                <a href="/admin/user-management" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-users-cog w-5 mr-3 text-center"></i><span class="nav-label">User Management</span></a>
+                <a href="/patient/admin" class="nav-item flex items-center py-3 px-4 bg-slate-700 text-white rounded-lg"><i class="fas fa-notes-medical w-5 mr-3 text-center"></i><span class="nav-label">Patient Concerns</span></a>
+                <a href="/admin/main-form" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-file-invoice-dollar w-5 mr-3 text-center"></i><span class="nav-label">Statement of Account</span></a>
+                <a href="/admin/reports" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-folder-open w-5 mr-3 text-center"></i><span class="nav-label">Report Templates</span></a>
+                <a href="/admin/statistics" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-pie w-5 mr-3 text-center"></i><span class="nav-label">Monthly Statistics</span></a>
+                <a href="/admin/feedback" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-comment-dots w-5 mr-3 text-center"></i><span class="nav-label">Feedback</span></a>
+            </nav>
+        </aside>
+
+    <main class="admin-main flex-1" style="margin-left:16rem; padding: 2.25rem 2.5rem;">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <div class="page-title">Patient Concerns</div>
+                <div class="page-subtitle">Review and manage incoming patient assistance requests</div>
+            </div>
+            <div class="stat-chips">
+                <div class="stat-chip chip-total"><span class="chip-dot"></span><%=(typeof patients !== 'undefined' ? patients.length : 0)%> Total</div>
+                <div class="stat-chip chip-wait"><span class="chip-dot"></span><%=(typeof patients !== 'undefined' ? patients.filter(function(p) { return p.status === 'waiting'; }).length : 0)%> Waiting</div>
+                <div class="stat-chip chip-ok"><span class="chip-dot"></span><%=(typeof patients !== 'undefined' ? patients.filter(function(p) { return p.status === 'approved'; }).length : 0)%> Approved</div>
+                <div class="stat-chip chip-deny"><span class="chip-dot"></span><%=(typeof patients !== 'undefined' ? patients.filter(function(p) { return p.status === 'deny'; }).length : 0)%> Denied</div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-card">
+            <div class="table-card-header patient-card-header">
+                <div>
+                    <h2 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:20px;color:#fff;margin-bottom:2px;">Incoming Requests</h2>
+                    <p class="patient-card-subtitle">Medical assistance submissions and intake requests from patients</p>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <div class="search-wrap">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search by name...">
+                    </div>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="all">All Status</option>
+                        <option value="waiting">Waiting</option>
+                        <option value="approved">Approved</option>
+                        <option value="deny">Deny</option>
+                    </select>
+                </div>
+                <div class="toolbar-meta">Filter requests by patient name or current status</div>
+            </div>
+
+            <div class="table-scroll">
+                <table class="patient-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Contact</th>
+                            <th>Demographics</th>
+                            <th>Income</th>
+                            <th>Request</th>
+                            <th>Concern</th>
+                            <th>Document</th>
+                            <th style="text-align:center;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (typeof patients !== 'undefined' && patients.length > 0) { 
+                            for (var i = 0; i < patients.length; i++) { 
+                                var patient = patients[i]; %>
+                        <tr
+                            class="table-row table-row-clickable"
+                            data-status="<%= patient.status %>"
+                            data-id="<%= patient.id %>"
+                            data-fullname="<%= patient.fullname || '' %>"
+                            data-birthdate="<%= patient.birthdate ? new Date(patient.birthdate).toISOString().split('T')[0] : '' %>"
+                            data-contact-number="<%= patient.contact_number || '' %>"
+                            data-email="<%= patient.email || '' %>"
+                            data-occupation="<%= patient.occupation || '' %>"
+                            data-nationality="<%= patient.nationality || '' %>"
+                            data-civil-status="<%= patient.civil_status || '' %>"
+                            data-income="<%= patient.income || '' %>"
+                            data-med-assistance="<%= patient.med_assistance || '' %>"
+                            data-concern="<%= patient.concern || '' %>"
+                            data-created-at="<%= patient.created_at ? new Date(patient.created_at).toISOString().split('T')[0] : '' %>"
+                            data-document-path="<%= patient.document_path || '' %>"
+                            onclick="openQuickPatientModal(this)"
+                            onkeydown="handleQuickPatientRowKey(event, this)"
+                            tabindex="0"
+                            role="button"
+                        >
+                            <td>
+                                <div class="pt-name"><%= patient.fullname %></div>
+                                <div class="pt-sub"><i class="fas fa-calendar-alt" style="margin-right:4px;"></i><%= patient.birthdate ? new Date(patient.birthdate).toISOString().split('T')[0] : 'No birthdate' %></div>
+                            </td>
+                            <td>
+                                <div class="contact-line"><i class="fas fa-phone" style="color:#6366f1;"></i> <%= patient.contact_number %></div>
+                                <div class="contact-line"><i class="fas fa-envelope" style="color:#22c55e;"></i> <%= patient.email %></div>
+                            </td>
+                            <td>
+                                <div class="request-stack">
+                                    <span class="assist-tag"><%= patient.med_assistance %></span>
+                                    <div class="request-line" title="<%= patient.concern %>"><%= patient.concern %></div>
+                                    <div class="request-meta">
+                                        <% if (patient.document_path) { %>
+                                            <i class="fas fa-paperclip" style="margin-right:4px;"></i>Document attached
+                                        <% } else { %>
+                                            <i class="fas fa-minus" style="margin-right:4px;"></i>No document
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="income-val">₱<%= Number(patient.income).toLocaleString() %></div>
+                            </td>
+                            <td>
+                                <div class="request-stack">
+                                    <span class="assist-tag"><%= patient.med_assistance %></span>
+                                    <div class="request-line" title="<%= patient.concern %>"><%= patient.concern %></div>
+                                    <div class="request-meta">
+                                        <% if (patient.document_path) { %>
+                                            <i class="fas fa-paperclip" style="margin-right:4px;"></i>Document attached
+                                        <% } else { %>
+                                            <i class="fas fa-minus" style="margin-right:4px;"></i>No document
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="concern-text" title="<%= patient.concern %>"><%= patient.concern %></div>
+                                <div class="concern-date"><%= patient.created_at ? new Date(patient.created_at).toISOString().split('T')[0] : '' %></div>
+                            </td>
+                            <td>
+                                <% if (patient.document_path) { %>
+                                    <div class="doc-link" onclick="event.stopPropagation(); viewDocument('<%= patient.document_path %>', '<%= patient.fullname %>')">
+                                        <i class="fas fa-paperclip"></i>
+                                        <%= patient.document_path.split('/').pop() %>
+                                    </div>
+                                <% } else { %>
+                                    <span class="doc-none"><i class="fas fa-minus"></i> None</span>
+                                <% } %>
+                            </td>
+                            <td style="text-align:center;">
+                                <span class="badge badge-<%= patient.status %>">
+                                    <span class="badge-dot"></span>
+                                    <%= patient.status %>
+                                </span>
+                            </td>
+                        </tr>
+                        <% } 
+                        } else { %>
+                        <tr>
+                            <td colspan="8" style="text-align:center;padding:48px 14px;color:#9b8f87;">
+                                <i class="fas fa-inbox" style="font-size:48px;display:block;margin-bottom:10px;color:#ede8e2;"></i>
+                                No patient concerns yet
+                                <p style="font-size:12px;margin-top:8px;">Requests submitted by patients will appear here.</p>
+                            </td>
+                        </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="quickPatientModal" class="modal-overlay hidden">
+    <div class="modal-box wide quick-modal-box">
+        <div class="quick-modal-head">
+            <div>
+                <div class="modal-title" id="quickPatientName">Patient</div>
+                <div class="quick-modal-subtitle" id="quickPatientSubtitle">Quick patient summary</div>
+            </div>
+            <div class="quick-status-wrap">
+                <span id="quickPatientStatus" class="badge badge-waiting">
+                    <span class="badge-dot"></span>
+                    waiting
+                </span>
+            </div>
+        </div>
+        <div class="divider-line"></div>
+        <div class="detail-grid quick-detail-grid">
+            <div class="detail-card">
+                <div class="detail-label">Contact Number</div>
+                <div class="detail-value" id="quickPatientContact">N/A</div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label">Email</div>
+                <div class="detail-value" id="quickPatientEmail">N/A</div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label">Occupation</div>
+                <div class="detail-value" id="quickPatientOccupation">N/A</div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label">Income</div>
+                <div class="detail-value" id="quickPatientIncome">N/A</div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label">Nationality</div>
+                <div class="detail-value" id="quickPatientNationality">N/A</div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label">Civil Status</div>
+                <div class="detail-value" id="quickPatientCivilStatus">N/A</div>
+            </div>
+            <div class="detail-card full">
+                <div class="detail-label">Medical Assistance</div>
+                <div class="detail-value" id="quickPatientAssistance">N/A</div>
+            </div>
+            <div class="detail-card full">
+                <div class="detail-label">Concern</div>
+                <div class="detail-value" id="quickPatientConcern">N/A</div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label">Submitted</div>
+                <div class="detail-value" id="quickPatientCreatedAt">N/A</div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label">Document</div>
+                <div class="detail-value" id="quickPatientDocument">No document</div>
+            </div>
+        </div>
+        <div class="doc-actions quick-actions">
+            <button type="button" id="quickApproveBtn" class="quick-action-btn act-approve hidden">
+                <i class="fas fa-check"></i> Approve
+            </button>
+            <button type="button" id="quickDenyBtn" class="quick-action-btn act-deny hidden">
+                <i class="fas fa-times"></i> Deny
+            </button>
+            <button type="button" id="quickResetBtn" class="quick-action-btn act-wait hidden">
+                <i class="fas fa-clock"></i> Reset
+            </button>
+            <button type="button" id="quickViewFormBtn" class="quick-action-btn act-view">
+                <i class="fas fa-eye"></i> View Form
+            </button>
+            <button type="button" id="quickDocumentBtn" class="quick-action-btn act-view hidden">
+                <i class="fas fa-paperclip"></i> Document
+            </button>
+            <button type="button" id="quickDeleteBtn" class="quick-action-btn act-delete">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+            <button type="button" onclick="closeQuickPatientModal()" class="modal-cancel">Close</button>
+        </div>
+    </div>
+</div>
+
+<div id="viewModal" class="modal-overlay hidden">
+    <div class="modal-box xwide">
+        <div class="modal-title" id="viewModalTitle">Submitted Unified Intake Sheet</div>
+        <div class="divider-line"></div>
+        <div id="viewModalBody" class="detail-grid">
+            <div class="detail-card full">
+                <div class="detail-value">Loading...</div>
+            </div>
+        </div>
+        <div class="doc-actions">
+            <button onclick="closeViewModal()" class="modal-cancel">Close</button>
+        </div>
+    </div>
+</div>
+
+<div id="statusModal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-title">Update Request Status</div>
+        <div class="divider-line"></div>
+        <div class="modal-body">
+            Change this request status to <span id="statusValue"></span>?
+        </div>
+        <form id="statusForm" method="POST" action="/admin/update-status">
+            <input type="hidden" name="id" id="statusPatientId">
+            <input type="hidden" name="status" id="statusToUpdate">
+            <div class="modal-actions">
+                <button type="button" onclick="closeStatusModal()" class="modal-cancel">Cancel</button>
+                <button type="submit" class="modal-confirm">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="deleteModal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-title">Delete Request</div>
+        <div class="divider-line"></div>
+        <div class="modal-body">
+            You're about to permanently delete the request for <span id="deletePatientName"></span>. This cannot be undone.
+        </div>
+        <form id="deleteForm" method="POST" action="/admin/delete/">
+            <input type="hidden" name="id" id="deletePatientId">
+            <div class="modal-actions">
+                <button type="button" onclick="closeDeleteModal()" class="modal-cancel">Cancel</button>
+                <button type="submit" class="modal-confirm danger">Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="documentModal" class="modal-overlay hidden">
+    <div class="modal-box wide">
+        <div class="modal-title" id="documentTitle">Document Preview</div>
+        <div class="divider-line"></div>
+        <div id="documentPreview"></div>
+        <div class="doc-actions">
+            <a id="downloadLink" href="#" class="modal-confirm" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fas fa-download"></i> Download
+            </a>
+            <button onclick="closeDocumentModal()" class="modal-cancel">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openSheetView(id) {
+        window.open('/patient/admin/' + id + '/sheet-view', '_blank');
+    }
+
+    function safeValue(value) {
+        return (value === null || value === undefined || value === '') ? 'N/A' : value;
+    }
+
+    function safeDate(value) {
+        if (!value) return 'N/A';
+        var date = new Date(value);
+        return (isNaN(date.getTime())) ? value : date.toLocaleDateString();
+    }
+
+    function formatCurrency(value) {
+        var amount = Number(value);
+        return (isFinite(amount)) ? 'PHP ' + amount.toLocaleString() : 'N/A';
+    }
+
+    function handleQuickPatientRowKey(event, row) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openQuickPatientModal(row);
+        }
+    }
+
+    function openQuickPatientModal(row) {
+        var data = row.dataset;
+        var modal = document.getElementById('quickPatientModal');
+        var statusBadge = document.getElementById('quickPatientStatus');
+        var statusText = data.status || 'waiting';
+        var statusClass = 'badge-waiting';
+        
+        if (statusText === 'approved') statusClass = 'badge-approved';
+        else if (statusText === 'deny') statusClass = 'badge-deny';
+        else statusClass = 'badge-waiting';
+
+        document.getElementById('quickPatientName').textContent = data.fullname || 'Patient';
+        document.getElementById('quickPatientSubtitle').textContent = 'Submitted ' + safeDate(data.createdAt) + ' | Birthdate ' + safeValue(data.birthdate);
+        document.getElementById('quickPatientContact').textContent = safeValue(data.contactNumber);
+        document.getElementById('quickPatientEmail').textContent = safeValue(data.email);
+        document.getElementById('quickPatientOccupation').textContent = safeValue(data.occupation);
+        document.getElementById('quickPatientIncome').textContent = formatCurrency(data.income);
+        document.getElementById('quickPatientNationality').textContent = safeValue(data.nationality);
+        document.getElementById('quickPatientCivilStatus').textContent = safeValue(data.civilStatus);
+        document.getElementById('quickPatientAssistance').textContent = safeValue(data.medAssistance);
+        document.getElementById('quickPatientConcern').textContent = safeValue(data.concern);
+        document.getElementById('quickPatientCreatedAt').textContent = safeDate(data.createdAt);
+        
+        var docPath = data.documentPath;
+        document.getElementById('quickPatientDocument').textContent = docPath ? docPath.split('/').pop() : 'No document';
+
+        statusBadge.className = 'badge ' + statusClass;
+        statusBadge.innerHTML = '<span class="badge-dot"></span>' + statusText.charAt(0).toUpperCase() + statusText.slice(1);
+
+        var approveBtn = document.getElementById('quickApproveBtn');
+        var denyBtn = document.getElementById('quickDenyBtn');
+        var resetBtn = document.getElementById('quickResetBtn');
+        var viewFormBtn = document.getElementById('quickViewFormBtn');
+        var documentBtn = document.getElementById('quickDocumentBtn');
+        var deleteBtn = document.getElementById('quickDeleteBtn');
+
+        if (approveBtn) approveBtn.classList.toggle('hidden', statusText !== 'waiting');
+        if (denyBtn) denyBtn.classList.toggle('hidden', statusText !== 'waiting');
+        if (resetBtn) resetBtn.classList.toggle('hidden', statusText === 'waiting');
+        if (documentBtn) documentBtn.classList.toggle('hidden', !docPath);
+
+        if (approveBtn) {
+            approveBtn.onclick = function() {
+                closeQuickPatientModal();
+                openStatusModal(data.id, 'approved');
+            };
+        }
+        if (denyBtn) {
+            denyBtn.onclick = function() {
+                closeQuickPatientModal();
+                openStatusModal(data.id, 'deny');
+            };
+        }
+        if (resetBtn) {
+            resetBtn.onclick = function() {
+                closeQuickPatientModal();
+                openStatusModal(data.id, 'waiting');
+            };
+        }
+        if (viewFormBtn) {
+            viewFormBtn.onclick = function() {
+                closeQuickPatientModal();
+                openSheetView(data.id);
+            };
+        }
+        if (documentBtn && docPath) {
+            documentBtn.onclick = function() {
+                closeQuickPatientModal();
+                viewDocument(docPath, data.fullname || 'Patient');
+            };
+        }
+        if (deleteBtn) {
+            deleteBtn.onclick = function() {
+                closeQuickPatientModal();
+                openDeleteModal(data.id, data.fullname || 'Patient');
+            };
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeQuickPatientModal() {
+        document.getElementById('quickPatientModal').classList.add('hidden');
+    }
+
+    function renderFamilyMembers(members) {
+        if (!Array.isArray(members) || !members.length) {
+            return '<div class="detail-value">No family composition data.</div>';
+        }
+
+        var rows = '';
+        for (var i = 0; i < members.length; i++) {
+            var member = members[i];
+            rows += '<tr>' +
+                '<td style="padding:8px;border-bottom:1px solid #f0ece7;">' + safeValue(member.name) + '</td>' +
+                '<td style="padding:8px;border-bottom:1px solid #f0ece7;">' + safeValue(member.sex) + '</td>' +
+                '<td style="padding:8px;border-bottom:1px solid #f0ece7;">' + safeValue(member.age) + '</td>' +
+                '<td style="padding:8px;border-bottom:1px solid #f0ece7;">' + safeValue(member.relation) + '</td>' +
+                '<td style="padding:8px;border-bottom:1px solid #f0ece7;">' + safeValue(member.occupation) + '</td>' +
+                '<td style="padding:8px;border-bottom:1px solid #f0ece7;">' + safeValue(member.income) + '</td>' +
+                '</tr>';
+        }
+
+        return '<table style="width:100%; border-collapse:collapse;">' +
+            '<thead>' +
+            '<tr>' +
+            '<th style="text-align:left;padding:8px;background:#f8f6f4;">Name</th>' +
+            '<th style="text-align:left;padding:8px;background:#f8f6f4;">Sex</th>' +
+            '<th style="text-align:left;padding:8px;background:#f8f6f4;">Age</th>' +
+            '<th style="text-align:left;padding:8px;background:#f8f6f4;">Relation</th>' +
+            '<th style="text-align:left;padding:8px;background:#f8f6f4;">Occupation</th>' +
+            '<th style="text-align:left;padding:8px;background:#f8f6f4;">Income</th>' +
+            '</tr>' +
+            '</thead>' +
+            '<tbody>' + rows + '</tbody>' +
+            '</table>';
+    }
+
+    async function openViewModal(id) {
+        var modal = document.getElementById('viewModal');
+        var body = document.getElementById('viewModalBody');
+        var title = document.getElementById('viewModalTitle');
+        modal.classList.remove('hidden');
+        title.textContent = 'Submitted Unified Intake Sheet';
+        body.innerHTML = '<div class="detail-card full"><div class="detail-value">Loading...</div></div>';
+
+        try {
+            var response = await fetch('/patient/admin/' + id + '/details');
+            var raw = await response.text();
+            var data;
+
+            try {
+                data = JSON.parse(raw);
+            } catch (parseError) {
+                body.innerHTML = '<div class="detail-card full"><div class="detail-value">Server returned an unexpected response.</div></div>';
+                return;
+            }
+
+            if (!data.success) {
+                body.innerHTML = '<div class="detail-card full"><div class="detail-value">' + safeValue(data.message) + '</div></div>';
+                return;
+            }
+
+            var request = data.request;
+            title.textContent = 'Unified Intake Sheet - ' + safeValue(request.fullname);
+            body.innerHTML = '<div class="detail-card"><div class="detail-label">Full Name</div><div class="detail-value">' + safeValue(request.fullname) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Request Status</div><div class="detail-value">' + safeValue(request.request_status) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">PhilHealth No.</div><div class="detail-value">' + safeValue(request.philhealth_no) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Hospital No.</div><div class="detail-value">' + safeValue(request.hospital_no) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Intake Date</div><div class="detail-value">' + safeDate(request.intake_date) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Birthdate</div><div class="detail-value">' + safeDate(request.birthdate) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Patient Contact</div><div class="detail-value">' + safeValue(request.patient_contact || request.informant_contact) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Patient Email</div><div class="detail-value">' + safeValue(request.patient_email) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Occupation</div><div class="detail-value">' + safeValue(request.patient_occupation || request.occupation) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Income</div><div class="detail-value">' + safeValue(request.patient_income || request.monthly_income) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Medical Assistance</div><div class="detail-value">' + safeValue(request.medical_assistance) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Concern</div><div class="detail-value">' + safeValue(request.medical_concern) + '</div></div>' +
+                '<div class="detail-card full"><div class="detail-label">Informant</div><div class="detail-value">' + safeValue(request.informant_name) + ' (' + safeValue(request.informant_relation) + ')</div></div>' +
+                '<div class="detail-card full"><div class="detail-label">Addresses</div><div class="detail-value">Informant: ' + safeValue(request.informant_address) + '<br>Permanent: ' + safeValue(request.permanent_address) + '<br>Present: ' + safeValue(request.present_address) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Religion</div><div class="detail-value">' + safeValue(request.religion) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Nationality</div><div class="detail-value">' + safeValue(request.patient_nationality || request.nationality) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Civil Status</div><div class="detail-value">' + safeValue(request.patient_civil_status || request.civil_status) + '</div></div>' +
+                '<div class="detail-card"><div class="detail-label">Education</div><div class="detail-value">' + safeValue(request.education) + '</div></div>' +
+                '<div class="detail-card full"><div class="detail-label">Problem Presented</div><div class="detail-value">Health: ' + safeValue(request.problem_health_specify) + '<br>Economic: ' + safeValue(request.problem_economic_specify) + '<br>Food: ' + safeValue(request.problem_food_specify) + '<br>Housing: ' + safeValue(request.problem_housing_specify) + '<br>Employment: ' + safeValue(request.problem_employment_specify) + '<br>Others: ' + safeValue(request.problem_others_specify) + '</div></div>' +
+                '<div class="detail-card full"><div class="detail-label">Family Composition</div>' + renderFamilyMembers(request.family_composition) + '</div>';
+        } catch (error) {
+            body.innerHTML = '<div class="detail-card full"><div class="detail-value">Failed to load request details: ' + safeValue(error.message) + '</div></div>';
+        }
+    }
+
+    function closeViewModal() {
+        document.getElementById('viewModal').classList.add('hidden');
+    }
+
+    function openStatusModal(id, status) {
+        document.getElementById('statusModal').classList.remove('hidden');
+        document.getElementById('statusPatientId').value = id;
+        document.getElementById('statusToUpdate').value = status;
+        document.getElementById('statusValue').textContent = status;
+    }
+    
+    function closeStatusModal() { 
+        document.getElementById('statusModal').classList.add('hidden'); 
+    }
+
+    function openDeleteModal(id, name) {
+        document.getElementById('deleteModal').classList.remove('hidden');
+        document.getElementById('deletePatientId').value = id;
+        document.getElementById('deletePatientName').textContent = name;
+        var form = document.getElementById('deleteForm');
+        if (form) form.action = '/admin/delete/' + id;
+    }
+    
+    function closeDeleteModal() { 
+        document.getElementById('deleteModal').classList.add('hidden'); 
+    }
+
+    function viewDocument(path, name) {
+        document.getElementById('documentModal').classList.remove('hidden');
+        document.getElementById('documentTitle').textContent = 'Document — ' + name;
+        var ext = path.split('.').pop().toLowerCase();
+        var preview = document.getElementById('documentPreview');
+        var dl = document.getElementById('downloadLink');
+        dl.href = '/uploads/' + path;
+        dl.download = path;
+        preview.innerHTML = '';
+        
+        if (ext === 'jpg' || ext === 'jpeg' || ext === 'png' || ext === 'gif' || ext === 'webp') {
+            var img = document.createElement('img');
+            img.src = '/uploads/' + path;
+            img.alt = name;
+            img.style.borderRadius = '10px';
+            img.style.maxWidth = '100%';
+            preview.appendChild(img);
+        } else if (ext === 'pdf') {
+            var embed = document.createElement('embed');
+            embed.src = '/uploads/' + path + '#toolbar=0';
+            embed.type = 'application/pdf';
+            embed.width = '100%';
+            embed.height = '420px';
+            embed.style.borderRadius = '8px';
+            preview.appendChild(embed);
+        } else {
+            preview.innerHTML = '<div class="doc-preview-empty" style="text-align:center;padding:40px;"><i class="fas fa-file-alt" style="font-size:3rem;opacity:.4;margin-bottom:1rem;display:block;"></i><p style="font-size:.875rem;color:#64748b;">Preview unavailable for <strong>.' + ext + '</strong> files.</p></div>';
+        }
+    }
+    
+    function closeDocumentModal() { 
+        document.getElementById('documentModal').classList.add('hidden'); 
+    }
+
+    // Close modals when clicking overlay
+    var overlays = document.querySelectorAll('.modal-overlay');
+    for (var i = 0; i < overlays.length; i++) {
+        overlays[i].addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+    }
+
+    // Escape key handler
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            var openModals = document.querySelectorAll('.modal-overlay:not(.hidden)');
+            for (var i = 0; i < openModals.length; i++) {
+                openModals[i].classList.add('hidden');
+            }
+        }
+    });
+
+    // Filter table function
+    function filterTable() {
+        var searchInput = document.getElementById('searchInput');
+        var statusFilter = document.getElementById('statusFilter');
+        
+        if (!searchInput || !statusFilter) return;
+        
+        var q = searchInput.value.toLowerCase();
+        var s = statusFilter.value;
+        
+        var rows = document.querySelectorAll('.table-row');
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var nameEl = row.querySelector('.pt-name');
+            var name = nameEl ? nameEl.textContent.toLowerCase() : '';
+            var status = row.getAttribute('data-status');
+            var shouldShow = (name.indexOf(q) !== -1) && (s === 'all' || status === s);
+            row.style.display = shouldShow ? '' : 'none';
+        }
+    }
+
+    var searchInput = document.getElementById('searchInput');
+    var statusFilter = document.getElementById('statusFilter');
+    
+    if (searchInput) searchInput.addEventListener('input', filterTable);
+    if (statusFilter) statusFilter.addEventListener('change', filterTable);
+
+    // Sidebar toggle
+    (function() {
+        var key = 'adminSidebarCollapsed';
+        if (localStorage.getItem(key) === '1') document.body.classList.add('sidebar-collapsed');
+        var toggles = document.querySelectorAll('.sidebar-toggle');
+        for (var i = 0; i < toggles.length; i++) {
+            toggles[i].addEventListener('click', function() {
+                document.body.classList.toggle('sidebar-collapsed');
+                localStorage.setItem(key, document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+            });
+        }
+    })();
+</script>
+</body>
+</html>
