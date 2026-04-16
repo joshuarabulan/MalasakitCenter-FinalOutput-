@@ -9,6 +9,7 @@ const patientRoutes = require('./routes/patient');
 const settingsRoutes = require('./routes/settings');
 const path = require('path');
 const feedbackRoutes = require('./routes/feedback');
+const serverless = require("serverless-http");
 
 const app = express();
 
@@ -41,6 +42,5 @@ app.use('/patient', patientRoutes);
 app.use('/settings', settingsRoutes);
 app.use('/feedback', feedbackRoutes);
 
-app.listen(PORT, () => {
-    console.log("Server running on http://localhost:3000");
-});
+module.exports = app;
+module.exports.handler = serverless(app);
