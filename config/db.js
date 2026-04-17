@@ -16,7 +16,7 @@ const db = mysql.createPool({
     ssl: {
         rejectUnauthorized: false
     }
-});
+}); 
 
 // Test the connection
 db.getConnection((err, connection) => {
