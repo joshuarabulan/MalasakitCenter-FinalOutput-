@@ -20,7 +20,6 @@ exports.getIntakeSheet = (req, res) => {
 
     const intake = results[0];
 
-    // Parse family_composition if it exists
     if (intake.family_composition) {
       try {
         intake.family_composition_parsed = JSON.parse(intake.family_composition);

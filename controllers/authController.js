@@ -38,7 +38,7 @@ const upload = multer({
 
 exports.getRegister = (req, res) => {
     res.render('auth/register', { error: null });
-}; // ito yung register page
+}; 
 
 exports.postRegister = async (req, res) => {
     const { name, email, password, role } = req.body;
@@ -70,7 +70,7 @@ exports.postRegister = async (req, res) => {
 
 exports.getLogin = (req, res) => {
     res.render('auth/login', { error: null });
-}; // login page
+}; 
 
 exports.getAdminDashboard = async (req, res) => { 
     if (!req.session.user || req.session.user.role !== 'Admin') {
@@ -246,7 +246,7 @@ function queryAsync(sql, params) {
             else resolve(results);
         });
     });
-}// admin dashboard
+}
 
 function patientRequestSelectSql(whereClause = '') {
     return `
@@ -279,7 +279,7 @@ function patientRequestSelectSql(whereClause = '') {
 
 exports.getAdminAnalytics = (req, res) => {
     res.render('admin/data-visualization');
- } // ito yung analytics wala pang laman kasi sa dashboard ko nilagay
+ } 
 
  exports.getIntakeSheet = (req, res) => {
     res.render('patient/sheet', { user: req.session.user || null });
@@ -351,7 +351,6 @@ exports.markAllNotificationsAsRead = (req, res) => {
   });
 };
 
-// Get single request for editing
 exports.getRequestForEdit = (req, res) => {
     if (!req.session.user) {
         return res.redirect('/login');
@@ -397,7 +396,6 @@ exports.getRequestForEdit = (req, res) => {
     });
 };
 
-// Update request
 exports.updateRequest = (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ success: false, message: 'Not authenticated' });
@@ -411,8 +409,6 @@ exports.updateRequest = (req, res) => {
 
         const requestId = req.params.id;
         const userId = req.session.user.id;
-        
-        // First check if the request belongs to the user
         const checkSql = 'SELECT * FROM unified_intake_sheets WHERE id = ? AND user_id = ?';
         
         db.query(checkSql, [requestId, userId], (err, results) => {
@@ -428,11 +424,8 @@ exports.updateRequest = (req, res) => {
             const existingRequest = results[0];
             let documentPath = existingRequest.document_path;
             
-            // Handle file upload if a new file was provided
             if (req.file) {
                 documentPath = req.file.filename;
-                
-                // Delete the old file if it exists
                 if (existingRequest.document_path) {
                     const oldFilePath = path.join(__dirname, '../uploads', existingRequest.document_path);
                     
@@ -566,10 +559,8 @@ exports.getAdminUserManagement = (req, res) => {
         return res.redirect('/');
     }
 
-    // Query to get all users
     const usersQuery = `SELECT id, name, email, role, created_at, last_login, last_logout FROM users`;
     
-    // Query to get user statistics
     const statsQuery = `
         SELECT 
             COUNT(*) as totalUsers,
@@ -583,7 +574,6 @@ exports.getAdminUserManagement = (req, res) => {
         FROM users
     `;
     
-    // Query to get monthly user registrations
     const monthlyRegQuery = `
         SELECT 
             DATE_FORMAT(created_at, '%Y-%m') as month,
@@ -594,7 +584,6 @@ exports.getAdminUserManagement = (req, res) => {
         ORDER BY month
     `;
 
-    // Execute all queries in parallel
     db.query(usersQuery, (error, users) => {
         if (error) {
             console.error("❌ Error fetching users:", error);
@@ -628,12 +617,10 @@ exports.getAdminUserManagement = (req, res) => {
                     });
                 }
 
-                // Calculate additional statistics
                 const stats = statsResults[0];
                 const currentDate = new Date();
                 const lastWeek = new Date(currentDate.setDate(currentDate.getDate() - 7));
                 
-                // Calculate percentage of active users
                 if (stats.totalUsers > 0) {
                     stats.activePercentage = Math.round((stats.activeLast7Days / stats.totalUsers) * 100);
                     stats.adminPercentage = Math.round((stats.adminCount / stats.totalUsers) * 100);
@@ -683,7 +670,6 @@ exports.getAdminReports = (req, res) => {
     WHERE (is_deleted = FALSE OR is_deleted IS NULL)
   `;
 
-  // Query to get statistics
   const statsQuery = `
     SELECT 
       COUNT(*) as totalTransactions,
@@ -697,7 +683,6 @@ exports.getAdminReports = (req, res) => {
     WHERE (is_deleted = FALSE OR is_deleted IS NULL)
   `;
 
-  // Query to get ward distribution
   const wardQuery = `
     SELECT 
       ward,
@@ -708,7 +693,6 @@ exports.getAdminReports = (req, res) => {
     GROUP BY ward
   `;
 
-  // Execute all queries
   db.query(billingQuery, (error, results) => {
     if (error) {
       console.error("❌ Error fetching billing records:", error);
@@ -744,7 +728,7 @@ exports.getAdminReports = (req, res) => {
             const services = row.services ? JSON.parse(row.services) : [];
             
             services.forEach(service => {
-              const serviceName = service.service; // Corrected to use "service" key
+              const serviceName = service.service; 
               const amount = parseFloat(service.amount) || 0;
               
               switch(serviceName) {
@@ -881,8 +865,6 @@ exports.postLogin = async (req, res) => {
     }
 };
 
-//ito yung paghandle sa login
-
 exports.logout = async (req, res) => {
     try {
         const userId = req.session.user?.id;
@@ -911,7 +893,6 @@ exports.logout = async (req, res) => {
 exports.getForgotPassword = (req, res) => {
     res.render('auth/forgot-password', { error: null, success: null });
 };
-//forgot password ito
 
 
 exports.postForgotPassword = async (req, res) => {
@@ -930,7 +911,7 @@ exports.postForgotPassword = async (req, res) => {
     console.log(`Password reset link: ${resetLink}`);
 
     res.render('auth/forgot-password', { error: null, success: 'Check your email for reset link' });
-}; //controller sa forgot password
+}; 
 
 exports.getResetPassword = async (req, res) => {
     const token = req.params.token;
@@ -941,7 +922,7 @@ exports.getResetPassword = async (req, res) => {
     }
 
     res.render('auth/reset-password', { token, error: null });
-}; //reset password routes
+};
 
 exports.postResetPassword = async (req, res) => {
     const { password } = req.body;
@@ -954,7 +935,7 @@ exports.postResetPassword = async (req, res) => {
 
     await User.updatePassword(user.email, password);
     res.redirect('/login');
-}; //controller ulit potangina
+}; 
 
 exports.getHome = (req, res) => {
     res.render('home');
@@ -1102,7 +1083,6 @@ function generatePDF(feedbacks, stats, res) {
 
     yPos += 140;
 
-    // Feedback by Section
     doc.fontSize(16).fillColor('#1f2937').text('Feedback by Section', 50, yPos);
     yPos += 30;
 
@@ -1132,7 +1112,6 @@ function generatePDF(feedbacks, stats, res) {
         yPos = 50;
     }
 
-    // Recent Feedback Details
     doc.fontSize(16).fillColor('#1f2937').text('Recent Feedback Details', 50, yPos);
     yPos += 30;
 
@@ -1237,7 +1216,6 @@ exports.getStatistics = (req, res) => {
       return res.status(500).send('Error fetching records');
     }
 
-    // Get statistics about transactions
     let totalTransactions = rows.length;
     let totalAmount = 0;
     let minBill = Infinity;
@@ -1253,7 +1231,6 @@ exports.getStatistics = (req, res) => {
       if (billAmount < minBill) minBill = billAmount;
       if (billAmount > maxBill) maxBill = billAmount;
       
-      // Check if transaction is from today
       const recordDate = new Date(row.created_at || row.date).toISOString().split('T')[0];
       if (recordDate === today) {
         todayTransactions++;
@@ -1262,8 +1239,6 @@ exports.getStatistics = (req, res) => {
     });
     
     const averageBill = totalTransactions > 0 ? totalAmount / totalTransactions : 0;
-    
-    // Get ward distribution
     const wardDistribution = {
       Inpatient: 0,
       Outpatient: 0,
@@ -1283,8 +1258,6 @@ exports.getStatistics = (req, res) => {
     ];
 
     const fundTypes = ['PHIC', 'PCSO', 'DSWD', 'MAIP', 'OP-SCPF', 'OTHERS'];
-
-    // Service mapping function (FIXED)
     const mapServiceToKey = (serviceName) => {
       const serviceMap = {
         "Hospital Bill": "hospital_bill",
@@ -1367,7 +1340,6 @@ exports.getStatistics = (req, res) => {
         const serviceAmount = serviceAmounts[serviceKey];
 
         if (serviceAmount > 0) {
-          // Update ward count
           if (data[serviceKey].ward.hasOwnProperty(ward)) {
             data[serviceKey].ward[ward]++;
           }
@@ -1482,7 +1454,6 @@ exports.getMainForm = (req, res) => {
     });
 };
 
-// Soft delete a record
 exports.softDeleteRecord = (req, res) => {
     if (!req.session.user || req.session.user.role !== 'Admin') {
         return res.status(403).json({ success: false, message: 'Unauthorized' });
@@ -1522,7 +1493,6 @@ exports.softDeleteRecord = (req, res) => {
     });
 };
 
-// Restore a soft deleted record
 exports.restoreRecord = (req, res) => {
     if (!req.session.user || req.session.user.role !== 'Admin') {
         return res.status(403).json({ success: false, message: 'Unauthorized' });
@@ -1561,16 +1531,13 @@ exports.restoreRecord = (req, res) => {
     });
 };
 
-// Permanently delete a record
 exports.permanentDeleteRecord = (req, res) => {
     if (!req.session.user || req.session.user.role !== 'Admin') {
         return res.status(403).json({ success: false, message: 'Unauthorized' });
     }
     
     const recordId = req.params.id;
-    
-    // First, get the record to verify it's soft deleted
-    const checkQuery = 'SELECT is_deleted FROM billing_records WHERE id = ?';
+        const checkQuery = 'SELECT is_deleted FROM billing_records WHERE id = ?';
     
     db.query(checkQuery, [recordId], (checkErr, checkResult) => {
         if (checkErr) {
@@ -1595,9 +1562,7 @@ exports.permanentDeleteRecord = (req, res) => {
             });
         }
         
-        // Permanently delete the record
         const deleteQuery = 'DELETE FROM billing_records WHERE id = ?';
-        
         db.query(deleteQuery, [recordId], (deleteErr, deleteResult) => {
             if (deleteErr) {
                 console.error('Error permanently deleting record:', deleteErr);
@@ -1615,7 +1580,6 @@ exports.permanentDeleteRecord = (req, res) => {
     });
 };
 
-// Empty trash (delete all soft deleted records)
 exports.emptyTrash = (req, res) => {
     if (!req.session.user || req.session.user.role !== 'Admin') {
         return res.status(403).json({ success: false, message: 'Unauthorized' });
@@ -1658,30 +1622,23 @@ exports.submitMainForm = (req, res) => {
     fund_type,
     is_pregnant,
     is_pwd,
-    services_json  // Get services as JSON string
+    services_json  
   } = req.body;
 
   try {
-    // Parse services JSON
     const services = JSON.parse(services_json || '[]');
-    
-    // Calculate total due
     let total_due = 0;
-    
-    // Sum services
-    services.forEach(service => {
+        services.forEach(service => {
         const amount = parseFloat(service.amount) || 0;
         const discount = parseFloat(service.discount) || 0;
         const philhealth = parseFloat(service.philhealth) || 0;
         total_due += amount - discount - philhealth;
     });
     
-    // Add additional charges
     total_due += parseFloat(non_phf_meds || 0);
     total_due += parseFloat(hemodialysis || 0);
     total_due += parseFloat(implant || 0);
 
-    // Prepare SQL and values
     const sql = `
       INSERT INTO billing_records 
       (name, address, confinement_start, confinement_end, hospital_number, 
@@ -1747,7 +1704,6 @@ exports.editUser = (req, res) => {
         });
       }
 
-      // Proceed with update
       const updateSql = `UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?`;
       const updateValues = [name || null, email || null, role || null, id];
 

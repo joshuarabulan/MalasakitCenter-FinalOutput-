@@ -1,18 +1,30 @@
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
 
-
 const User = {
     create: async (name, email, password, role) => {
         const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // First, get the next available ID
         return new Promise((resolve, reject) => {
-            db.query('INSERT INTO users (name, email, password, role, created_at) VALUES (?, ?, ?, ?, NOW())', 
-            [name, email, hashedPassword, role], (err, results) => {
-                if (err) reject(err);
-                resolve(results);
+            db.query('SELECT MAX(id) AS maxId FROM users', (err, results) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                
+                const nextId = (results[0].maxId || 0) + 1;
+                
+                // Insert with explicit ID
+                db.query('INSERT INTO users (id, name, email, password, role, created_at) VALUES (?, ?, ?, ?, ?, NOW())', 
+                [nextId, name, email, hashedPassword, role], (err, results) => {
+                    if (err) reject(err);
+                    resolve(results);
+                });
             });
         });
     },
+    
     findByEmail: (email) => {
         return new Promise((resolve, reject) => {
             db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
@@ -21,9 +33,11 @@ const User = {
             });
         });
     },
+    
     verifyPassword: async (password, hash) => {
         return await bcrypt.compare(password, hash);
     },
+    
     setResetToken: (email, token) => {
         return new Promise((resolve, reject) => {
             db.query('UPDATE users SET reset_token = ?, reset_token_expiry = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE email = ?', [token, email], (err, results) => {
@@ -32,6 +46,7 @@ const User = {
             });
         });
     },
+    
     findByResetToken: (token) => {
         return new Promise((resolve, reject) => {
             db.query('SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()', [token], (err, results) => {
@@ -40,6 +55,7 @@ const User = {
             });
         });
     },
+    
     updatePassword: async (email, newPassword) => {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         return new Promise((resolve, reject) => {
@@ -48,29 +64,27 @@ const User = {
                 resolve(results);
             });
         });
+    },
+    
+    update: (id, name, email, role) => {
+        return new Promise((resolve, reject) => {
+            const sql = `UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?`;
+            db.query(sql, [name, email, role, id], (err, result) => {
+                if (err) reject(err);
+                resolve(result);
+            });
+        });
+    },
+    
+    softDelete: (id) => {
+        return new Promise((resolve, reject) => {
+            const sql = `UPDATE users SET status = 'Deleted' WHERE id = ?`;
+            db.query(sql, [id], (err, result) => {
+                if (err) reject(err);
+                resolve(result);
+            });
+        });
     }
 };
-
-// EDIT user info
-User.update = (id, name, email, role) => {
-    return new Promise((resolve, reject) => {
-        const sql = `UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?`;
-        db.query(sql, [name, email, role, id], (err, result) => {
-            if (err) reject(err);
-            resolve(result);
-        });
-    });
-};
-
-// SOFT DELETE user (status = 'Deleted')
-User.softDelete = (id) => {
-    return new Promise((resolve, reject) => {
-        const sql = `UPDATE users SET status = 'Deleted' WHERE id = ?`;
-        db.query(sql, [id], (err, result) => {
-            if (err) reject(err);
-            resolve(result);
-        });
-    });
-}; 
 
 module.exports = User;

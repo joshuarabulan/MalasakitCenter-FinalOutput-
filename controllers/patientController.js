@@ -140,7 +140,7 @@ exports.updateStatus = (req, res) => {
 
         res.json({ success: true, message: "Status updated successfully!" });
     });
-}; //update nanaman potangina
+}; 
 
 
 // Delete a patient by ID
