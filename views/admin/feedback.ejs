@@ -284,9 +284,8 @@
                                         </div>
                                     </td>
 
-                                    <td style="font-size:12.5px;color:#9b8f87;white-space:nowrap;">
-                                    <%= feedback.feedback_date instanceof Date ? feedback.feedback_date.toISOString().split('T')[0] : feedback.feedback_date %>                                    
-                                   </td>
+                                   <span id="sdPatientName">—</span>
+
                                     <td>
                                         <button onclick="deleteFeedback('<%= feedback.id %>')" class="row-delete-btn">
                                             <i class="fas fa-trash-alt"></i> Delete

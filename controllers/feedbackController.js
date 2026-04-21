@@ -1,19 +1,10 @@
-const db = require('../config/db'); 
+const db = require('../config/db');
 
 exports.createFeedback = (req, res) => {
     const {
-        section,
-        feedbackDate,
-        timeStarted,
-        timeEnded,
-        objective1,
-        objective2,
-        objective3,
-        objective4,
-        comments,
-        name,
-        contact,
-        address
+        section, feedbackDate, timeStarted, timeEnded,
+        objective1, objective2, objective3, objective4,
+        comments, name, contact, address
     } = req.body;
 
     const query = `
@@ -22,79 +13,80 @@ exports.createFeedback = (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const values = [
-        section,
-        feedbackDate,
-        timeStarted,
-        timeEnded,
-        objective1,
-        objective2,
-        objective3,
-        objective4,
-        comments,
-        name,
-        contact,
-        address
-    ];
-
-    db.query(query, values, (err, result) => {
+    db.query(query, [section, feedbackDate, timeStarted, timeEnded,
+        objective1, objective2, objective3, objective4,
+        comments, name, contact, address], (err, result) => {
         if (err) {
             console.error('Error saving feedback:', err);
             return res.status(500).json({ success: false, message: 'Error saving feedback' });
         }
-
-        res.json({ success: true, message: 'Feedback submitted successfully!', id: result.insertId });
+        res.json({ success: true, message: 'Feedback submitted successfully!' });
     });
 };
 
 exports.deleteFeedback = (req, res) => {
     const { id } = req.params;
 
-    const query = 'DELETE FROM feedbacks WHERE id = ?';
-
-    db.query(query, [id], (err, result) => {
+    db.query('DELETE FROM feedbacks WHERE id = ?', [id], (err, result) => {
         if (err) {
             console.error('Error deleting feedback:', err);
             return res.status(500).json({ success: false, message: 'Error deleting feedback' });
         }
-
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: 'Feedback not found' });
         }
 
-        // Check if session exists before using it
-        if (req.session && req.session.user && req.session.user.id) {
-            const logSql = 'INSERT INTO deleted_history (table_name, record_id, deleted_by) VALUES (?, ?, ?)';
-            db.query(logSql, ['feedbacks', id, req.session.user.id], (logErr) => {
-                if (logErr) {
-                    console.error('Error logging feedback deletion:', logErr);
-                }
-            });
-        }
+        const userId = req.session && req.session.user ? req.session.user.id : null;
+        db.query(
+            'INSERT INTO deleted_history (table_name, record_id, deleted_by) VALUES (?, ?, ?)',
+            ['feedbacks', id, userId],
+            (logErr) => { if (logErr) console.error('Error logging deletion:', logErr); }
+        );
 
         res.json({ success: true, message: 'Feedback deleted successfully' });
     });
 };
 
 exports.deleteAllFeedback = (req, res) => {
-    const query = 'DELETE FROM feedbacks';
-
-    db.query(query, (err, result) => {
+    // Grab IDs first so we can log them
+    db.query('SELECT id FROM feedbacks', (err, rows) => {
         if (err) {
-            console.error('Error deleting all feedbacks:', err);
+            console.error('Error fetching feedback IDs:', err);
             return res.status(500).json({ success: false, message: 'Error deleting all feedbacks' });
         }
 
-        res.json({ 
-            success: true, 
-            message: `All feedbacks (${result.affectedRows}) deleted successfully`,
-            count: result.affectedRows
+        db.query('DELETE FROM feedbacks', (delErr, result) => {
+            if (delErr) {
+                console.error('Error deleting all feedbacks:', delErr);
+                return res.status(500).json({ success: false, message: 'Error deleting all feedbacks' });
+            }
+
+            // Log each deleted record
+            const userId = req.session && req.session.user ? req.session.user.id : null;
+            rows.forEach(row => {
+                db.query(
+                    'INSERT INTO deleted_history (table_name, record_id, deleted_by) VALUES (?, ?, ?)',
+                    ['feedbacks', row.id, userId],
+                    (logErr) => { if (logErr) console.error('Error logging deletion:', logErr); }
+                );
+            });
+
+            res.json({
+                success: true,
+                message: `All feedbacks (${result.affectedRows}) deleted successfully`,
+                count: result.affectedRows
+            });
         });
     });
 };
 
-exports.getFeedback = (req, res) => { 
-    const query = 'SELECT *, (objective1 + objective2 + objective3 + objective4) / 4 as avg_score FROM feedbacks ORDER BY id DESC';
+exports.getFeedback = (req, res) => {
+    const query = `
+        SELECT *,
+            (objective1 + objective2 + objective3 + objective4) / 4 AS avg_score
+        FROM feedbacks
+        ORDER BY created_at DESC
+    `;
 
     db.query(query, (err, results) => {
         if (err) {
@@ -102,42 +94,37 @@ exports.getFeedback = (req, res) => {
             return res.status(500).send('Internal Server Error');
         }
 
-        // Calculate stats for the dashboard
+        // Normalize feedback_date to a plain JS Date safely
+        results = results.map(f => {
+            let d = f.feedback_date;
+            if (!(d instanceof Date)) d = new Date(d);
+            f.feedback_date = isNaN(d.getTime()) ? null : d;
+            return f;
+        });
+
         const total = results.length;
         let high = 0, medium = 0, low = 0;
         const sections = {};
-        
+
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        const recent = results.filter(feedback => new Date(feedback.feedback_date) >= oneWeekAgo);
-        
-        results.forEach(feedback => {
-            const avgScore = feedback.avg_score;
-            
-            if (avgScore >= 3.5) high++;
-            else if (avgScore >= 2) medium++;
+        const recent = results.filter(f => f.feedback_date && f.feedback_date >= oneWeekAgo);
+
+        results.forEach(f => {
+            const avg = parseFloat(f.avg_score) || 0;
+            if (avg >= 3.5) high++;
+            else if (avg >= 2) medium++;
             else low++;
-            
-            // Count by section
-            if (sections[feedback.section]) {
-                sections[feedback.section]++;
-            } else {
-                sections[feedback.section] = 1;
-            }
+
+            sections[f.section] = (sections[f.section] || 0) + 1;
         });
-        
+
         const topSections = Object.entries(sections)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 3)
             .map(([name, count]) => ({ name, count }));
-        
-        const stats = {
-            total,
-            scoreDistribution: { high, medium, low },
-            sections,
-            topSections,
-            recent
-        };
+
+        const stats = { total, scoreDistribution: { high, medium, low }, sections, topSections, recent };
 
         res.render('admin/feedback', { feedbacks: results, stats });
     });
