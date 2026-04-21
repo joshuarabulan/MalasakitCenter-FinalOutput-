@@ -1,7 +1,7 @@
 const db = require('../config/db'); 
 
 exports.createFeedback = (req, res) => {
-const {
+    const {
         section,
         feedbackDate,
         timeStarted,
@@ -16,6 +16,7 @@ const {
         address
     } = req.body;
 
+    // Removed 'id' from INSERT - database will auto-generate it
     const query = `
         INSERT INTO feedbacks
         (section, feedback_date, time_started, time_ended, objective1, objective2, objective3, objective4, comments, name, contact, address)
@@ -43,9 +44,9 @@ const {
             return res.status(500).json({ success: false, message: 'Error saving feedback' });
         }
 
-        res.json({ success: true, message: 'Feedback submitted successfully!' });
+        res.json({ success: true, message: 'Feedback submitted successfully!', id: result.insertId });
     });
-}
+};
 
 exports.deleteFeedback = (req, res) => {
     const { id } = req.params;
@@ -62,18 +63,19 @@ exports.deleteFeedback = (req, res) => {
             return res.status(404).json({ success: false, message: 'Feedback not found' });
         }
 
-        const logSql = 'INSERT INTO deleted_history (table_name, record_id, deleted_by) VALUES (?, ?, ?)';
-        db.query(logSql, ['feedbacks', id, req.session.user.id], (logErr) => {
-            if (logErr) {
-                console.error('Error logging feedback deletion:', logErr);
-            }
-        });
+        // Check if session exists before using it
+        if (req.session && req.session.user && req.session.user.id) {
+            const logSql = 'INSERT INTO deleted_history (table_name, record_id, deleted_by) VALUES (?, ?, ?)';
+            db.query(logSql, ['feedbacks', id, req.session.user.id], (logErr) => {
+                if (logErr) {
+                    console.error('Error logging feedback deletion:', logErr);
+                }
+            });
+        }
 
         res.json({ success: true, message: 'Feedback deleted successfully' });
     });
 };
-
-
 
 exports.deleteAllFeedback = (req, res) => {
     const query = 'DELETE FROM feedbacks';
@@ -92,7 +94,6 @@ exports.deleteAllFeedback = (req, res) => {
     });
 };
 
-// Update the getFeedback function to calculate average scores
 exports.getFeedback = (req, res) => { 
     const query = 'SELECT *, (objective1 + objective2 + objective3 + objective4) / 4 as avg_score FROM feedbacks ORDER BY id DESC';
 
