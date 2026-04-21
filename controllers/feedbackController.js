@@ -1,3 +1,98 @@
+const db = require('../config/db');
+
+exports.createFeedback = (req, res) => {
+    const {
+        section,
+        feedbackDate,
+        timeStarted,
+        timeEnded,
+        objective1,
+        objective2,
+        objective3,
+        objective4,
+        comments,
+        name,
+        contact,
+        address
+    } = req.body;
+
+    const query = `
+        INSERT INTO feedbacks
+        (section, feedback_date, time_started, time_ended, objective1, objective2, objective3, objective4, comments, name, contact, address)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+        section,
+        feedbackDate,
+        timeStarted,
+        timeEnded,
+        objective1,
+        objective2,
+        objective3,
+        objective4,
+        comments,
+        name,
+        contact,
+        address
+    ];
+
+    db.query(query, values, (err, result) => {
+        if (err) {
+            console.error('Error saving feedback:', err);
+            return res.status(500).json({ success: false, message: 'Error saving feedback' });
+        }
+
+        res.json({ success: true, message: 'Feedback submitted successfully!' });
+    });
+};
+
+exports.deleteFeedback = (req, res) => {
+    const { id } = req.params;
+
+    const query = 'DELETE FROM feedbacks WHERE id = ?';
+
+    db.query(query, [id], (err, result) => {
+        if (err) {
+            console.error('Error deleting feedback:', err);
+            return res.status(500).json({ success: false, message: 'Error deleting feedback' });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Feedback not found' });
+        }
+
+        // Only log if session exists (for admin routes)
+        if (req.session && req.session.user && req.session.user.id) {
+            const logSql = 'INSERT INTO deleted_history (table_name, record_id, deleted_by) VALUES (?, ?, ?)';
+            db.query(logSql, ['feedbacks', id, req.session.user.id], (logErr) => {
+                if (logErr) {
+                    console.error('Error logging feedback deletion:', logErr);
+                }
+            });
+        }
+
+        res.json({ success: true, message: 'Feedback deleted successfully' });
+    });
+};
+
+exports.deleteAllFeedback = (req, res) => {
+    const query = 'DELETE FROM feedbacks';
+
+    db.query(query, (err, result) => {
+        if (err) {
+            console.error('Error deleting all feedbacks:', err);
+            return res.status(500).json({ success: false, message: 'Error deleting all feedbacks' });
+        }
+
+        res.json({ 
+            success: true, 
+            message: `All feedbacks (${result.affectedRows}) deleted successfully`,
+            count: result.affectedRows
+        });
+    });
+};
+
 exports.getFeedback = (req, res) => { 
     // Fixed: Using id instead of created_at
     const query = 'SELECT *, (objective1 + objective2 + objective3 + objective4) / 4 as avg_score FROM feedbacks ORDER BY id DESC';
