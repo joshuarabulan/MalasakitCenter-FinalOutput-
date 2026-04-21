@@ -1247,7 +1247,7 @@ exports.getStatistics = (req, res) => {
     
     const averageBill = totalTransactions > 0 ? totalAmount / totalTransactions : 0;
     const wardDistribution = {
-      Inpatient: 0,
+      Inpatient: 0, 
       Outpatient: 0,
       ER: 0
     };
