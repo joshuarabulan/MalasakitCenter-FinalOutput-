@@ -85,7 +85,7 @@ exports.getFeedback = (req, res) => {
         SELECT *,
             (objective1 + objective2 + objective3 + objective4) / 4 AS avg_score
         FROM feedbacks
-        ORDER BY created_at DESC
+        ORDER BY feedback_date DESC
     `;
 
     db.query(query, (err, results) => {
