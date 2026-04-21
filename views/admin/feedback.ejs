@@ -72,7 +72,7 @@
                             </div>
                             <div id="sdPatientChip" class="sd-patient-chip">
                                 <i class="fas fa-user"></i>
-                                <span id="sdPatientName"></span>
+                                <span id="sdPatientName">Ã¢â‚¬â€</span>
                             </div>
                             <h3 class="sd-title">Delete this feedback?</h3>
                             <p class="sd-desc">
@@ -283,8 +283,11 @@
                                             <%= feedback.comments || 'No comments' %>
                                         </div>
                                     </td>
-                                    <td><%= new Date(feedback.feedback_date).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) %></td>
-                                    <div data-id="<%= feedback.id %>" data-name="<%= feedback.name %>" data-section="<%= feedback.section %>" data-comments="<%= feedback.comments %>"></div>
+
+                                    <td style="font-size:12.5px;color:#9b8f87;white-space:nowrap;">
+                                        <%= feedback.feedback_date.toISOString().split('T')[0] %>
+                                    </td>
+
                                     <td>
                                         <button onclick="deleteFeedback('<%= feedback.id %>')" class="row-delete-btn">
                                             <i class="fas fa-trash-alt"></i> Delete

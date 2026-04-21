@@ -946,32 +946,28 @@ const PDFDocument = require('pdfkit');
 exports.getFeedback = (req, res) => { 
   if (!req.session.user || req.session.user.role !== 'Admin') {
       return res.redirect('/');
-  }
-  const query = `
-      SELECT *,
-      (objective1 + objective2 + objective3 + objective4) AS total_score,
-      (objective1 + objective2 + objective3 + objective4)/4 AS avg_score
-      FROM feedbacks 
-      ORDER BY feedback_date DESC
-  `;
+    }
+    const query = `
+        SELECT *,
+        (objective1 + objective2 + objective3 + objective4) AS total_score,
+        (objective1 + objective2 + objective3 + objective4)/4 AS avg_score
+        FROM feedbacks 
+        ORDER BY created_at DESC
+    `;
 
-  db.query(query, (err, results) => {
-      if (err) {
-          console.error('Error fetching feedbacks:', err);
-          return res.status(500).send('Internal Server Error');
-      }
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching feedbacks:', err);
+            return res.status(500).send('Internal Server Error');
+        }
 
-      // Normalize feedback_date safely
-      results = results.map(f => {
-          let d = f.feedback_date;
-          if (!(d instanceof Date)) d = new Date(d);
-          f.feedback_date = isNaN(d.getTime()) ? null : d;
-          return f;
-      });
+        const stats = calculateStats(results);
 
-      const stats = calculateStats(results);
-      res.render('admin/feedback', { feedbacks: results, stats });
-  });
+        res.render('admin/feedback', { 
+            feedbacks: results, 
+            stats
+        });
+    });
 };
 
 exports.generateFeedbackPDF = (req, res) => {
@@ -980,7 +976,7 @@ exports.generateFeedbackPDF = (req, res) => {
         (objective1 + objective2 + objective3 + objective4) AS total_score,
         (objective1 + objective2 + objective3 + objective4)/4 AS avg_score
         FROM feedbacks 
-        ORDER BY feedback_date DESC
+        ORDER BY created_at DESC
     `;
 
     db.query(query, (err, results) => {
@@ -1002,19 +998,16 @@ function calculateStats(results) {
         recent: []
     };
 
-    const threeDaysAgo = new Date();
-    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-
     results.forEach(feedback => {
         stats.sections[feedback.section] = (stats.sections[feedback.section] || 0) + 1;
         
-        const avg = parseFloat(feedback.avg_score) || 0;
-        if (avg >= 3.5) stats.scoreDistribution.high++;
-        else if (avg >= 2) stats.scoreDistribution.medium++;
+        if (feedback.avg_score >= 3.5) stats.scoreDistribution.high++;
+        else if (feedback.avg_score >= 2) stats.scoreDistribution.medium++;
         else stats.scoreDistribution.low++;
         
-        // Use feedback_date instead of created_at
-        if (feedback.feedback_date && new Date(feedback.feedback_date) > threeDaysAgo) {
+        const threeDaysAgo = new Date();
+        threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+        if (new Date(feedback.created_at) > threeDaysAgo) {
             stats.recent.push(feedback);
         }
     });
@@ -1247,7 +1240,7 @@ exports.getStatistics = (req, res) => {
     
     const averageBill = totalTransactions > 0 ? totalAmount / totalTransactions : 0;
     const wardDistribution = {
-      Inpatient: 0, 
+      Inpatient: 0,
       Outpatient: 0,
       ER: 0
     };

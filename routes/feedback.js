@@ -4,8 +4,10 @@ const { createFeedback, getFeedback, deleteAllFeedback, deleteFeedback } = requi
 const router = express.Router();
 
 router.post('/submit', createFeedback);
-router.post('/get-feedback', getFeedback);   // ← POST as you have it
+router.post('/get-feedback', getFeedback);
+
 router.delete('/feedback/:id', deleteFeedback);
 router.delete('/feedback', deleteAllFeedback);
+
 
 module.exports = router;
