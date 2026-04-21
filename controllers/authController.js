@@ -290,7 +290,6 @@ exports.getPatient = (req, res) => {
     return res.redirect('/');
   }
 
-
   const userId = req.session.user.id;
   
   const requestsSql = patientRequestSelectSql('WHERE user_id = ?');
@@ -1537,7 +1536,7 @@ exports.permanentDeleteRecord = (req, res) => {
     }
     
     const recordId = req.params.id;
-        const checkQuery = 'SELECT is_deleted FROM billing_records WHERE id = ?';
+    const checkQuery = 'SELECT is_deleted FROM billing_records WHERE id = ?';
     
     db.query(checkQuery, [recordId], (checkErr, checkResult) => {
         if (checkErr) {
@@ -1628,7 +1627,7 @@ exports.submitMainForm = (req, res) => {
   try {
     const services = JSON.parse(services_json || '[]');
     let total_due = 0;
-        services.forEach(service => {
+    services.forEach(service => {
         const amount = parseFloat(service.amount) || 0;
         const discount = parseFloat(service.discount) || 0;
         const philhealth = parseFloat(service.philhealth) || 0;
@@ -1726,38 +1725,14 @@ exports.editUser = (req, res) => {
     });
   }
 };
-function rollbackWithError(res, message, err) {
-  db.rollback(() => {
-    if (err) {
-      console.error(message, err);
-    }
+
+// ✅ FIXED: Uses connection.beginTransaction() instead of db.beginTransaction()
+function rollbackWithError(connection, res, message, err) {
+  connection.rollback(() => {
+    if (err) console.error(message, err);
+    connection.release();
     res.status(500).json({ success: false, message });
   });
-}
-
-function deleteUserDependencies(targetClause, params, callback) {
-  const steps = [
-    { sql: `DELETE FROM notifications WHERE ${targetClause}`, params },
-    { sql: `DELETE FROM requests WHERE ${targetClause}`, params },
-    { sql: `DELETE FROM unified_intake_sheets WHERE ${targetClause}`, params }
-  ];
-
-  let index = 0;
-  const next = () => {
-    if (index >= steps.length) {
-      return callback(null);
-    }
-
-    const step = steps[index++];
-    db.query(step.sql, step.params, (err) => {
-      if (err) {
-        return callback(err);
-      }
-      next();
-    });
-  };
-
-  next();
 }
 
 exports.deleteUser = (req, res) => {
@@ -1779,45 +1754,66 @@ exports.deleteUser = (req, res) => {
       });
     }
 
-    db.beginTransaction((txErr) => {
-      if (txErr) {
-        console.error("Error starting delete user transaction:", txErr);
-        return res.status(500).json({ success: false, message: "Database error: " + txErr.message });
+    // ✅ FIXED: Get a connection from pool first, then use beginTransaction
+    db.getConnection((connErr, connection) => {
+      if (connErr) {
+        console.error("Error getting connection:", connErr);
+        return res.status(500).json({ success: false, message: "Database error: " + connErr.message });
       }
 
-      deleteUserDependencies('user_id = ?', [targetUserId], (dependencyErr) => {
-        if (dependencyErr) {
-          return rollbackWithError(res, "Database error while deleting user dependencies", dependencyErr);
+      connection.beginTransaction((txErr) => {
+        if (txErr) {
+          connection.release();
+          return res.status(500).json({ success: false, message: "Database error: " + txErr.message });
         }
 
-        db.query(`DELETE FROM users WHERE id = ?`, [targetUserId], (deleteErr, result) => {
-          if (deleteErr) {
-            return rollbackWithError(res, "Database error while deleting user", deleteErr);
-          }
+        const steps = [
+          { sql: `DELETE FROM notifications WHERE user_id = ?`, params: [targetUserId] },
+          { sql: `DELETE FROM requests WHERE user_id = ?`, params: [targetUserId] },
+          { sql: `DELETE FROM unified_intake_sheets WHERE user_id = ?`, params: [targetUserId] }
+        ];
 
-          if (result.affectedRows === 0) {
-            return db.rollback(() => {
-              res.status(404).json({ success: false, message: "User not found" });
-            });
-          }
+        let index = 0;
+        const next = () => {
+          if (index >= steps.length) {
+            connection.query(`DELETE FROM users WHERE id = ?`, [targetUserId], (deleteErr, result) => {
+              if (deleteErr) return rollbackWithError(connection, res, "Database error while deleting user", deleteErr);
 
-          const logSql = 'INSERT INTO deleted_history (table_name, record_id, deleted_by) VALUES (?, ?, ?)';
-          db.query(logSql, ['users', targetUserId, req.session.user.id], (logErr) => {
-            if (logErr) {
-              return rollbackWithError(res, "Database error while logging user deletion", logErr);
-            }
-
-            db.commit((commitErr) => {
-              if (commitErr) {
-                return rollbackWithError(res, "Database error while finalizing user deletion", commitErr);
+              if (result.affectedRows === 0) {
+                return connection.rollback(() => {
+                  connection.release();
+                  res.status(404).json({ success: false, message: "User not found" });
+                });
               }
 
-              res.json({ success: true, message: "User deleted successfully" });
+              connection.query(
+                'INSERT INTO deleted_history (table_name, record_id, deleted_by) VALUES (?, ?, ?)',
+                ['users', targetUserId, req.session.user.id],
+                (logErr) => {
+                  if (logErr) return rollbackWithError(connection, res, "Database error while logging user deletion", logErr);
+
+                  connection.commit((commitErr) => {
+                    if (commitErr) return rollbackWithError(connection, res, "Database error while finalizing user deletion", commitErr);
+                    connection.release();
+                    res.json({ success: true, message: "User deleted successfully" });
+                  });
+                }
+              );
             });
+            return;
+          }
+
+          const step = steps[index++];
+          connection.query(step.sql, step.params, (err) => {
+            if (err) return rollbackWithError(connection, res, "Database error while deleting user dependencies", err);
+            next();
           });
-        });
+        };
+
+        next();
       });
     });
+
   } catch (error) {
     console.error("Unexpected error:", error);
     res.status(500).json({
@@ -1834,32 +1830,52 @@ exports.deleteAllUsers = (req, res) => {
       return res.status(403).json({ success: false, message: 'Unauthorized' });
     }
 
-    db.beginTransaction((txErr) => {
-      if (txErr) {
-        console.error("Error starting delete all users transaction:", txErr);
-        return res.status(500).json({ success: false, message: "Database error: " + txErr.message });
+    const adminId = req.session.user.id;
+
+    // ✅ FIXED: Get a connection from pool first, then use beginTransaction
+    db.getConnection((connErr, connection) => {
+      if (connErr) {
+        return res.status(500).json({ success: false, message: "Database error: " + connErr.message });
       }
 
-      deleteUserDependencies('user_id != ?', [req.session.user.id], (dependencyErr) => {
-        if (dependencyErr) {
-          return rollbackWithError(res, "Database error while deleting user dependencies", dependencyErr);
+      connection.beginTransaction((txErr) => {
+        if (txErr) {
+          connection.release();
+          return res.status(500).json({ success: false, message: "Database error: " + txErr.message });
         }
 
-        db.query(`DELETE FROM users WHERE id != ?`, [req.session.user.id], (deleteErr) => {
-          if (deleteErr) {
-            return rollbackWithError(res, "Database error while deleting users", deleteErr);
+        const steps = [
+          { sql: `DELETE FROM notifications WHERE user_id != ?`, params: [adminId] },
+          { sql: `DELETE FROM requests WHERE user_id != ?`, params: [adminId] },
+          { sql: `DELETE FROM unified_intake_sheets WHERE user_id != ?`, params: [adminId] }
+        ];
+
+        let index = 0;
+        const next = () => {
+          if (index >= steps.length) {
+            connection.query(`DELETE FROM users WHERE id != ?`, [adminId], (deleteErr) => {
+              if (deleteErr) return rollbackWithError(connection, res, "Database error while deleting users", deleteErr);
+
+              connection.commit((commitErr) => {
+                if (commitErr) return rollbackWithError(connection, res, "Database error while finalizing user deletion", commitErr);
+                connection.release();
+                res.json({ success: true, message: "All users deleted successfully" });
+              });
+            });
+            return;
           }
 
-          db.commit((commitErr) => {
-            if (commitErr) {
-              return rollbackWithError(res, "Database error while finalizing user deletion", commitErr);
-            }
-
-            res.json({ success: true, message: "All users deleted successfully" });
+          const step = steps[index++];
+          connection.query(step.sql, step.params, (err) => {
+            if (err) return rollbackWithError(connection, res, "Database error while deleting user dependencies", err);
+            next();
           });
-        });
+        };
+
+        next();
       });
     });
+
   } catch (error) {
     console.error("Unexpected error:", error);
     res.status(500).json({
@@ -1938,4 +1954,3 @@ exports.deletePatient = (req, res) => {
         res.redirect('/patient/admin');
     });
 };
-
