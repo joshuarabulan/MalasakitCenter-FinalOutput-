@@ -1,8 +1,18 @@
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
 
+function normalizeEmail(email) {
+    return String(email || '').trim().toLowerCase();
+}
+
+function normalizeRole(role) {
+    return String(role || 'User').trim().toLowerCase() === 'admin' ? 'Admin' : 'User';
+}
+
 const User = {
     create: async (name, email, password, role) => {
+        const normalizedEmail = normalizeEmail(email);
+        const normalizedRole = normalizeRole(role);
         const hashedPassword = await bcrypt.hash(password, 10);
         
         // First, get the next available ID
@@ -17,7 +27,7 @@ const User = {
                 
                 // Insert with explicit ID
                 db.query('INSERT INTO users (id, name, email, password, role, created_at) VALUES (?, ?, ?, ?, ?, NOW())', 
-                [nextId, name, email, hashedPassword, role], (err, results) => {
+                [nextId, name, normalizedEmail, hashedPassword, normalizedRole], (err, results) => {
                     if (err) reject(err);
                     resolve(results);
                 });
@@ -26,8 +36,9 @@ const User = {
     },
     
     findByEmail: (email) => {
+        const normalizedEmail = normalizeEmail(email);
         return new Promise((resolve, reject) => {
-            db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
+            db.query('SELECT * FROM users WHERE LOWER(TRIM(email)) = ? LIMIT 1', [normalizedEmail], (err, results) => {
                 if (err) reject(err);
                 resolve(results[0]);
             });
@@ -35,7 +46,16 @@ const User = {
     },
     
     verifyPassword: async (password, hash) => {
-        return await bcrypt.compare(password, hash);
+        if (!hash) {
+            return false;
+        }
+
+        if (typeof hash === 'string' && hash.startsWith('$2')) {
+            return bcrypt.compare(password, hash);
+        }
+
+        // Fallback for legacy plain-text records if any still exist.
+        return String(password) === String(hash);
     },
     
     setResetToken: (email, token) => {
@@ -57,9 +77,10 @@ const User = {
     },
     
     updatePassword: async (email, newPassword) => {
+        const normalizedEmail = normalizeEmail(email);
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         return new Promise((resolve, reject) => {
-            db.query('UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE email = ?', [hashedPassword, email], (err, results) => {
+            db.query('UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE LOWER(TRIM(email)) = ?', [hashedPassword, normalizedEmail], (err, results) => {
                 if (err) reject(err);
                 resolve(results);
             });
@@ -67,9 +88,11 @@ const User = {
     },
     
     update: (id, name, email, role) => {
+        const normalizedEmail = normalizeEmail(email);
+        const normalizedRole = normalizeRole(role);
         return new Promise((resolve, reject) => {
             const sql = `UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?`;
-            db.query(sql, [name, email, role, id], (err, result) => {
+            db.query(sql, [name, normalizedEmail, normalizedRole, id], (err, result) => {
                 if (err) reject(err);
                 resolve(result);
             });

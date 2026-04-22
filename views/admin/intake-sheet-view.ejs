@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Unified Intake Sheet - Malasakit Center (Admin View)</title>
+  <title>Unified Intake Sheet - Malasakit Center (<%= viewMode === 'patient' ? 'Patient View' : 'Admin View' %>)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -420,17 +420,17 @@
 <body>
 
 <div class="toolbar">
-  <div class="toolbar-title">Unified Intake Sheet — Malasakit Center (Admin View)</div>
+  <div class="toolbar-title">Unified Intake Sheet - Malasakit Center (<%= viewMode === 'patient' ? 'Patient View' : 'Admin View' %>)</div>
   <div class="toolbar-actions">
-    <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
-    <button class="btn btn-close" onclick="window.close()">✖ Close</button>
+    <button class="btn btn-print" onclick="window.print()">Print</button>
+    <button class="btn btn-close" onclick="window.close()">Close</button>
   </div>
 </div>
 
 <div class="sheet-wrap">
   <!-- PAGE 1 - CLIENT INFORMATION -->
   <div class="page">
-    <div class="page-label">PAGE 1 · CLIENT INFORMATION</div>
+    <div class="page-label">PAGE 1 - CLIENT INFORMATION</div>
     <div class="header">
       <div class="logo-row">
         <img src="/uploads/DOH.png" alt="DOH" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 50%27%3E%3Crect width=%27120%27 height=%2750%27 fill=%27%231455a4%27/%3E%3Ctext x=%2712%27 y=%2730%27 fill=%27white%27 font-size=%2714%27 font-weight=%27bold%27%3EDOH%3C/text%3E%3C/svg%3E'">
@@ -439,7 +439,7 @@
         <img src="/uploads/DSWD.png" alt="DSWD" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 50%27%3E%3Crect width=%27120%27 height=%2750%27 fill=%27%231f7a5a%27/%3E%3Ctext x=%2712%27 y=%2730%27 fill=%27white%27 font-size=%2714%27%3EDSWD%3C/text%3E%3C/svg%3E'">
         <img src="/uploads/MALASAKITCENTER.png" alt="Malasakit Center" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 140 50%27%3E%3Crect width=%27140%27 height=%2750%27 fill=%27%238b0000%27/%3E%3Ctext x=%276%27 y=%2730%27 fill=%27%23ffd966%27 font-size=%2712%27 font-weight=%27bold%27%3EMALASAKIT%3C/text%3E%3C/svg%3E'">
       </div>
-      <div class="header-title">Unified Intake Sheet <span>Malasakit Center · Whole-of-Government Approach</span></div>
+      <div class="header-title">Unified Intake Sheet <span>Malasakit Center - Whole-of-Government Approach</span></div>
     </div>
 
     <div class="form-card">
@@ -519,7 +519,7 @@
 
   <!-- PAGE 2 - ASSESSMENT & RECOMMENDATION (Square Thumbmark Box) -->
   <div class="page">
-    <div class="page-label">PAGE 2 · ASSESSMENT & RECOMMENDATION</div>
+    <div class="page-label">PAGE 2 - ASSESSMENT & RECOMMENDATION</div>
     <div class="form-card">
       <div class="sec-bar"><span class="sec-num">C</span> HOUSEHOLD PROFILE & EXPENSES</div>
       <div class="income-split">

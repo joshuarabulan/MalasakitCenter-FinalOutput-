@@ -8,12 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         :root {
@@ -39,10 +37,6 @@
             --shadow-lg: 0 20px 60px rgba(28, 16, 8, .16);
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
             font-family: 'Sora', sans-serif;
             background: var(--cream);
@@ -51,24 +45,7 @@
             overflow-x: hidden;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(ellipse 800px 600px at 10% 20%, rgba(192, 57, 43, .06) 0%, transparent 70%),
-                radial-gradient(ellipse 600px 500px at 90% 80%, rgba(200, 150, 58, .05) 0%, transparent 70%),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='1' fill='%23c0392b' fill-opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        main,
-        nav,
-        footer {
-            position: relative;
-            z-index: 1;
-        }
-
+        /* Navigation */
         nav {
             background: var(--red-dark);
             background-image: linear-gradient(135deg, var(--red-dark) 0%, var(--red) 60%, #a93226 100%);
@@ -115,6 +92,12 @@
 
         .nav-badge {
             display: none;
+            background: rgba(255, 255, 255, .15);
+            border: 1px solid rgba(255, 255, 255, .25);
+            font-size: .7rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 100px;
         }
 
         .nav-actions {
@@ -139,8 +122,9 @@
             transition: all .2s;
         }
 
-        .nav-btn span {
-            display: none;
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, .22);
+            transform: translateY(-1px);
         }
 
         .nav-user span {
@@ -161,6 +145,7 @@
             border-radius: 50%;
         }
 
+        /* Page Header */
         .page-header {
             max-width: 1280px;
             margin: 28px auto 0;
@@ -199,12 +184,12 @@
             padding: 10px 16px;
             border-radius: 30px;
             font-size: 0.8rem;
-            text-align: left;
             border: 1px solid rgba(28, 16, 8, .06);
             display: inline-block;
             width: fit-content;
         }
 
+        /* Stats Cards */
         .stats-strip {
             max-width: 1280px;
             margin: 24px auto;
@@ -250,6 +235,7 @@
             line-height: 1.2;
         }
 
+        /* Action Cards */
         .actions-grid {
             max-width: 1280px;
             margin: 24px auto;
@@ -331,9 +317,10 @@
             margin-top: 12px;
         }
 
-        .messages-container {
+        /* Table Section */
+        .table-section {
             max-width: 1280px;
-            margin: 24px auto;
+            margin: 24px auto 40px;
             padding: 0 20px;
         }
 
@@ -366,185 +353,6 @@
             border-radius: 40px;
             font-size: 0.7rem;
             font-weight: 600;
-        }
-
-        .messages-grid {
-            display: flex;
-            flex-direction: column;
-            background: var(--warm-white);
-            border-radius: var(--radius-xl);
-            border: 1px solid rgba(28, 16, 8, .08);
-            overflow: hidden;
-            min-height: 500px;
-        }
-
-        .conversations-list {
-            background: var(--paper);
-            border-right: none;
-            border-bottom: 1px solid rgba(28, 16, 8, .08);
-            max-height: 280px;
-            overflow-y: auto;
-        }
-
-        .chat-area {
-            display: flex;
-            flex-direction: column;
-            height: 480px;
-        }
-
-        @media (min-width: 768px) {
-            .messages-grid {
-                flex-direction: row;
-            }
-            .conversations-list {
-                width: 320px;
-                border-right: 1px solid rgba(28, 16, 8, .08);
-                border-bottom: none;
-                max-height: 600px;
-            }
-            .chat-area {
-                flex: 1;
-                height: 600px;
-            }
-        }
-
-        .convo-header {
-            padding: 16px;
-            border-bottom: 1px solid rgba(28, 16, 8, .08);
-            background: var(--warm-white);
-        }
-
-        .convo-header h3 {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .convo-item {
-            padding: 14px 16px;
-            border-bottom: 1px solid rgba(28, 16, 8, .06);
-            cursor: pointer;
-            transition: all .2s;
-        }
-
-        .convo-item.active {
-            background: rgba(192, 57, 43, .08);
-            border-left: 3px solid var(--red);
-        }
-
-        .convo-name {
-            font-weight: 700;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 4px;
-        }
-
-        .convo-preview {
-            font-size: 0.7rem;
-            color: var(--ink-soft);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .unread-badge {
-            background: var(--red);
-            color: white;
-            border-radius: 10px;
-            padding: 2px 8px;
-            font-size: 0.65rem;
-            font-weight: 700;
-        }
-
-        .chat-header {
-            padding: 16px;
-            border-bottom: 1px solid rgba(28, 16, 8, .08);
-            background: var(--warm-white);
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .message {
-            display: flex;
-            margin-bottom: 6px;
-        }
-
-        .message.sent {
-            justify-content: flex-end;
-        }
-
-        .message.received {
-            justify-content: flex-start;
-        }
-
-        .message-bubble {
-            max-width: 80%;
-            padding: 8px 12px;
-            border-radius: 18px;
-            position: relative;
-        }
-
-        .message.sent .message-bubble {
-            background: var(--red);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message.received .message-bubble {
-            background: var(--paper);
-            color: var(--ink);
-            border-bottom-left-radius: 4px;
-        }
-
-        .message-time {
-            font-size: 0.6rem;
-            margin-top: 4px;
-            opacity: 0.7;
-        }
-
-        .chat-input-area {
-            padding: 14px;
-            border-top: 1px solid rgba(28, 16, 8, .08);
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input-area input {
-            flex: 1;
-            padding: 10px 14px;
-            border: 1.5px solid rgba(28, 16, 8, .12);
-            border-radius: 100px;
-            font-family: 'Sora', sans-serif;
-            font-size: 0.85rem;
-            outline: none;
-        }
-
-        .send-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: var(--red);
-            color: white;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .table-section {
-            max-width: 1280px;
-            margin: 24px auto 40px;
-            padding: 0 20px;
         }
 
         .table-wrap {
@@ -582,9 +390,20 @@
             font-weight: 600;
         }
 
-        .status-pill.waiting { background: #fff3e0; color: var(--warning); }
-        .status-pill.approved { background: #e3f5ec; color: var(--success); }
-        .status-pill.declined { background: #fee; color: var(--red); }
+        .status-pill.waiting {
+            background: #fff3e0;
+            color: var(--warning);
+        }
+
+        .status-pill.approved {
+            background: #e3f5ec;
+            color: var(--success);
+        }
+
+        .status-pill.declined {
+            background: #fee;
+            color: var(--red);
+        }
 
         .tbl-btn {
             background: none;
@@ -595,13 +414,19 @@
             font-size: 0.7rem;
             font-weight: 600;
             color: var(--red);
+            transition: all 0.2s;
         }
 
+        .tbl-btn:hover {
+            background: rgba(192, 57, 43, .1);
+        }
+
+        /* Modals */
         .modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(4px);
             z-index: 200;
             align-items: center;
@@ -623,6 +448,13 @@
             max-width: 800px;
         }
 
+        .modal-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+        }
+
+        /* Toast Notifications */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -667,6 +499,7 @@
             font-weight: 600;
             border: none;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .btn-primary {
@@ -674,9 +507,17 @@
             color: white;
         }
 
+        .btn-primary:hover {
+            background: var(--red-dark);
+        }
+
         .btn-ghost {
             background: transparent;
-            border: 1px solid rgba(0,0,0,0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(0, 0, 0, 0.05);
         }
 
         .empty-state {
@@ -684,11 +525,22 @@
             padding: 40px;
             color: var(--ink-soft);
         }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 40px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            font-family: 'Sora', sans-serif;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
+
 <div id="toastWrap"></div>
 
+<!-- Navigation -->
 <nav>
     <div class="nav-inner">
         <div class="nav-brand">
@@ -698,347 +550,388 @@
         </div>
         <div class="nav-actions">
             <div class="notif-wrapper">
-                <button class="nav-btn" id="notifBtn"><i class='bx bx-bell'></i><span>Alerts</span><div class="notif-dot" id="notifDot" style="display:none"></div></button>
+                <button class="nav-btn" id="notifBtn">
+                    <i class='bx bx-bell'></i>
+                    <span>Alerts</span>
+                    <div class="notif-dot" id="notifDot" style="display:none"></div>
+                </button>
             </div>
-            <div class="nav-user"><i class='bx bx-user-circle'></i> <span id="currentUserName"><%= user ? user.name : 'Loading...' %></span></div>
-            <button class="nav-btn" onclick="openModal('logoutModal')"><i class='bx bx-log-out'></i><span>Logout</span></button>
+            <div class="nav-user">
+                <i class='bx bx-user-circle'></i>
+                <span id="currentUserName"><%= user ? user.name : 'Loading...' %></span>
+            </div>
+            <button class="nav-btn" onclick="openModal('logoutModal')">
+                <i class='bx bx-log-out'></i>
+                <span>Logout</span>
+            </button>
         </div>
     </div>
 </nav>
 
+<!-- Header -->
 <div class="page-header">
     <div>
         <div class="header-eyebrow">Patient Dashboard</div>
         <h1 class="header-title">Medical Assistance<br><em>Made Simple.</em></h1>
         <p class="header-sub">Track, submit, and manage your medical assistance requests seamlessly.</p>
     </div>
-    <div class="header-date"><i class='bx bx-calendar'></i> <strong id="currentDate"></strong></div>
+    <div class="header-date">
+        <i class='bx bx-calendar'></i>
+        <strong id="currentDate"></strong>
+    </div>
 </div>
 
+<!-- Stats -->
 <div class="stats-strip" id="statsContainer">
-    <div class="stat-card"><div class="stat-icon"><i class='bx bx-loader-circle'></i></div><div><div class="stat-label">Total Requests</div><div class="stat-value">-</div></div></div>
-    <div class="stat-card"><div class="stat-icon"><i class='bx bx-time-five'></i></div><div><div class="stat-label">Pending Review</div><div class="stat-value">-</div></div></div>
-    <div class="stat-card"><div class="stat-icon"><i class='bx bx-check-shield'></i></div><div><div class="stat-label">Approved Cases</div><div class="stat-value">-</div></div></div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class='bx bx-loader-circle'></i></div>
+        <div>
+            <div class="stat-label">Total Requests</div>
+            <div class="stat-value">-</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class='bx bx-time-five'></i></div>
+        <div>
+            <div class="stat-label">Pending Review</div>
+            <div class="stat-value">-</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class='bx bx-check-shield'></i></div>
+        <div>
+            <div class="stat-label">Approved Cases</div>
+            <div class="stat-value">-</div>
+        </div>
+    </div>
 </div>
 
+<!-- Action Cards -->
 <div class="actions-grid">
     <div class="action-card primary" onclick="window.location.href='/patient/sheet'">
-        <div><div class="action-icon"><i class='bx bx-plus-medical'></i></div><div class="action-title">Medical Assistance<br>Request</div><div class="action-sub">Submit a new request for medical aid. Secure and fast.</div><div class="action-link">Request Now <i class='bx bx-right-arrow-alt'></i></div></div>
+        <div>
+            <div class="action-icon"><i class='bx bx-plus-medical'></i></div>
+            <div class="action-title">Medical Assistance<br>Request</div>
+            <div class="action-sub">Submit a new request for medical aid. Secure and fast.</div>
+            <div class="action-link">Request Now <i class='bx bx-right-arrow-alt'></i></div>
+        </div>
     </div>
     <div class="action-card secondary" onclick="openModal('recordsModal')">
-        <div><div class="action-icon"><i class='bx bx-clipboard'></i></div><div class="action-title">Request<br>Records</div><div class="action-sub">View history, track status, and manage your submissions.</div><div class="action-link">Browse Records <i class='bx bx-chevron-right'></i></div></div>
-    </div>
-</div>
-
-<div class="messages-container">
-    <div class="section-header"><div class="section-title"><span class="dot"></span> Messages & Support</div><span class="section-badge" id="messageBadge">Conversations</span></div>
-    <div class="messages-grid">
-        <div class="conversations-list">
-            <div class="convo-header"><h3><i class='bx bx-chat'></i> Conversations</h3></div>
-            <div id="conversationsContainer"><div class="empty-state"><i class='bx bx-loader-alt'></i> Loading conversations...</div></div>
-        </div>
-        <div class="chat-area">
-            <div class="chat-header"><h4><i class='bx bx-message-rounded-dots'></i> <span id="chatWithName">Select a conversation</span></h4></div>
-            <div class="chat-messages" id="chatMessages"><div class="empty-chat"><i class='bx bx-message-alt' style="font-size: 40px;"></i><p>Select a conversation to start messaging</p></div></div>
-            <div class="chat-input-area" id="chatInputArea" style="display: none;">
-                <input type="text" id="messageInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendMessage()">
-                <button class="send-btn" onclick="sendMessage()"><i class='bx bx-send'></i></button>
-            </div>
+        <div>
+            <div class="action-icon"><i class='bx bx-clipboard'></i></div>
+            <div class="action-title">Request<br>Records</div>
+            <div class="action-sub">View history, track status, and manage your submissions.</div>
+            <div class="action-link">Browse Records <i class='bx bx-chevron-right'></i></div>
         </div>
     </div>
 </div>
 
+<!-- Recent Requests Table -->
 <div class="table-section">
-    <div class="section-header"><div class="section-title"><span class="dot"></span> Recently Submitted Requests</div><span class="section-badge">Latest entries</span></div>
+    <div class="section-header">
+        <div class="section-title"><span class="dot"></span> Recently Submitted Requests</div>
+        <span class="section-badge">Latest 5 entries</span>
+    </div>
     <div class="table-wrap">
         <table>
-            <thead><tr><th>Full Name</th><th>Medical Assistance</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="recentTableBody"><tr><td colspan="4" class="empty-state"><i class='bx bx-loader-alt'></i> Loading requests...</td></tr></tbody>
+            <thead>
+                <tr><th>Full Name</th><th>Medical Assistance</th><th>Status</th><th>Actions</th>
+            </thead>
+            <tbody id="recentTableBody">
+                <tr><td colspan="4" class="empty-state"><i class='bx bx-loader-alt'></i> Loading requests...</td>
+            </tbody>
         </table>
     </div>
 </div>
 
-<!-- MODALS -->
-<div class="modal-overlay" id="logoutModal"><div class="modal-box" style="text-align:center"><div class="modal-title">Confirm Logout</div><p style="margin:10px 0 20px">Are you sure you want to leave?</p><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('logoutModal')">Cancel</button><a href="/" class="btn btn-primary" style="text-decoration:none">Yes, Logout</a></div></div></div>
+<!-- Modals -->
+<div class="modal-overlay" id="logoutModal">
+    <div class="modal-box" style="text-align:center">
+        <div class="modal-title">Confirm Logout</div>
+        <p style="margin:10px 0 20px">Are you sure you want to leave?</p>
+        <div class="btn-row">
+            <button class="btn btn-ghost" onclick="closeModal('logoutModal')">Cancel</button>
+            <a href="/logout" class="btn btn-primary" style="text-decoration:none">Yes, Logout</a>
+        </div>
+    </div>
+</div>
 
-<div class="modal-overlay" id="recordsModal"><div class="modal-box wide"><div class="modal-header" style="margin-bottom:16px"><div class="modal-title"><i class='bx bx-clipboard'></i> All Requests</div></div><input type="text" id="recordSearch" placeholder="Search by name or email..." style="width:100%; padding:10px 14px; border-radius:40px; border:1px solid rgba(0,0,0,0.1); margin-bottom:16px; font-family:inherit;"><div style="overflow-x:auto"><table style="width:100%"><thead><tr><th>Name</th><th>Assistance</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody id="recordsBody"><tr><td colspan="5" class="empty-state">Loading...</td></tr></tbody></table></div><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('recordsModal')">Close</button></div></div></div>
-
-<div class="modal-overlay" id="editMessageModal"><div class="modal-box"><div class="modal-title">Edit Message</div><textarea id="editMessageContent" rows="3" style="width:100%; margin:12px 0; padding:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.1); font-family:inherit;"></textarea><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('editMessageModal')">Cancel</button><button class="btn btn-primary" onclick="confirmEditMessage()">Save Changes</button></div></div></div>
+<div class="modal-overlay" id="recordsModal">
+    <div class="modal-box wide">
+        <div class="modal-title"><i class='bx bx-clipboard'></i> All Requests</div>
+        <input type="text" id="recordSearch" class="search-input" placeholder="Search by name or email..." onkeyup="filterRecords()">
+        <div style="overflow-x:auto">
+            <table style="width:100%">
+                <thead>
+                    <tr><th>Name</th><th>Assistance</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="recordsBody">
+                    <tr><td colspan="5" class="empty-state">Loading records...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-ghost" onclick="closeModal('recordsModal')">Close</button>
+        </div>
+    </div>
+</div>
 
 <script>
     // ============================================
-    // PATIENT DASHBOARD - PRODUCTION READY
-    // All demo data removed. Pure API integration.
+    // PATIENT DASHBOARD
+    // Server-rendered data with client-side rendering
     // ============================================
     
-    const user = { id: <%= user ? user.id : 'null' %>, name: '<%= user ? user.name.replace(/'/g, "\\'") : "Guest" %>' };
-    let allRequests = [];
-    let conversations = [];
-    let currentConversation = null;
-    let currentMessages = [];
-    let currentEditingMessageId = null;
-    let pollingInterval = null;
-
-    // Helper Functions
-    function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    const user = <%- JSON.stringify(user ? { id: user.id, name: user.name } : { id: null, name: 'Guest' }).replace(/</g, '\\u003c') %>;
+    const initialRequests = <%- JSON.stringify(requests || []).replace(/</g, '\\u003c') %>;
+    const initialNotifications = <%- JSON.stringify(notifications || []).replace(/</g, '\\u003c') %>;
+    
+    let allRequests = Array.isArray(initialRequests) ? initialRequests : [];
+    let allNotifications = Array.isArray(initialNotifications) ? initialNotifications : [];
+    
+    // ========== HELPER FUNCTIONS ==========
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
     
     function showToast(type, title, msg) {
         const wrap = document.getElementById('toastWrap');
-        if(!wrap) return;
+        if (!wrap) return;
         const t = document.createElement('div');
         t.className = 'toast';
-        t.innerHTML = `<i class='bx ${type==='success'?'bx-check-circle':'bx-info-circle'}'></i><div><strong>${title}</strong><br><span style="font-size:12px;">${msg}</span></div>`;
+        const icon = type === 'success' ? 'bx-check-circle' : (type === 'error' ? 'bx-error-circle' : 'bx-info-circle');
+        t.innerHTML = `<i class='bx ${icon}'></i><div><strong>${title}</strong><br><span style="font-size:12px;">${msg}</span></div>`;
         wrap.appendChild(t);
         setTimeout(() => t.classList.add('show'), 10);
-        setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+        setTimeout(() => {
+            t.classList.remove('show');
+            setTimeout(() => t.remove(), 300);
+        }, 3000);
     }
-
-    function openModal(id) { const m = document.getElementById(id); if(m) m.style.display = 'flex'; }
-    function closeModal(id) { const m = document.getElementById(id); if(m) m.style.display = 'none'; }
-
-    // Request Management - API Integration
-    async function loadRequests() {
-        try {
-            const response = await fetch('/patient/api/requests');
-            const data = await response.json();
-            allRequests = data.requests || [];
-            refreshStats();
-            renderRecent();
-            renderRecordsTable();
-        } catch (error) {
-            console.error('Error loading requests:', error);
-            showToast('error', 'Error', 'Failed to load requests');
-        }
+    
+    function openModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.style.display = 'flex';
     }
-
+    
+    function closeModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.style.display = 'none';
+    }
+    
+    function normalizeStatus(status) {
+        return String(status || 'waiting').trim().toLowerCase();
+    }
+    
+    function statusPill(status) {
+        const normalizedStatus = normalizeStatus(status);
+        const labels = {
+            waiting: 'Pending',
+            pending: 'Pending',
+            approved: 'Approved',
+            declined: 'Declined',
+            rejected: 'Declined'
+        };
+        const displayText = labels[normalizedStatus] || escapeHtml(String(status || 'Pending'));
+        return `<span class="status-pill ${normalizedStatus}">${displayText}</span>`;
+    }
+    
+    function syncDashboardData() {
+        refreshStats();
+        renderRecent();
+        renderRecordsTable();
+        updateNotificationDot();
+    }
+    
     function refreshStats() {
         const total = allRequests.length;
-        const pending = allRequests.filter(r => r.status === 'waiting' || r.status === 'pending').length;
-        const approved = allRequests.filter(r => r.status === 'approved').length;
+        const pending = allRequests.filter(r => {
+            const status = normalizeStatus(r.status);
+            return status === 'waiting' || status === 'pending';
+        }).length;
+        const approved = allRequests.filter(r => normalizeStatus(r.status) === 'approved').length;
+        
         document.getElementById('statsContainer').innerHTML = `
-            <div class="stat-card"><div class="stat-icon"><i class='bx bx-folder-open'></i></div><div><div class="stat-label">Total Requests</div><div class="stat-value">${total}</div></div></div>
-            <div class="stat-card"><div class="stat-icon"><i class='bx bx-time-five'></i></div><div><div class="stat-label">Pending Review</div><div class="stat-value">${pending}</div></div></div>
-            <div class="stat-card"><div class="stat-icon"><i class='bx bx-check-shield'></i></div><div><div class="stat-label">Approved Cases</div><div class="stat-value">${approved}</div></div></div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class='bx bx-folder-open'></i></div>
+                <div><div class="stat-label">Total Requests</div><div class="stat-value">${total}</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class='bx bx-time-five'></i></div>
+                <div><div class="stat-label">Pending Review</div><div class="stat-value">${pending}</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class='bx bx-check-shield'></i></div>
+                <div><div class="stat-label">Approved Cases</div><div class="stat-value">${approved}</div></div>
+            </div>
         `;
     }
-
-    function statusPill(status) {
-        const s = status || 'waiting';
-        const labels = { waiting: 'Pending', pending: 'Pending', approved: 'Approved', declined: 'Declined' };
-        return `<span class="status-pill ${s}"><span class="status-dot"></span>${labels[s] || s}</span>`;
+    
+    function getUnreadNotifications() {
+        return allNotifications.filter(notification => Number(notification.is_read) !== 1);
     }
-
+    
+    function updateNotificationDot() {
+        const dot = document.getElementById('notifDot');
+        if (dot) {
+            dot.style.display = getUnreadNotifications().length > 0 ? 'block' : 'none';
+        }
+    }
+    
     function renderRecent() {
         const tbody = document.getElementById('recentTableBody');
-        const recent = [...allRequests].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,5);
-        if(!recent.length) { tbody.innerHTML='<tr><td colspan="4" class="empty-state">No requests yet. Click "Request Now" to submit.</td></tr>'; return; }
+        const recent = [...allRequests]
+            .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+            .slice(0, 5);
+        
+        if (!recent.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="bx bx-folder-open"></i><p>No requests yet. Click "Request Now" to submit.</p></td></tr>';
+            return;
+        }
+        
         tbody.innerHTML = recent.map(r => `
             <tr>
-                <td class="td-name">${escapeHtml(r.fullname)}</td>
-                <td class="td-assist">${escapeHtml(r.med_assistance?.substring(0,45) || 'N/A')}</td>
+                <td class="td-name">${escapeHtml(r.fullname || r.full_name || 'N/A')}</td>
+                <td class="td-assist">${escapeHtml((r.med_assistance || r.medical_assistance || '').substring(0, 45))}</td>
                 <td>${statusPill(r.status)}</td>
-                <td><button class="tbl-btn" onclick="viewRequest(${r.id})"><i class='bx bx-show-alt'></i> View</button></td>
+                <td><button class="tbl-btn" onclick="viewRequest(${r.id})"><i class='bx bx-show-alt'></i> View Form</button></td>
             </tr>
         `).join('');
     }
-
+    
     function renderRecordsTable(filter = '') {
-        const filtered = allRequests.filter(r => !filter || r.fullname?.toLowerCase().includes(filter) || r.email?.toLowerCase().includes(filter));
+        const filtered = allRequests.filter(r => {
+            const searchTerm = filter.toLowerCase();
+            return !filter || 
+                (r.fullname && r.fullname.toLowerCase().includes(searchTerm)) ||
+                (r.full_name && r.full_name.toLowerCase().includes(searchTerm)) ||
+                (r.email && r.email.toLowerCase().includes(searchTerm));
+        });
+        
         const tbody = document.getElementById('recordsBody');
-        if(!filtered.length) { tbody.innerHTML='<tr><td colspan="5" class="empty-state">No records found</td></tr>'; return; }
+        if (!filtered.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No records found</td></tr>';
+            return;
+        }
+        
         tbody.innerHTML = filtered.map(r => `
             <tr>
-                <td style="font-weight:600">${escapeHtml(r.fullname)}</td>
-                <td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(r.med_assistance?.substring(0,30) || 'N/A')}</td>
+                <td style="font-weight:600">${escapeHtml(r.fullname || r.full_name || 'N/A')}</td>
+                <td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml((r.med_assistance || r.medical_assistance || '').substring(0, 30))}</td>
                 <td>${statusPill(r.status)}</td>
-                <td style="font-size:.75rem;">${new Date(r.created_at).toLocaleDateString()}</td>
-                <td><button class="tbl-btn" onclick="viewRequest(${r.id})">View</button></td>
+                <td style="font-size:.75rem;">${r.created_at ? new Date(r.created_at).toLocaleDateString() : 'N/A'}</td>
+                <td><button class="tbl-btn" onclick="viewRequest(${r.id})">View Form</button></td>
             </tr>
         `).join('');
     }
-
-    function filterRecords() { renderRecordsTable(document.getElementById('recordSearch').value.toLowerCase()); }
-    window.filterRecords = filterRecords;
-
-    async function viewRequest(id) {
-        const req = allRequests.find(r => r.id === id);
-        if(!req) return;
-        showToast('info', 'Request Details', `Viewing request for ${req.fullname}`);
-        // Open detailed view modal - can be extended
-        alert(`Request Details:\n\nPatient: ${req.fullname}\nAssistance: ${req.med_assistance}\nStatus: ${req.status}\nConcern: ${req.concern || 'N/A'}`);
+    
+    function filterRecords() {
+        const searchValue = document.getElementById('recordSearch').value.toLowerCase();
+        renderRecordsTable(searchValue);
     }
-    window.viewRequest = viewRequest;
+    
+    async function legacyViewRequest(id) {
+        const request = allRequests.find(r => r.id === id);
+        if (!request) {
+            showToast('error', 'Error', 'Request not found');
+            return;
+        }
+        
+        // Show detailed info in a nice alert (can be replaced with modal)
+        const details = `
+            REQUEST DETAILS
+            ─────────────────
+            Patient: ${request.fullname || request.full_name}
+            Contact: ${request.contact_number || request.patient_contact || 'N/A'}
+            Email: ${request.email || request.patient_email || 'N/A'}
+            Assistance: ${request.med_assistance || request.medical_assistance || 'N/A'}
+            Status: ${request.status || 'Pending'}
+            Concern: ${request.concern || request.medical_concern || 'N/A'}
+            Date: ${request.created_at ? new Date(request.created_at).toLocaleString() : 'N/A'}
+        `;
+        alert(details);
+        showToast('info', 'Request Details', `Viewing request for ${escapeHtml(request.fullname || request.full_name)}`);
+    }
+    
+    // ========== NOTIFICATION HANDLERS ==========
+    function legacyCheckNotifications() {
+        updateNotificationDot();
+    }
+    
+    function viewRequest(id) {
+        const request = allRequests.find(r => r.id === id);
+        if (!request) {
+            showToast('error', 'Error', 'Request not found');
+            return;
+        }
 
-    // Messaging - API Integration
-    async function loadConversations() {
-        try {
-            const response = await fetch('/api/messages/');
-            if(!response.ok) throw new Error('API error');
-            conversations = await response.json();
-            renderConversations();
-            updateMessageBadge();
-        } catch (error) {
-            console.error('Error loading conversations:', error);
-            document.getElementById('conversationsContainer').innerHTML = '<div class="empty-state">Unable to load conversations</div>';
+        const viewUrl = `/patient/request/${id}/view`;
+        window.open(viewUrl, '_blank', 'noopener');
+        showToast('info', 'View Form', `Opening the submitted form for ${escapeHtml(request.fullname || request.full_name || 'Patient')}`);
+    }
+    
+    function checkNotifications() {
+        updateNotificationDot();
+    }
+    
+    // ========== INITIALIZATION ==========
+    function init() {
+        // Set current date
+        const dateElem = document.getElementById('currentDate');
+        if (dateElem) {
+            dateElem.innerText = new Date().toLocaleDateString('en-PH', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+        
+        // Set username
+        const userNameSpan = document.getElementById('currentUserName');
+        if (userNameSpan) {
+            userNameSpan.innerText = user.name;
+        }
+        
+        // Load data if user is logged in
+        if (user.id !== null) {
+            syncDashboardData();
+        } else {
+            // Guest mode
+            document.getElementById('recentTableBody').innerHTML = '<tr><td colspan="4" class="empty-state"><i class="bx bx-lock"></i><p>Please log in to view your requests</p></td></tr>';
+            showToast('info', 'Welcome', 'Please log in to access all features');
         }
     }
-
-    function renderConversations() {
-        const container = document.getElementById('conversationsContainer');
-        if(!conversations.length) { container.innerHTML = '<div class="empty-state">No conversations yet</div>'; return; }
-        container.innerHTML = conversations.map(conv => `
-            <div class="convo-item ${currentConversation?.other_user_id === conv.other_user_id ? 'active' : ''}" 
-                 onclick="selectConversation(${conv.other_user_id}, '${escapeHtml(conv.other_user_name).replace(/'/g, "\\'")}')">
-                <div class="convo-name">
-                    <span>${escapeHtml(conv.other_user_name)}</span>
-                    ${conv.unread_count > 0 ? `<span class="unread-badge">${conv.unread_count}</span>` : ''}
-                </div>
-                <div class="convo-preview">${escapeHtml(conv.last_message?.substring(0, 50) || 'No messages yet')}</div>
-            </div>
-        `).join('');
-    }
-
-    async function selectConversation(otherUserId, otherUserName) {
-        currentConversation = { other_user_id: otherUserId, other_user_name: otherUserName };
-        document.getElementById('chatWithName').innerText = otherUserName;
-        document.getElementById('chatInputArea').style.display = 'flex';
-        await loadMessages(otherUserId);
-        await markConversationAsRead(otherUserId);
-        renderConversations();
-    }
-
-    async function loadMessages(otherUserId) {
-        try {
-            const response = await fetch(`/api/messages/conversation/${otherUserId}`);
-            if(!response.ok) throw new Error('API error');
-            currentMessages = await response.json();
-            renderMessages();
-        } catch (error) {
-            console.error('Error loading messages:', error);
-            document.getElementById('chatMessages').innerHTML = '<div class="empty-chat"><p>Unable to load messages</p></div>';
-        }
-    }
-
-    function renderMessages() {
-        const container = document.getElementById('chatMessages');
-        if(!currentMessages.length) { container.innerHTML = '<div class="empty-chat"><i class="bx bx-chat" style="font-size:40px;"></i><p>No messages yet. Start the conversation!</p></div>'; return; }
-        container.innerHTML = currentMessages.map(msg => `
-            <div class="message ${msg.is_from_me ? 'sent' : 'received'}">
-                <div class="message-bubble">
-                    <div>${escapeHtml(msg.content)}</div>
-                    <div class="message-time">
-                        ${new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
-                        ${msg.is_edited ? '<span class="message-edited"> (edited)</span>' : ''}
-                    </div>
-                    ${msg.is_from_me ? `
-                        <div style="display:flex; gap:8px; margin-top:6px;">
-                            <button class="edit-msg-btn" style="background:none; border:none; font-size:11px; color:var(--gold); cursor:pointer;" onclick="openEditMessageModal(${msg.id}, '${escapeHtml(msg.content).replace(/'/g, "\\'")}')">Edit</button>
-                            <button class="delete-msg-btn" style="background:none; border:none; font-size:11px; color:var(--red); cursor:pointer;" onclick="deleteMessage(${msg.id})">Delete</button>
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        `).join('');
-        container.scrollTop = container.scrollHeight;
-    }
-
-    async function sendMessage() {
-        const input = document.getElementById('messageInput');
-        const content = input.value.trim();
-        if(!content || !currentConversation) return;
-        try {
-            const response = await fetch('/api/messages/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ receiverId: currentConversation.other_user_id, content: content })
-            });
-            if(response.ok) {
-                input.value = '';
-                await loadMessages(currentConversation.other_user_id);
-                await loadConversations();
-            } else { showToast('error', 'Error', 'Failed to send message'); }
-        } catch(error) { console.error('Error sending message:', error); showToast('error', 'Error', 'Network error'); }
-    }
-
-    async function editMessage(messageId, newContent) {
-        try {
-            const response = await fetch(`/api/messages/edit/${messageId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: newContent })
-            });
-            if(response.ok) {
-                await loadMessages(currentConversation.other_user_id);
-                showToast('success', 'Success', 'Message edited');
-                closeModal('editMessageModal');
-            } else { showToast('error', 'Error', 'Failed to edit message'); }
-        } catch(error) { console.error('Error editing message:', error); showToast('error', 'Error', 'Network error'); }
-    }
-
-    async function deleteMessage(messageId) {
-        if(!confirm('Delete this message?')) return;
-        try {
-            const response = await fetch(`/api/messages/delete/${messageId}`, { method: 'DELETE' });
-            if(response.ok) {
-                await loadMessages(currentConversation.other_user_id);
-                await loadConversations();
-                showToast('success', 'Success', 'Message deleted');
-            } else { showToast('error', 'Error', 'Failed to delete message'); }
-        } catch(error) { console.error('Error deleting message:', error); showToast('error', 'Error', 'Network error'); }
-    }
-
-    async function markConversationAsRead(otherUserId) {
-        try { await fetch(`/api/messages/read/${otherUserId}`, { method: 'PUT' }); } catch(e) { console.error(e); }
-    }
-
-    async function getUnreadCount() {
-        try {
-            const response = await fetch('/api/messages/unread');
-            const data = await response.json();
-            const dot = document.getElementById('notifDot');
-            if(dot) dot.style.display = data.unread_count > 0 ? 'block' : 'none';
-        } catch(e) { console.error(e); }
-    }
-
-    function updateMessageBadge() {
-        const totalUnread = conversations.reduce((sum, conv) => sum + (conv.unread_count || 0), 0);
-        const badge = document.getElementById('messageBadge');
-        if(badge) badge.innerText = totalUnread > 0 ? `${totalUnread} unread` : 'Conversations';
-    }
-
-    function openEditMessageModal(messageId, content) {
-        currentEditingMessageId = messageId;
-        document.getElementById('editMessageContent').value = content;
-        openModal('editMessageModal');
-    }
-
-    function confirmEditMessage() {
-        const newContent = document.getElementById('editMessageContent').value.trim();
-        if(newContent && currentEditingMessageId) editMessage(currentEditingMessageId, newContent);
-    }
-
-    window.sendMessage = sendMessage;
-    window.selectConversation = selectConversation;
-    window.openEditMessageModal = openEditMessageModal;
-    window.confirmEditMessage = confirmEditMessage;
-    window.deleteMessage = deleteMessage;
+    
+    // Make functions global for onclick handlers
     window.openModal = openModal;
     window.closeModal = closeModal;
-
-    // Initialize
-    document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    window.filterRecords = filterRecords;
+    window.viewRequest = viewRequest;
     
-    if(user.id !== 'null') {
-        loadRequests();
-        loadConversations();
-        getUnreadCount();
-        pollingInterval = setInterval(() => {
-            if(currentConversation) loadMessages(currentConversation.other_user_id);
-            loadConversations();
-            getUnreadCount();
-        }, 8000);
-    } else {
-        document.getElementById('currentUserName').innerText = 'Guest';
+    // Start the app
+    init();
+    
+    // Notification button handler
+    const notifBtn = document.getElementById('notifBtn');
+    if (notifBtn) {
+        notifBtn.addEventListener('click', () => {
+            const unreadNotifications = getUnreadNotifications();
+            if (unreadNotifications.length === 0) {
+                showToast('info', 'Notifications', 'No new notifications');
+                return;
+            }
+            
+            const latestNotification = unreadNotifications[0];
+            const latestMessage = latestNotification.message || latestNotification.title || `You have ${unreadNotifications.length} unread notification(s).`;
+            showToast('info', 'Notifications', latestMessage);
+        });
     }
 </script>
 </body>

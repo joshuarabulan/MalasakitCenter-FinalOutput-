@@ -424,6 +424,7 @@ router.get('/print-direct/:id', (req, res) => {
 });
 
 
+router.post('/users/add', authController.addUser);
 router.post('/users/edit/:id', authController.editUser);
 
 // Delete users

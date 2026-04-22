@@ -9,7 +9,8 @@ const {
   getSheet,
   createIntakeRecord,
   getAdminPatientDetails,
-  renderAdminPatientSheetView
+  renderAdminPatientSheetView,
+  renderPatientSheetView
 } = require('../controllers/patientController');
 const authController = require('../controllers/authController');
 
@@ -18,6 +19,7 @@ const router = express.Router();
 router.post('/submit', createReportPatient);
 router.post('/update', updateReportPatient);
 router.get('/admin', getPatients);
+router.get('/request/:id/view', renderPatientSheetView);
 router.get('/admin/:id/details', getAdminPatientDetails);
 router.get('/admin/:id/sheet-view', renderAdminPatientSheetView);
 router.post('/admin/update', updateStatus);

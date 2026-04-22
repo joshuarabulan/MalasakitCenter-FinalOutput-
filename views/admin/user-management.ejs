@@ -614,7 +614,19 @@
         const data = Object.fromEntries(new FormData(this).entries());
         fetch('/users/add', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) })
             .then(r => r.json())
-            .then(d => { if (d.success) { showToast('User added successfully!'); closeAddUserModal(); setTimeout(() => location.reload(), 1500); } else showToast(d.message, 'error'); })
+            .then(d => {
+                if (d.success) {
+                    const passwordMessage = d.temporaryPassword ? `\n\nTemporary password: ${d.temporaryPassword}` : '';
+                    showToast(d.message || 'User added successfully!');
+                    closeAddUserModal();
+                    if (passwordMessage) {
+                        setTimeout(() => alert(`User added successfully.${passwordMessage}\n\nPlease save this password and share it securely with the user.`), 120);
+                    }
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(d.message, 'error');
+                }
+            })
             .catch(() => showToast('Error adding user', 'error'));
     });
 

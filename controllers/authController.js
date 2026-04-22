@@ -68,7 +68,62 @@ exports.postRegister = async (req, res) => {
     }
 };
 
+exports.addUser = async (req, res) => {
+    if (!req.session.user || String(req.session.user.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({
+            success: false,
+            message: 'Unauthorized'
+        });
+    }
+
+    const name = String(req.body?.name || '').trim();
+    const email = String(req.body?.email || '').trim();
+    const role = String(req.body?.role || 'User').trim();
+    const sendEmail = req.body?.sendEmail === true || req.body?.sendEmail === 'true' || req.body?.sendEmail === 'on';
+
+    if (!name || !email) {
+        return res.status(400).json({
+            success: false,
+            message: 'Name and email are required'
+        });
+    }
+
+    try {
+        const existingUser = await User.findByEmail(email);
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email already in use'
+            });
+        }
+
+        const temporaryPassword = `${crypto.randomBytes(4).toString('hex')}A1!`;
+        await User.create(name, email, temporaryPassword, role);
+
+        let message = 'User added successfully.';
+        if (sendEmail) {
+            message += ' Email sending is not configured yet, so use the temporary password below.';
+        }
+
+        return res.json({
+            success: true,
+            message,
+            temporaryPassword
+        });
+    } catch (error) {
+        console.error('Add User Error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Something went wrong while adding the user.'
+        });
+    }
+};
+
 exports.getLogin = (req, res) => {
+    if (req.session.user) {
+        const role = String(req.session.user.role || '').trim().toLowerCase();
+        return res.redirect(role === 'admin' ? '/admin/dashboard' : '/patient/dashboard');
+    }
     res.render('auth/login', { error: null });
 }; 
 
@@ -819,9 +874,19 @@ exports.getAdminReports = (req, res) => {
 };
 
 exports.postLogin = async (req, res) => {
-    const { email, password } = req.body;
+    const rawEmail = req.body?.email;
+    const rawPassword = req.body?.password;
+    const email = String(rawEmail || '').trim();
+    const password = String(rawPassword || '');
 
     try {
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email and password are required'
+            });
+        }
+
         const user = await User.findByEmail(email);
         if (!user) {
             return res.status(401).json({ success: false, error: 'Invalid email or password' });
@@ -832,6 +897,8 @@ exports.postLogin = async (req, res) => {
             return res.status(401).json({ success: false, error: 'Invalid email or password' });
         }
 
+        const normalizedRole = String(user.role || 'User').trim().toLowerCase() === 'admin' ? 'Admin' : 'User';
+
         await new Promise((resolve, reject) => {
             const sql = 'UPDATE users SET last_login = NOW() WHERE id = ?';
             db.query(sql, [user.id], (err, result) => {
@@ -840,19 +907,40 @@ exports.postLogin = async (req, res) => {
             });
         });
 
-        req.session.user = { 
-            id: user.id, 
-            role: user.role,
-            name: user.name, 
-            email: user.email 
-        };
+        await new Promise((resolve, reject) => {
+            req.session.regenerate((sessionError) => {
+                if (sessionError) {
+                    return reject(sessionError);
+                }
 
-        const redirectUrl = user.role === 'Admin' ? '/admin/dashboard' : '/patient/dashboard';
+                req.session.user = {
+                    id: user.id,
+                    role: normalizedRole,
+                    name: user.name,
+                    email: user.email
+                };
+
+                req.session.save((saveError) => {
+                    if (saveError) {
+                        return reject(saveError);
+                    }
+                    resolve();
+                });
+            });
+        });
+
+        const redirectUrl = normalizedRole === 'Admin' ? '/admin/dashboard' : '/patient/dashboard';
         
         return res.json({ 
             success: true, 
             message: 'Login successful!',
-            redirect: redirectUrl
+            redirect: redirectUrl,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: normalizedRole
+            }
         });
 
     } catch (error) {
@@ -937,6 +1025,10 @@ exports.postResetPassword = async (req, res) => {
 }; 
 
 exports.getHome = (req, res) => {
+    if (req.session.user) {
+        const role = String(req.session.user.role || '').trim().toLowerCase();
+        return res.redirect(role === 'admin' ? '/admin/dashboard' : '/patient/dashboard');
+    }
     res.render('home');
 }
 

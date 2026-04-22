@@ -1060,6 +1060,13 @@
             const result = await response.json();
             
             if (result.success) {
+                const resolvedRedirect =
+                    result.user?.role === 'Admin'
+                        ? '/admin/dashboard'
+                        : result.user?.role === 'User'
+                            ? '/patient/dashboard'
+                            : (result.redirect || '/dashboard');
+
                 // Show success modal
                 showAlertModal(
                     'Login Successful!',
@@ -1069,7 +1076,7 @@
                 );
                 // Redirect after 1.5 seconds
                 setTimeout(() => {
-                    window.location.href = result.redirect || '/dashboard';
+                    window.location.href = resolvedRedirect;
                 }, 1500);
             } else {
                 // Show error modal for failed login

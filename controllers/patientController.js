@@ -302,6 +302,49 @@ exports.renderAdminPatientSheetView = (req, res) => {
 
     res.render('admin/intake-sheet-view', {
       user: req.session.user,
+      viewMode: 'admin',
+      request: {
+        ...record,
+        fullname: [
+          record.first_name,
+          record.middle_name,
+          record.last_name,
+          record.extension
+        ].filter(Boolean).join(' ').trim(),
+        family_composition: familyComposition
+      }
+    });
+  });
+};
+
+exports.renderPatientSheetView = (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'User') {
+    return res.redirect('/');
+  }
+
+  const sql = 'SELECT * FROM unified_intake_sheets WHERE id = ? AND user_id = ? LIMIT 1';
+  db.query(sql, [req.params.id, req.session.user.id], (err, results) => {
+    if (err) {
+      console.error('Error fetching patient intake sheet view:', err);
+      return res.status(500).send('Database error');
+    }
+
+    if (!results.length) {
+      return res.status(404).send('Record not found');
+    }
+
+    const record = results[0];
+    let familyComposition = [];
+
+    try {
+      familyComposition = JSON.parse(record.family_composition || '[]');
+    } catch (parseErr) {
+      console.error('Error parsing patient family composition for sheet view:', parseErr);
+    }
+
+    res.render('admin/intake-sheet-view', {
+      user: req.session.user,
+      viewMode: 'patient',
       request: {
         ...record,
         fullname: [
