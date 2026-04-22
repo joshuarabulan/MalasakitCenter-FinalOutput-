@@ -335,8 +335,8 @@
                                 <th rowspan="2">Total Amount</th>
                             </tr>
                             <tr>
-                                <th>0â€“18</th><th>19â€“35</th><th>36â€“60</th><th>61+</th><th>Sub</th>
-                                <th>0â€“18</th><th>19â€“35</th><th>36â€“60</th><th>61+</th><th>Sub</th>
+                                <th>0-18</th><th>19-35</th><th>36-60</th><th>61+</th><th>Sub</th>
+                                <th>0-18</th><th>19-35</th><th>36-60</th><th>61+</th><th>Sub</th>
                                 <th>Inpatient</th><th>Outpatient</th><th>ER</th>
                                 <th>Pregnant</th><th>PWD</th>
                                 <% fundTypes.forEach(fund => { %><th><%= fund %></th><% }) %>
@@ -400,7 +400,6 @@
     </div>
 
     <script>
-        // â”€â”€ COUNTER ANIMATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function animateCounters() {
             document.querySelectorAll('.counter').forEach(counter => {
                 const target = parseInt(counter.textContent.replace(/[^0-9]/g, ''));
