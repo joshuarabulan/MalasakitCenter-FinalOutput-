@@ -38,6 +38,132 @@ body {
     display: none;
 }
 
+.admin-logout-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background: rgba(15, 23, 42, 0.52);
+    z-index: 1700;
+}
+
+.admin-logout-modal.is-open {
+    display: flex;
+}
+
+.admin-logout-dialog {
+    width: min(100%, 25rem);
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.22);
+    position: relative;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform 0.22s ease, opacity 0.22s ease;
+}
+
+.admin-logout-modal.is-open .admin-logout-dialog {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.admin-logout-dialog__body {
+    padding: 1.75rem 1.5rem 1rem;
+    text-align: center;
+}
+
+.admin-logout-dialog__icon {
+    width: 4rem;
+    height: 4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(220, 38, 38, 0.12);
+    color: #dc2626;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+}
+
+.admin-logout-dialog__title {
+    margin: 0;
+    font-family: var(--admin-font-body);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.admin-logout-dialog__text {
+    margin: 0.7rem 0 0;
+    color: #6b7280;
+    line-height: 1.65;
+    font-size: 0.96rem;
+}
+
+.admin-logout-dialog__actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0 1.5rem 1.5rem;
+}
+
+.admin-logout-btn {
+    min-width: 7rem;
+    border: 0;
+    border-radius: 0.4rem;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.admin-logout-btn:hover,
+.admin-logout-btn:focus-visible {
+    transform: translateY(-1px);
+}
+
+.admin-logout-btn--cancel {
+    background: #e5e7eb;
+    color: #1f2937;
+}
+
+.admin-logout-btn--cancel:hover,
+.admin-logout-btn--cancel:focus-visible {
+    background: #d1d5db;
+}
+
+.admin-logout-btn--confirm {
+    background: #dc2626;
+    color: #fff;
+}
+
+.admin-logout-btn--confirm:hover,
+.admin-logout-btn--confirm:focus-visible {
+    background: #b91c1c;
+}
+
+.admin-logout-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    background: transparent;
+    color: #6b7280;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.admin-logout-close:hover,
+.admin-logout-close:focus-visible {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
 .admin-sidebar-backdrop {
     position: fixed;
     inset: 0;
@@ -168,6 +294,17 @@ body.sidebar-collapsed .admin-topbar {
     align-items: center;
     white-space: nowrap;
     min-height: 3rem;
+}
+
+.sidebar .nav-item-logout {
+    border: 1px solid rgba(248, 113, 113, 0.22);
+    background: rgba(127, 29, 29, 0.18);
+}
+
+.sidebar .nav-item-logout:hover,
+.sidebar .nav-item-logout:focus-visible {
+    background: rgba(220, 38, 38, 0.24) !important;
+    border-color: rgba(248, 113, 113, 0.34);
 }
 
 .sidebar .nav-item i {
@@ -545,6 +682,14 @@ body [style*="color: #ec4899"] {
     }
 
     .admin-topbar-messages .admin-flash {
+        width: 100%;
+    }
+
+    .admin-logout-dialog__actions {
+        flex-direction: column-reverse;
+    }
+
+    .admin-logout-btn {
         width: 100%;
     }
 }

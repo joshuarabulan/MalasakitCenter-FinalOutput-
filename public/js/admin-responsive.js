@@ -6,6 +6,7 @@
 
     var desktopStorageKey = 'adminSidebarCollapsed';
     var mobileBreakpoint = 1024;
+    var logoutTargetHref = null;
 
     function isMobileViewport() {
         return window.innerWidth <= mobileBreakpoint;
@@ -65,6 +66,26 @@
         updateMobileToggleIcon();
     }
 
+    function closeLogoutModal() {
+        var modal = document.querySelector('.admin-logout-modal');
+        if (!modal) {
+            return;
+        }
+
+        modal.classList.remove('is-open');
+        document.body.classList.remove('admin-logout-open');
+        logoutTargetHref = null;
+    }
+
+    function confirmLogout() {
+        if (!logoutTargetHref) {
+            closeLogoutModal();
+            return;
+        }
+
+        window.location.href = logoutTargetHref;
+    }
+
     function openMobileSidebar() {
         document.body.classList.add('sidebar-mobile-open');
         updateMobileToggleIcon();
@@ -91,6 +112,11 @@
     function closeOnEscape(event) {
         if (event.key === 'Escape' && document.body.classList.contains('sidebar-mobile-open')) {
             closeMobileSidebar();
+            return;
+        }
+
+        if (event.key === 'Escape' && document.body.classList.contains('admin-logout-open')) {
+            closeLogoutModal();
         }
     }
 
@@ -120,6 +146,69 @@
         });
     }
 
+    function createLogoutModal() {
+        var existing = document.querySelector('.admin-logout-modal');
+        if (existing) {
+            return existing;
+        }
+
+        var modal = document.createElement('div');
+        modal.className = 'admin-logout-modal';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-labelledby', 'adminLogoutTitle');
+        modal.innerHTML =
+            '<div class="admin-logout-dialog">' +
+                '<button type="button" class="admin-logout-close" aria-label="Close logout dialog">' +
+                    '<i class="fas fa-times" aria-hidden="true"></i>' +
+                '</button>' +
+                '<div class="admin-logout-dialog__body">' +
+                    '<div class="admin-logout-dialog__icon"><i class="fas fa-sign-out-alt" aria-hidden="true"></i></div>' +
+                    '<h2 class="admin-logout-dialog__title" id="adminLogoutTitle">Confirm Logout</h2>' +
+                    '<p class="admin-logout-dialog__text">Are you sure you want to logout? You will need to login again to access your account.</p>' +
+                '</div>' +
+                '<div class="admin-logout-dialog__actions">' +
+                    '<button type="button" class="admin-logout-btn admin-logout-btn--cancel">Cancel</button>' +
+                    '<button type="button" class="admin-logout-btn admin-logout-btn--confirm">Logout</button>' +
+                '</div>' +
+            '</div>';
+
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                closeLogoutModal();
+            }
+        });
+
+        modal.querySelector('.admin-logout-dialog').addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+        modal.querySelector('.admin-logout-close').addEventListener('click', closeLogoutModal);
+        modal.querySelector('.admin-logout-btn--cancel').addEventListener('click', closeLogoutModal);
+        modal.querySelector('.admin-logout-btn--confirm').addEventListener('click', confirmLogout);
+
+        document.body.appendChild(modal);
+        return modal;
+    }
+
+    function openLogoutModal(href) {
+        var modal = createLogoutModal();
+        logoutTargetHref = href;
+        modal.classList.add('is-open');
+        document.body.classList.add('admin-logout-open');
+    }
+
+    function bindLogoutLinks() {
+        document.querySelectorAll('.nav-item-logout').forEach(function (link) {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+                if (isMobileViewport()) {
+                    closeMobileSidebar();
+                }
+                openLogoutModal(link.getAttribute('href') || '/logout');
+            });
+        });
+    }
+
     function init() {
         if (!document.querySelector('.sidebar')) {
             return;
@@ -127,8 +216,10 @@
 
         createBackdrop();
         createMobileToggle();
+        createLogoutModal();
         bindSidebarToggles();
         bindSidebarLinks();
+        bindLogoutLinks();
         syncLayoutForViewport();
 
         window.addEventListener('resize', syncLayoutForViewport);

@@ -18,22 +18,27 @@
     <div id="toastContainer"></div>
 
     <div class="min-h-screen flex">
-        <aside class="sidebar w-64 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl fixed h-full z-10 text-white">
+        <aside class="sidebar w-64 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl fixed h-full z-10 text-white flex flex-col">
             <div class="p-6 border-b border-slate-700 flex items-center justify-between">
                 <h1 class="text-2xl font-bold flex items-center text-white">
                     <i class="fas fa-hospital-user mr-3"></i><span class="nav-text">Malasakit Admin</span>
                 </h1>
                 <button type="button" class="sidebar-toggle text-white text-lg"><i class="fas fa-bars"></i></button>
             </div>
-            <nav class="mt-6 px-4 space-y-2">
+            <nav class="mt-6 px-4 space-y-2 flex-1">
                 <a href="/admin/dashboard" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-line w-5 mr-3 text-center"></i><span class="nav-label">Dashboard</span></a>
                 <a href="/admin/user-management" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-users-cog w-5 mr-3 text-center"></i><span class="nav-label">User Management</span></a>
-                <a href="/patient/admin" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-notes-medical w-5 mr-3 text-center"></i><span class="nav-label">Patient Concerns</span></a>
+                <a href="/patient/admin" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-notes-medical w-5 mr-3 text-center"></i><span class="nav-label">Patient Concern</span></a>
                 <a href="/admin/main-form" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-file-invoice-dollar w-5 mr-3 text-center"></i><span class="nav-label">Statement of Account</span></a>
                 <a href="/admin/reports" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-folder-open w-5 mr-3 text-center"></i><span class="nav-label">Report Templates</span></a>
-                <a href="/admin/statistics" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-pie w-5 mr-3 text-center"></i><span class="nav-label">Monthly Statistics</span></a>
+                <a href="/admin/statistics" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-chart-pie w-5 mr-3 text-center"></i><span class="nav-label">Monthly Statistical</span></a>
                 <a href="/admin/feedback" class="nav-item flex items-center py-3 px-4 bg-slate-700 text-white rounded-lg"><i class="fas fa-comment-dots w-5 mr-3 text-center"></i><span class="nav-label">Feedback</span></a>
             </nav>
+            <div class="px-4 pb-5 pt-3 border-t border-slate-700/80">
+                <a href="/logout" class="nav-item nav-item-logout flex items-center py-3 px-4 text-slate-200 hover:text-white rounded-lg transition duration-200">
+                    <i class="fas fa-sign-out-alt w-5 mr-3 text-center"></i><span class="nav-label">Log Out</span>
+                </a>
+            </div>
         </aside>
 
         <div class="admin-main flex-1 mt-1" style="margin-left:16rem;">
