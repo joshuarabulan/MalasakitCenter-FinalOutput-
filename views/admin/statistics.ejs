@@ -269,7 +269,6 @@
             </div>
         </div>
 
-        <!-- Insight Banner -->
         <div class="insight-banner mb-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
@@ -415,7 +414,7 @@
             });
         }
 
-        // â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        
         function showNotification(msg, type) {
             const t = document.createElement('div');
             t.className = `toast ${type}`;
@@ -425,21 +424,19 @@
             setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3200);
         }
 
-        // â”€â”€ REFRESH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function refreshStatistics() {
             const btn = event.target.closest('button');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshingâ€¦';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
             btn.disabled = true;
             setTimeout(() => location.reload(), 1200);
         }
 
-        // â”€â”€ EXCEL MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function openExportModal()  { document.getElementById('exportModal').classList.remove('hidden'); }
         function closeExportModal() { document.getElementById('exportModal').classList.add('hidden'); }
 
         function proceedExport() {
             const btn = document.getElementById('exportConfirmBtn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Generatingâ€¦';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Generating...';
             btn.disabled = true;
             setTimeout(() => {
                 closeExportModal();
@@ -449,13 +446,13 @@
             }, 800);
         }
 
-        // â”€â”€ PRINT MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // â”€â”€ PRINT MODAL 
         function openPrintModal()  { document.getElementById('printModal').classList.remove('hidden'); }
         function closePrintModal() { document.getElementById('printModal').classList.add('hidden'); }
 
         function proceedPrint() {
             const btn = document.getElementById('printConfirmBtn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Openingâ€¦';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Opening...';
             btn.disabled = true;
             setTimeout(() => {
                 closePrintModal();
