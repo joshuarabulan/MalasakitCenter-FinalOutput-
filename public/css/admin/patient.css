@@ -758,3 +758,67 @@
                 padding: 1rem 0.95rem 0.9rem;
             }
         }
+
+        @media (max-width: 1024px) {
+            .admin-main {
+                margin-left: 0 !important;
+                padding: 1rem !important;
+            }
+
+            .page-header {
+                padding-top: 3.35rem;
+            }
+
+            .stat-chips,
+            .toolbar-left {
+                width: 100%;
+            }
+
+            .toolbar-left {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-wrap,
+            .search-wrap input,
+            .filter-select {
+                width: 100%;
+            }
+
+            .table-scroll {
+                overflow-x: auto;
+            }
+
+            .patient-table {
+                min-width: 54rem;
+            }
+
+            .modal-box {
+                width: calc(100vw - 1rem);
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .table-card-header,
+            .toolbar {
+                padding: 0.9rem;
+            }
+
+            .quick-actions,
+            .modal-actions,
+            .doc-actions {
+                flex-direction: column;
+            }
+
+            .quick-action-btn,
+            .modal-actions button,
+            .doc-actions a {
+                width: 100%;
+                justify-content: center;
+            }
+        }

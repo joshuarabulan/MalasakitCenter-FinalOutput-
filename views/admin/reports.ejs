@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="/css/admin/admin-theme.css">
 </head>
 
-<body>
+<body class="admin-page">
     <div class="min-h-screen flex">
 
         <aside class="sidebar w-64 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl fixed h-full z-10 text-white">
@@ -37,10 +37,10 @@
         </aside>
 
         <main class="admin-main flex-1 p-8 mt-1" style="margin-left:16rem;">
-            <div class="max-w-6xl mx-auto">
+            <div class="admin-content-shell max-w-6xl mx-auto">
 
                 <!-- Page heading -->
-                <div class="mb-6">
+                <div class="reports-page-heading mb-6">
                     <h1 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:32px;color:#1a1410;line-height:1.15;margin-bottom:3px;">
                         Report Templates
                     </h1>
@@ -49,7 +49,7 @@
 
                 <!-- Tabs -->
                 <div class="mb-6" style="border-bottom:1px solid #ede8e2;">
-                    <nav class="flex space-x-8">
+                    <nav class="report-tabs-nav flex space-x-8">
                         <button data-tab="medical" class="tab-link active">Medical</button>
                     </nav>
                 </div>
@@ -178,7 +178,7 @@
                             </h2>
                             <p style="font-size:12px;color:#9b9189;">Medical Assistance by the Government</p>
                         </div>
-                        <div class="p-6 overflow-x-auto">
+                        <div class="report-table-shell p-6 overflow-x-auto">
                             <%- include('../partials/admin-report-table') %>
                         </div>
                     </div>
@@ -329,17 +329,6 @@
         // AUTO-REFRESH REMOVED - Page will no longer reload automatically
         
 </script>
-<script>
-(() => {
-    const key = 'adminSidebarCollapsed';
-    if (localStorage.getItem(key) === '1') document.body.classList.add('sidebar-collapsed');
-    document.querySelectorAll('.sidebar-toggle').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.body.classList.toggle('sidebar-collapsed');
-            localStorage.setItem(key, document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
-        });
-    });
-})();
-</script>
+<script src="/js/admin-responsive.js"></script>
 </body>
 </html>

@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="/css/admin/admin-theme.css">
 </head>
 
-<body class="bg-gray-50">
+<body class="admin-page bg-gray-50">
     <div id="toastContainer"></div>
 
     <div class="min-h-screen flex">
@@ -37,10 +37,10 @@
         </aside>
 
         <div class="admin-main flex-1 mt-1" style="margin-left:16rem;">
-            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="feedback-page-shell max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
                 <!-- Header -->
-                <div class="flex justify-between items-center mb-6">
+                <div class="feedback-page-header flex justify-between items-center mb-6">
                    <div>
                     <h1 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:32px;color:#1a1410;line-height:1.15;margin-bottom:3px;">Feedback Analytics</h1>
                     <p style="font-size:13.5px;color:#9b8f87;font-weight:500;">Real-time analytics on patient feedback, satisfaction distribution, and service quality metrics</p>
@@ -464,16 +464,7 @@
             if (e.target.id === 'deleteAllModal')    closeModal();
             if (e.target.id === 'downloadPDFModal')  closePDFModal();
         });
-        (() => {
-            const key = 'adminSidebarCollapsed';
-            if (localStorage.getItem(key) === '1') document.body.classList.add('sidebar-collapsed');
-            document.querySelectorAll('.sidebar-toggle').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.body.classList.toggle('sidebar-collapsed');
-                    localStorage.setItem(key, document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
-                });
-            });
-        })();
     </script>
+    <script src="/js/admin-responsive.js"></script>
 </body>
 </html>

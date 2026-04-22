@@ -230,3 +230,88 @@
         body.sidebar-collapsed .sidebar .nav-item{justify-content:center;}
         body.sidebar-collapsed .sidebar .nav-item i{margin-right:0 !important;}
         body.sidebar-collapsed .admin-main{margin-left:5rem !important;}
+
+        @media (max-width: 1024px) {
+            .admin-main,
+            .tab-content.admin-main {
+                margin-left: 0 !important;
+                padding: 1rem !important;
+            }
+
+            .statistics-page-header {
+                padding-top: 3.35rem;
+                margin-bottom: 1rem !important;
+            }
+
+            .statistics-page-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .statistics-page-actions .btn-action,
+            .statistics-page-actions > span {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stat-card,
+            .insight-banner {
+                padding: 1rem;
+            }
+
+            .table-card-header > div {
+                align-items: flex-start !important;
+            }
+
+            .table-card-header .flex.gap-2 {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .table-card-header .flex.gap-2 .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .mini-stat {
+                padding: 0.85rem 0.75rem;
+            }
+
+            .sticky-table-container {
+                max-height: 60vh;
+            }
+
+            .cm-box,
+            .am-box {
+                width: calc(100vw - 1rem);
+                max-width: none;
+            }
+
+            .cm-body,
+            .am-body {
+                padding: 1rem;
+            }
+
+            .cm-actions {
+                flex-wrap: wrap;
+            }
+
+            .cm-actions .cm-btn {
+                flex: 1 1 100%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stat-value {
+                font-size: 28px;
+            }
+
+            .range-value,
+            .ward-value {
+                font-size: 18px;
+            }
+
+            .am-header {
+                padding: 1rem;
+            }
+        }

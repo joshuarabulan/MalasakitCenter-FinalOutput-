@@ -9,3 +9,33 @@
 #printBtn:disabled:hover {
     background-color: white !important;
 }
+
+@media (max-width: 1024px) {
+    .report-table-toolbar {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.75rem;
+        padding: 1rem !important;
+    }
+
+    .report-table-actions {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .report-table-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .report-table-wrap {
+        margin: 0 -1rem;
+        padding: 0 1rem 0.35rem;
+    }
+
+    .report-table-wrap table {
+        min-width: 62rem;
+    }
+}

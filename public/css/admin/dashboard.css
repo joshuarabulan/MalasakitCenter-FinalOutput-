@@ -164,3 +164,265 @@
         .btn-dark:hover  { background:#2e2a26; }
         .btn-blue  { background:#1d4ed8; color:#fff; }
         .btn-blue:hover  { background:#1e40af; }
+
+        @media (max-width: 1024px) {
+            .admin-main {
+                margin-left: 0 !important;
+                padding: 1rem !important;
+            }
+
+            .admin-page-heading {
+                align-items: flex-start !important;
+                gap: 1rem !important;
+                padding-top: 3.35rem;
+            }
+
+            .admin-page-heading-actions {
+                width: 100%;
+            }
+
+            .admin-page-heading-actions .fi,
+            .admin-page-heading-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .chart-card,
+            .table-card {
+                border-radius: 12px;
+            }
+
+            .chart-card {
+                padding: 1rem;
+            }
+
+            .table-card {
+                overflow-x: auto;
+            }
+
+            .table-card table {
+                min-width: 34rem;
+            }
+
+            .table-card-header {
+                padding: 1rem;
+            }
+
+            .modal-box {
+                width: calc(100vw - 1rem);
+                max-width: none;
+            }
+
+            .modal-head,
+            .modal-body,
+            .modal-foot {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .modal-foot {
+                flex-wrap: wrap;
+            }
+
+            .modal-foot .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .sc-value {
+                font-size: 28px;
+            }
+
+            .chart-card-title {
+                font-size: 16px;
+            }
+
+            .tf-wrap {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .tf-btn {
+                flex: 1 1 calc(33.333% - 4px);
+                justify-content: center;
+                text-align: center;
+            }
+        }
+
+        /* Dashboard visual alignment with newer admin pages */
+        .admin-main {
+            max-width: none;
+        }
+
+        .dashboard-hero {
+            background: linear-gradient(135deg, rgba(250,248,245,0.98), rgba(245,240,234,0.96));
+            border: 1px solid #ede8e2;
+            border-radius: 18px;
+            padding: 1.5rem 1.6rem;
+            box-shadow: 0 10px 30px rgba(26, 20, 16, 0.06);
+        }
+
+        .dashboard-hero-copy {
+            max-width: 38rem;
+        }
+
+        .dashboard-hero-actions {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid #ede8e2;
+            border-radius: 14px;
+            padding: 0.75rem;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.82);
+        }
+
+        .dashboard-hero-actions .fi {
+            min-width: 10rem;
+        }
+
+        .dashboard-hero-actions .btn {
+            min-height: 2.7rem;
+        }
+
+        .dashboard-stat-grid,
+        .dashboard-chart-grid,
+        .dashboard-table-grid {
+            align-items: stretch;
+        }
+
+        .stat-card {
+            background: linear-gradient(180deg, rgba(250,248,245,0.98), rgba(255,255,255,0.98));
+            border-radius: 16px;
+            padding: 20px 20px 16px;
+            box-shadow: 0 10px 24px rgba(26,20,16,0.06);
+            gap: 8px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 32px rgba(26,20,16,0.1);
+        }
+
+        .stat-card::before {
+            height: 4px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .sc-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            font-size: 15px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.68);
+        }
+
+        .sc-change {
+            margin-top: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: #7a6f68;
+        }
+
+        .chart-card {
+            background: linear-gradient(180deg, rgba(250,248,245,0.98), rgba(255,255,255,0.98));
+            border-radius: 16px;
+            padding: 22px 24px;
+            box-shadow: 0 10px 28px rgba(26,20,16,0.06);
+        }
+
+        .dashboard-chart-head {
+            gap: 0.75rem;
+        }
+
+        .tf-wrap {
+            gap: 6px;
+            padding: 0.3rem;
+            border-radius: 999px;
+            background: #f4f0eb;
+            border: 1px solid #ede8e2;
+        }
+
+        .tf-btn {
+            padding: 6px 11px;
+            border-radius: 999px;
+            border-color: transparent;
+            background: transparent;
+            transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+        }
+
+        .tf-btn:hover {
+            background: #fff;
+            color: #4a4340;
+            box-shadow: 0 3px 10px rgba(26,20,16,0.08);
+        }
+
+        .tf-btn.active {
+            box-shadow: 0 6px 14px rgba(26,20,16,0.18);
+        }
+
+        .table-card {
+            border-radius: 16px;
+            box-shadow: 0 12px 28px rgba(26,20,16,0.06);
+        }
+
+        .table-card-header {
+            background: linear-gradient(135deg, #1a1410, #312924);
+            padding: 18px 22px;
+        }
+
+        .dashboard-table-header-split {
+            gap: 0.85rem;
+        }
+
+        .dashboard-table-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .dashboard-table-link:hover {
+            background: rgba(255,255,255,0.16);
+            color: #fff !important;
+        }
+
+        thead th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+
+        td {
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-hero {
+                padding: 1rem;
+                border-radius: 16px;
+            }
+
+            .dashboard-hero-actions {
+                width: 100%;
+            }
+
+            .dashboard-chart-head {
+                flex-direction: column;
+                align-items: flex-start !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .dashboard-hero-copy h1 {
+                font-size: 26px !important;
+            }
+
+            .tf-wrap {
+                border-radius: 14px;
+            }
+        }

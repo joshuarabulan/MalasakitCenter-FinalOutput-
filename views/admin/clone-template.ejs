@@ -87,7 +87,7 @@
         }
     </style>
 </head>
-<body>
+<body class="admin-page">
     <div id="toastContainer"></div>
 
     <!-- Loading Overlay -->
@@ -317,13 +317,13 @@
         <main class="admin-main flex-1 p-8" style="margin-left:16rem;">
 
             <!-- Page Header -->
-            <div class="mb-7 mt-2">
+            <div class="statement-page-heading mb-7 mt-2">
                 <h1 style="font-family:'Sans Serif',Georgia,serif;font-style:italic;font-size:30px;color:#1a1410;line-height:1.15;margin-bottom:3px;">Billing Management</h1>
                 <p style="font-size:13px;color:#9b8f87;font-weight:500;">Create and manage patient billing records</p>
             </div>
 
             <!-- Tabs -->
-            <div style="border-bottom:1px solid #ede8e2;" class="flex gap-1 mb-0">
+            <div style="border-bottom:1px solid #ede8e2;" class="statement-tabs flex gap-1 mb-0">
                 <button class="tab-button active" data-tab="create">
                     <i class="fas fa-file-invoice mr-2"></i>Create Bill
                 </button>
@@ -1184,17 +1184,7 @@
     document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); }));
     document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal.active').forEach(m => closeModal(m.id)); });
 
-    // Sidebar toggle
-    (() => {
-        const key = 'adminSidebarCollapsed';
-        if (localStorage.getItem(key) === '1') document.body.classList.add('sidebar-collapsed');
-        document.querySelectorAll('.sidebar-toggle').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.body.classList.toggle('sidebar-collapsed');
-                localStorage.setItem(key, document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
-            });
-        });
-    })();
     </script>
+<script src="/js/admin-responsive.js"></script>
 </body>
 </html>

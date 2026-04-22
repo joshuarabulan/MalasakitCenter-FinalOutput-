@@ -258,3 +258,92 @@
         body.sidebar-collapsed .sidebar .nav-item{justify-content:center;}
         body.sidebar-collapsed .sidebar .nav-item i{margin-right:0 !important;}
         body.sidebar-collapsed .admin-main{margin-left:5rem !important;}
+
+        @media (max-width: 1024px) {
+            .admin-main {
+                margin-left: 0 !important;
+                padding: 5rem 1rem 1rem !important;
+            }
+
+            .admin-page-heading {
+                align-items: flex-start !important;
+                gap: 1rem !important;
+            }
+
+            .admin-page-heading-actions {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 0.75rem !important;
+            }
+
+            .stat-chips {
+                width: 100%;
+            }
+
+            .user-toolbar,
+            .user-toolbar-controls {
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 0.75rem !important;
+            }
+
+            .search-wrap,
+            .search-wrap .fi,
+            #filterRole,
+            .user-toolbar .btn {
+                width: 100%;
+            }
+
+            .user-toolbar .btn {
+                justify-content: center;
+            }
+
+            .table-scroll table {
+                min-width: 48rem;
+            }
+
+            .modal-box,
+            .modal-box.wide {
+                width: calc(100vw - 1rem);
+                max-width: none;
+            }
+
+            .modal-inner {
+                padding: 1rem;
+            }
+
+            .modal-divider {
+                margin-left: -1rem;
+                margin-right: -1rem;
+            }
+
+            .modal-actions {
+                flex-wrap: wrap;
+            }
+
+            .modal-actions .btn {
+                flex: 1 1 100%;
+                justify-content: center;
+            }
+
+            #userDetailsContent > div[style*="grid-template-columns:1fr 1fr"] {
+                display: flex !important;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stat-value {
+                font-size: 26px;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .detail-row .val {
+                text-align: left;
+            }
+        }
