@@ -1,8 +1,6 @@
-/* â”€â”€ BASE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         * { box-sizing: border-box; }
         body { font-family: 'DM Sans', sans-serif; background: #f4f0eb; }
 
-        /* â”€â”€ TABS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeInUp 0.25s ease; }
 
@@ -21,8 +19,6 @@
         }
         .tab-link:hover { color: #1a1410; }
         .tab-link.active { border-bottom-color: #c0392b; color: #c0392b; }
-
-        /* â”€â”€ STAT CARDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .stat-card {
             background: #faf8f5;
             border-radius: 14px;

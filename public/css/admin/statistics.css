@@ -1,28 +1,24 @@
 * { box-sizing: border-box; }
         body { font-family: 'DM Sans', sans-serif; background: #f4f0eb; }
 
-        /* â”€â”€ FORMAL NUMBER FONT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .num {
             font-family: 'EB Garamond', Georgia, serif;
             font-variant-numeric: lining-nums;
             letter-spacing: 0.01em;
         }
 
-        /* â”€â”€ SCROLLBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .sticky-table-container::-webkit-scrollbar { width: 6px; height: 6px; }
         .sticky-table-container::-webkit-scrollbar-track { background: #f0ece7; border-radius: 4px; }
         .sticky-table-container::-webkit-scrollbar-thumb { background: #c4b8ae; border-radius: 4px; }
         .sticky-table-container::-webkit-scrollbar-thumb:hover { background: #9b8f87; }
         .sticky-table-container { overflow-x: auto; max-height: 70vh; border: 1px solid #ede8e2; border-radius: 10px; }
 
-        /* â”€â”€ TABLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .sticky-table { min-width: 1500px; border-collapse: separate; border-spacing: 0; width: 100%; }
         .sticky-table th, .sticky-table td {
             padding: 11px 14px; text-align: center;
             border-right: 1px solid #ede8e2; border-bottom: 1px solid #ede8e2;
             background-color: #fff; font-size: 13px;
         }
-        /* Numbers in table body use EB Garamond */
         .sticky-table td:not(:first-child) {
             font-family: 'EB Garamond', Georgia, serif;
             font-size: 14px; letter-spacing: 0.01em;
@@ -46,7 +42,6 @@
         .sticky-table .highlight-cell { background-color: #fef2f2; color: #c0392b; font-weight: 600; }
         .sticky-table .grand-total th { background-color: #f0ece7; font-weight: 700; color: #1a1410; }
 
-        /* â”€â”€ STAT CARDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .stat-card {
             background: #faf8f5; border-radius: 14px; padding: 20px 18px 16px;
             border: 1px solid #ede8e2; box-shadow: 0 2px 12px rgba(0,0,0,0.05);
@@ -66,7 +61,6 @@
 
         .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-bottom: 12px; }
 
-        /* Stat numbers: EB Garamond */
         .stat-value { font-family: 'EB Garamond', Georgia, serif; font-size: 32px; color: #1a1410; line-height: 1; letter-spacing: -0.01em; margin-bottom: 3px; font-weight: 500; }
         .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #9b8f87; margin-bottom: 8px; }
         .stat-trend { font-size: 11.5px; font-weight: 500; display: flex; align-items: center; gap: 5px; color: #6b6259; }
@@ -91,7 +85,6 @@
         .ward-value { font-family: 'EB Garamond', Georgia, serif; font-size: 22px; line-height: 1; letter-spacing: 0.01em; font-weight: 500; }
         .ward-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #9b8f87; margin-top: 3px; }
 
-        /* â”€â”€ BUTTONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .btn-action {
             display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 9px;
             font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600; border: none; cursor: pointer;
@@ -106,20 +99,12 @@
         .btn-blue:hover  { background: #1e40af; box-shadow: 0 6px 20px rgba(29,78,216,0.38); }
         .btn-ghost { background: #f0ece7; color: #4a4340; border: 1px solid #ede8e2; box-shadow: none; }
         .btn-ghost:hover { background: #e5dfd8; color: #1a1410; }
-
-        /* â”€â”€ INSIGHT BANNER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .insight-banner { background: #faf8f5; border: 1px solid #ede8e2; border-radius: 14px; padding: 20px 24px; margin-bottom: 28px; }
-
-        /* â”€â”€ TABLE CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .table-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); overflow: hidden; border: 1px solid #ede8e2; }
         .table-card-header { background: #1a1410; padding: 22px 24px; }
-
-        /* â”€â”€ MINI STATS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .mini-stat { text-align: center; padding: 14px 16px; background: #faf8f5; border-radius: 10px; border: 1px solid #ede8e2; }
         .mini-stat-value { font-family: 'EB Garamond', Georgia, serif; font-size: 24px; color: #1a1410; line-height: 1; font-weight: 500; }
         .mini-stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #9b8f87; margin-top: 4px; }
-
-        /* â”€â”€ SHARED MODAL BASE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .cm-overlay {
             position: fixed; inset: 0; background: rgba(10,8,6,0.62);
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -183,8 +168,6 @@
         .cm-btn-green:hover { background: #155f34; transform: translateY(-1px); }
         .cm-btn-blue  { background: #1d4ed8; color: #fff; box-shadow: 0 4px 14px rgba(29,78,216,0.28); }
         .cm-btn-blue:hover  { background: #1e40af; transform: translateY(-1px); }
-
-        /* â”€â”€ ANALYTICS MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .am-overlay {
             position: fixed; inset: 0; background: rgba(10,8,6,0.62);
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -200,23 +183,17 @@
         .am-body { padding: 24px; overflow-y: auto; }
         .am-chart-card { background: #fff; border: 1px solid #ede8e2; border-radius: 12px; padding: 20px; }
         .am-chart-card h4 { font-family: 'Sans Serif', Georgia, serif; font-style: italic; font-size: 16px; color: #1a1410; margin-bottom: 14px; }
-
-        /* â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         #toastContainer { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
         .toast { font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; padding: 12px 18px; border-radius: 10px; opacity: 0; transform: translateY(10px); transition: all 0.26s ease; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.14); min-width: 240px; }
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.success { background: #1a3a2a; color: #6ee7a8; border: 1px solid rgba(110,231,168,0.2); }
         .toast.error   { background: #3a1a1a; color: #f87171; border: 1px solid rgba(248,113,113,0.2); }
-
-        /* â”€â”€ ANIMATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-4px); } }
         .floating { animation: float 3s ease-in-out infinite; }
         @keyframes pulse-icon { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
         .pulse { animation: pulse-icon 2s ease-in-out infinite; }
         @keyframes fadeInUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         .service-row { animation: fadeInUp 0.3s ease-out; }
-
-        /* â”€â”€ RESPONSIVE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         @media (max-width: 1024px) {
             .tab-content { margin-left: 0; padding: 1rem; }
             .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; z-index: 50; }

@@ -1,8 +1,6 @@
-/* â”€â”€ BASE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         * { box-sizing: border-box; }
         body { font-family: 'DM Sans', sans-serif; background: #f4f0eb; }
 
-        /* â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         #toastContainer { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
         .toast { font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; padding: 12px 18px; border-radius: 10px; opacity: 0; transform: translateY(10px); transition: all 0.26s ease; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.14); min-width: 240px; max-width: 340px; }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -12,8 +10,6 @@
         .toast.warning { background: #3a2e1a; color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
         .toast-close { background: none; border: none; color: inherit; cursor: pointer; font-size: 15px; opacity: 0.7; padding: 0; margin-left: auto; }
         .toast-close:hover { opacity: 1; }
-
-        /* â”€â”€ STAT CARDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .stat-card {
             background: #faf8f5; border-radius: 14px; padding: 18px 18px 14px;
             border: 1px solid #ede8e2; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -39,8 +35,6 @@
         .c-green  .stat-progress-fill { background: #22c55e; }
         .c-purple .stat-progress-fill { background: #a855f7; }
         .c-orange .stat-progress-fill { background: #f97316; }
-
-        /* â”€â”€ CHART CARDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .chart-card {
             background: #faf8f5; border-radius: 14px; padding: 20px 22px;
             border: 1px solid #ede8e2; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -55,7 +49,6 @@
         .chart-toggle-btn:hover { background: #e5dfd8; color: #1a1410; }
         .chart-toggle-btn.active { background: #1a1410; color: #fff; border-color: #1a1410; }
 
-        /* â”€â”€ TABLE CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .table-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); overflow: hidden; border: 1px solid #ede8e2; }
         .table-card-header { background: #1a1410; padding: 18px 22px; }
 
@@ -161,7 +154,6 @@
         /* Section label */
         .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9b8f87; margin-bottom: 5px; }
 
-        /* â”€â”€ MODALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .modal {
             display: none; position: fixed; inset: 0;
             background: rgba(10,8,6,0.62);

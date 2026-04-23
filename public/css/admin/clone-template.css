@@ -1,8 +1,6 @@
-/* â”€â”€ BASE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         * { box-sizing: border-box; }
         body { font-family: 'DM Sans', sans-serif; background: #f4f0eb; }
 
-        /* â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         #toastContainer { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
         .toast { font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; padding: 12px 18px; border-radius: 10px; opacity: 0; transform: translateY(10px); transition: all 0.26s ease; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.14); min-width: 240px; max-width: 340px; }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -12,8 +10,6 @@
         .toast.warning { background: #3a2e1a; color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
         .toast-close { background: none; border: none; color: inherit; cursor: pointer; font-size: 16px; opacity: 0.7; padding: 0; margin-left: auto; }
         .toast-close:hover { opacity: 1; }
-
-        /* â”€â”€ TABS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeInUp 0.25s ease; }
 
@@ -63,20 +59,14 @@
         .minmax-item.right { text-align: right; }
         .minmax-value { font-family: 'EB Garamond', Georgia, serif; font-size: 19px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .minmax-arrow { color: #ded8d2; font-size: 13px; flex-shrink: 0; }
-
-        /* â”€â”€ TABLE CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .table-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); overflow: hidden; border: 1px solid #ede8e2; }
         .table-card-header { background: #1a1410; padding: 20px 24px; }
         .table-card-header.yellow { background: linear-gradient(135deg, #92400e, #b45309); }
-
-        /* â”€â”€ FORM CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .form-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); overflow: hidden; border: 1px solid #ede8e2; }
         .form-card-header { background: #1a1410; padding: 20px 24px; }
-
         .form-section { border-bottom: 1px dashed #e0dbd5; padding-bottom: 22px; margin-bottom: 22px; }
         .form-section:last-of-type { border-bottom: none; }
 
-        /* â”€â”€ FORM INPUTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .fi {
             width: 100%; padding: 9px 14px;
             border: 1px solid #e0dbd5; border-radius: 9px;
@@ -91,7 +81,6 @@
 
         .validation-message { color: #dc2626; font-size: 11.5px; margin-top: 4px; display: none; }
 
-        /* â”€â”€ BUTTONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .btn {
             display: inline-flex; align-items: center; gap: 7px;
             padding: 9px 18px; border-radius: 9px;
@@ -115,8 +104,6 @@
         .btn-yellow:hover { background: #b45309; }
         .btn-ghost  { background: #f0ece7; color: #4a4340; border: 1px solid #ede8e2; }
         .btn-ghost:hover { background: #e5dfd8; color: #1a1410; }
-
-        /* â”€â”€ CHARGE TABLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .charge-row { transition: background 0.15s; }
         .charge-row:hover td { background: #faf8f5 !important; }
         .charge-table th {
@@ -125,8 +112,6 @@
             padding: 10px 12px; border-bottom: 1px solid #ede8e2; white-space: nowrap;
         }
         .charge-table td { padding: 10px 12px; border-bottom: 1px solid #f0ece7; background: #fff; font-size: 13.5px; }
-
-        /* â”€â”€ SUMMARY CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .summary-side {
             background: #faf8f5; border: 1px solid #ede8e2;
             border-radius: 12px; padding: 18px 20px;
@@ -142,8 +127,6 @@
             font-family: 'EB Garamond', Georgia, serif;
             font-size: 26px; font-weight: 500; letter-spacing: -0.01em;
         }
-
-        /* â”€â”€ RECORD TABLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .record-table th {
             background: #f8f6f3; font-size: 11px; font-weight: 700;
             text-transform: uppercase; letter-spacing: 0.05em; color: #9b8f87;
@@ -156,23 +139,19 @@
         .deleted-row td { background: #fffbf0; }
         .deleted-row:hover td { background: #fef3c7; }
 
-        /* â”€â”€ WARD BADGES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .ward-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; }
         .ward-ip   { background: #eff6ff; color: #1d4ed8; }
         .ward-op   { background: #f0fdf4; color: #15803d; }
         .ward-er   { background: #fef2f2; color: #dc2626; }
 
-        /* â”€â”€ SEARCH BOX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .search-wrap { position: relative; }
         .search-wrap input { padding-right: 36px; }
         .search-wrap .search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #c4b8ae; font-size: 13px; pointer-events: none; }
 
-        /* â”€â”€ COUNT BADGES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .count-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; font-size: 11px; font-weight: 700; margin-left: 5px; }
         .badge-red    { background: #dc2626; color: #fff; }
         .badge-yellow { background: #d97706; color: #fff; }
 
-        /* â”€â”€ MODALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .modal {
             display: none; position: fixed; inset: 0;
             background: rgba(10,8,6,0.62);
@@ -232,8 +211,6 @@
         .modal-title { font-family: 'Sans Serif', Georgia, serif; font-style: italic; font-size: 22px; color: #1a1410; line-height: 1.2; margin-bottom: 6px; }
         .modal-desc  { font-size: 13px; color: #7a6f68; line-height: 1.7; margin-bottom: 14px; }
         .modal-desc strong { color: #1a1410; font-weight: 600; }
-
-        /* Record detail rows inside modal */
         .modal-detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #fff; border: 1px solid #ede8e2; border-radius: 8px; margin-bottom: 6px; font-size: 12.5px; }
         .modal-detail-row .lbl { color: #9b8f87; font-weight: 500; }
         .modal-detail-row .val { color: #1a1410; font-weight: 600; font-family: 'EB Garamond', Georgia, serif; font-size: 14px; }
@@ -267,13 +244,11 @@
         .trash-count-box p { font-size: 14px; color: #4a4340; font-weight: 500; }
         .trash-count-box strong { font-family: 'EB Garamond', Georgia, serif; font-size: 22px; color: #dc2626; }
 
-        /* â”€â”€ TOOLTIP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .has-tip { position: relative; }
         .tip { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #1a1410; color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 100; }
         .tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 4px solid transparent; border-top-color: #1a1410; }
         .has-tip:hover .tip { opacity: 1; }
 
-        /* â”€â”€ SECTION LABEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #9b8f87; margin-bottom: 4px; }
         .sidebar{transition:width .2s ease;}
         .admin-main{transition:margin-left .2s ease;}
