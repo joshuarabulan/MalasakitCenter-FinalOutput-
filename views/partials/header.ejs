@@ -1,362 +1,379 @@
-  <!-- HEADER -->
-  <header class="admin-topbar bg-white shadow-lg fixed top-0 left-0 z-50 border-b border-gray-100">
-    <!-- Left: Title -->
-    <div class="admin-topbar-left">
-      <h2 class="text-xl font-bold text-gray-800">Admin Panel</h2>
-
-      <div class="admin-topbar-messages">
-        <!-- Flash Messages -->
-        <% if (messages && messages.success) { %>
-          <div class="admin-flash bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 animate-fade-in">
-            <i class="fas fa-check-circle"></i>
-            <span><%= messages.success %></span>
-            <button onclick="this.parentElement.remove()" class="ml-2 text-green-700 hover:text-green-900">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        <% } %>
-        
-        <% if (messages && messages.error) { %>
-          <div class="admin-flash bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 animate-fade-in">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><%= messages.error %></span>
-            <button onclick="this.parentElement.remove()" class="ml-2 text-red-700 hover:text-red-900">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        <% } %>
-        
-        <% if (messages && messages.info) { %>
-          <div class="admin-flash bg-blue-100 border border-blue-400 text-blue-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 animate-fade-in">
-            <i class="fas fa-info-circle"></i>
-            <span><%= messages.info %></span>
-            <button onclick="this.parentElement.remove()" class="ml-2 text-blue-700 hover:text-blue-900">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        <% } %>
-      </div>
+<%
+  const profileInitial = user && user.name ? user.name.charAt(0).toUpperCase() : 'G';
+  const profileAvatarSrc = user && user.avatar ? `/uploads/avatars/${user.avatar}` : '';
+%>
+<header class="admin-topbar bg-white shadow-lg fixed top-0 left-0 z-50 border-b border-gray-100">
+  <div class="admin-topbar-left">
+    <div>
+      <h2 class="text-xl font-bold text-gray-800">Admin Workspace</h2>
+      <p class="text-sm text-slate-500">Manage records, requests, and account settings</p>
     </div>
 
-    <!-- Right: Profile Dropdown -->
-    <div class="admin-topbar-actions">
-      <div class="relative">
-      <button 
-        id="profileBtn" 
-        onclick="toggleDropdown()" 
-        class="flex items-center gap-3 bg-gray-50 hover:bg-gray-100 px-4 py-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 border border-gray-200 shadow-sm"
+    <div class="admin-topbar-messages">
+      <% if (messages && messages.success) { %>
+        <div class="admin-flash bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-xl text-sm flex items-center gap-2 animate-fade-in">
+          <i class="fas fa-check-circle"></i>
+          <span><%= messages.success %></span>
+          <button type="button" onclick="this.parentElement.remove()" class="ml-1 text-green-700 hover:text-green-900">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      <% } %>
+
+      <% if (messages && messages.error) { %>
+        <div class="admin-flash bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-xl text-sm flex items-center gap-2 animate-fade-in">
+          <i class="fas fa-exclamation-circle"></i>
+          <span><%= messages.error %></span>
+          <button type="button" onclick="this.parentElement.remove()" class="ml-1 text-red-700 hover:text-red-900">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      <% } %>
+
+      <% if (messages && messages.info) { %>
+        <div class="admin-flash bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-xl text-sm flex items-center gap-2 animate-fade-in">
+          <i class="fas fa-info-circle"></i>
+          <span><%= messages.info %></span>
+          <button type="button" onclick="this.parentElement.remove()" class="ml-1 text-blue-700 hover:text-blue-900">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="admin-topbar-actions">
+    <div class="relative">
+      <button
+        id="profileBtn"
+        type="button"
+        class="flex items-center gap-3 bg-slate-50 hover:bg-slate-100 px-3 py-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 border border-slate-200 shadow-sm"
       >
-       <!-- Avatar -->
-      <div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm">
-        <% if (user && user.avatar) { %>
-          <img src="/uploads/avatars/<%= user.avatar %>" alt="avatar" class="w-full h-full object-cover">
-        <% } else { %>
-          <span class="text-white font-semibold text-lg uppercase">
-            <%= user && user.name ? user.name.charAt(0) : 'G' %>
-          </span>
-        <% } %>
-      </div>
-
-        <!-- Name -->
-        <span class="hidden sm:inline font-medium text-gray-700">
-          <%= user ? user.name : 'Guest' %>
-        </span>
-
-        <!-- Icon -->
-        <i class="fas fa-chevron-down text-gray-600 text-sm transition-transform duration-200" id="dropdownIcon"></i>
-      </button>
-
-      <!-- Dropdown -->
-      <div 
-        id="profileDropdown" 
-        class="hidden absolute right-0 mt-2 w-64 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-50 transform transition-all duration-200 ease-out"
-      >
-        <!-- User Info -->
-        <div class="px-4 py-4 border-b border-gray-100 bg-gray-50">
-          <p class="text-base font-semibold text-gray-800"><%= user ? user.name : 'Guest' %></p>
-          <% if (user && user.email) { %>
-            <p class="text-sm text-gray-500 mt-1 truncate"><%= user.email %></p>
-          <% } %>
-          <% if (user && user.role) { %>
-            <p class="text-xs text-indigo-600 mt-1 font-medium"><%= user.role %></p>
+        <div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-r from-blue-600 to-slate-800 flex items-center justify-center shadow-sm">
+          <% if (profileAvatarSrc) { %>
+            <img src="<%= profileAvatarSrc %>" alt="Profile photo" class="w-full h-full object-cover">
+          <% } else { %>
+            <span class="text-white font-semibold text-lg uppercase"><%= profileInitial %></span>
           <% } %>
         </div>
+        <div class="hidden sm:block text-left min-w-0">
+          <div class="font-semibold text-slate-800 truncate"><%= user ? user.name : 'Guest' %></div>
+          <div class="text-xs text-slate-500 truncate"><%= user ? user.role : '' %></div>
+        </div>
+        <i class="fas fa-chevron-down text-slate-500 text-sm transition-transform duration-200" id="dropdownIcon"></i>
+      </button>
 
-        <!-- Settings -->
-        <button onclick="openSettingsModal()" class="w-full text-left flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-150" role="menuitem">
-          <i class="fas fa-cog text-lg text-gray-500 mr-3"></i> 
+      <div id="profileDropdown" class="hidden absolute right-0 mt-3 w-72 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-50">
+        <div class="px-4 py-4 border-b border-slate-100 bg-slate-50/80">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-r from-blue-600 to-slate-800 flex items-center justify-center">
+              <% if (profileAvatarSrc) { %>
+                <img src="<%= profileAvatarSrc %>" alt="Profile photo" class="w-full h-full object-cover">
+              <% } else { %>
+                <span class="text-white font-semibold text-lg uppercase"><%= profileInitial %></span>
+              <% } %>
+            </div>
+            <div class="min-w-0">
+              <p class="text-base font-semibold text-slate-800 truncate"><%= user ? user.name : 'Guest' %></p>
+              <% if (user && user.email) { %>
+                <p class="text-sm text-slate-500 truncate"><%= user.email %></p>
+              <% } %>
+              <% if (user && user.role) { %>
+                <p class="text-xs text-blue-600 mt-1 font-semibold"><%= user.role %></p>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" onclick="openSettingsModal()" class="w-full text-left flex items-center px-4 py-3 text-slate-700 hover:bg-slate-50 transition-colors duration-150" role="menuitem">
+          <i class="fas fa-user-cog text-lg text-slate-500 mr-3"></i>
           <div>
-            <p class="font-medium">Settings</p>
-            <p class="text-xs text-gray-500">Configure your account</p>
+            <p class="font-medium">Account Settings</p>
+            <p class="text-xs text-slate-500">Edit profile and photo</p>
           </div>
         </button>
 
-        <!-- Logout button -->
-        <button onclick="openLogoutModal()" class="w-full text-left flex items-center px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-150 border-t border-gray-100" role="menuitem">
-          <i class="fas fa-sign-out-alt text-lg mr-3"></i> 
+        <button type="button" onclick="openLogoutModal()" class="w-full text-left flex items-center px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-150 border-t border-slate-100" role="menuitem">
+          <i class="fas fa-sign-out-alt text-lg mr-3"></i>
           <span class="font-medium">Logout</span>
         </button>
       </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- LOGOUT CONFIRMATION MODAL -->
-  <div id="logoutModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-50 flex justify-center items-center">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative transform transition-all duration-300 scale-95 opacity-0" id="logoutModalContent">
-      <!-- Icon -->
-      <div class="flex justify-center mb-4">
-        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-          <i class="fas fa-sign-out-alt text-red-600 text-2xl"></i>
-        </div>
-      </div>
-      
-      <h2 class="text-xl font-semibold mb-2 text-center text-gray-800">Confirm Logout</h2>
-      <p class="text-gray-500 text-center mb-6">Are you sure you want to logout? You will need to login again to access your account.</p>
-      
-      <div class="flex justify-center gap-3">
-        <button onclick="closeLogoutModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-gray-800 transition-colors cursor-pointer">
-          Cancel
-        </button>
-        <a href="/logout" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors cursor-pointer">
-          Logout
-        </a>
-      </div>
-      
-      <!-- Close button -->
-      <button onclick="closeLogoutModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 cursor-pointer">
-        <i class="fas fa-times text-xl"></i>
-      </button>
     </div>
   </div>
+</header>
 
-  <!-- SETTINGS MODAL -->
-  <div id="settingsModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-50 flex justify-center items-center">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative transform transition-all duration-300 scale-95 opacity-0" id="settingsModalContent">
-      <h2 class="text-xl font-semibold mb-4 text-gray-800">Account Settings</h2>
-
-
-      <form action="/settings" method="POST" class="space-y-4" id="settingsForm">
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Name</label>
-          <input type="text" name="name" value="<%= user ? user.name : '' %>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2 border" required>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Email</label>
-          <input type="email" name="email" value="<%= user ? user.email : '' %>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2 border" required>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">New Password</label>
-          <input type="password" name="password" id="password" placeholder="Leave blank to keep current password" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2 border">
-          <p class="text-xs text-gray-500 mt-1">Password must be at least 6 characters</p>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Confirm New Password</label>
-          <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Re-enter new password" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2 border">
-        </div>
-
-        <div id="passwordError" class="text-red-600 text-sm hidden"></div>
-
-        <div class="flex justify-end gap-2 pt-4">
-          <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-gray-800 cursor-pointer">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md cursor-pointer">Save Changes</button>
-        </div>
-      </form>
-
-      <button onclick="closeSettingsModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 cursor-pointer">
-        <i class="fas fa-times text-xl"></i>
-      </button>
+<div id="logoutModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/50 flex justify-center items-center px-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative transform transition-all duration-300 scale-95 opacity-0" id="logoutModalContent">
+    <div class="flex justify-center mb-4">
+      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+        <% if (profileAvatarSrc) { %>
+          <img src="<%= profileAvatarSrc %>" alt="Profile photo" class="w-full h-full object-cover rounded-full">
+        <% } else { %>
+          <span class="text-red-600 font-semibold text-2xl uppercase"><%= profileInitial %></span>
+        <% } %>
+      </div>
     </div>
+
+    <h2 class="text-xl font-semibold mb-2 text-center text-slate-800">Confirm Logout</h2>
+    <p class="text-slate-500 text-center mb-6">Are you sure you want to logout? You will need to login again to access your account.</p>
+
+    <div class="flex justify-center gap-3">
+      <button type="button" onclick="closeLogoutModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg text-slate-800 transition-colors cursor-pointer">
+        Cancel
+      </button>
+      <a href="/logout" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors cursor-pointer">
+        Logout
+      </a>
+    </div>
+
+    <button type="button" onclick="closeLogoutModal()" class="absolute top-3 right-3 text-slate-500 hover:text-slate-800 cursor-pointer">
+      <i class="fas fa-times text-xl"></i>
+    </button>
   </div>
+</div>
 
-  <!-- CSS Animations -->
-  <style>
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    .animate-fade-in {
-      animation: fadeIn 0.3s ease-out;
-    }
-  </style>
+<div id="settingsModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/50 flex justify-center items-center px-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6 relative transform transition-all duration-300 scale-95 opacity-0" id="settingsModalContent">
+    <div class="mb-5">
+      <h2 class="text-2xl font-semibold text-slate-800">Account Settings</h2>
+      <p class="text-sm text-slate-500 mt-1">Update your profile details, password, and profile picture.</p>
+    </div>
 
-  <!-- SCRIPTS -->
-  <script>
+    <form action="/settings" method="POST" enctype="multipart/form-data" class="space-y-5" id="settingsForm">
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-r from-blue-600 to-slate-800 flex items-center justify-center shadow-sm shrink-0">
+            <img
+              src="<%= profileAvatarSrc || '' %>"
+              alt="Profile preview"
+              id="settingsAvatarPreview"
+              class="w-full h-full object-cover <%= profileAvatarSrc ? '' : 'hidden' %>"
+            >
+            <span id="settingsAvatarFallback" class="text-white font-semibold text-3xl uppercase <%= profileAvatarSrc ? 'hidden' : '' %>"><%= profileInitial %></span>
+          </div>
+          <div class="flex-1">
+            <label for="avatar" class="block text-sm font-medium text-slate-700 mb-2">Profile Picture</label>
+            <input type="file" id="avatar" name="avatar" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" class="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-slate-700">
+            <p class="text-xs text-slate-500 mt-2">PNG, JPG, WEBP, or GIF up to 3 MB.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Name</label>
+          <input type="text" name="name" value="<%= user ? user.name : '' %>" class="mt-1 block w-full border-slate-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 px-3 py-2.5 border" required>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Email</label>
+          <input type="email" name="email" value="<%= user ? user.email : '' %>" class="mt-1 block w-full border-slate-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 px-3 py-2.5 border" required>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700">New Password</label>
+          <input type="password" name="password" id="password" placeholder="Leave blank to keep current password" class="mt-1 block w-full border-slate-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 px-3 py-2.5 border">
+          <p class="text-xs text-slate-500 mt-1">Password must be at least 6 characters.</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Confirm New Password</label>
+          <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Re-enter new password" class="mt-1 block w-full border-slate-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 px-3 py-2.5 border">
+        </div>
+      </div>
+
+      <div id="passwordError" class="text-red-600 text-sm hidden"></div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg text-slate-800 cursor-pointer">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg cursor-pointer">Save Changes</button>
+      </div>
+    </form>
+
+    <button type="button" onclick="closeSettingsModal()" class="absolute top-3 right-3 text-slate-500 hover:text-slate-800 cursor-pointer">
+      <i class="fas fa-times text-xl"></i>
+    </button>
+  </div>
+</div>
+
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+</style>
+
+<script>
+  (function () {
     let dropdownOpen = false;
-    
+
     function toggleDropdown() {
-      const dropdown = document.getElementById("profileDropdown");
-      const icon = document.getElementById("dropdownIcon");
-      
-      if (dropdown) {
-        dropdown.classList.toggle("hidden");
-        dropdownOpen = !dropdownOpen;
-        if (icon) {
-          icon.style.transform = dropdownOpen ? "rotate(180deg)" : "rotate(0deg)";
-        }
+      const dropdown = document.getElementById('profileDropdown');
+      const icon = document.getElementById('dropdownIcon');
+      if (!dropdown) return;
+
+      dropdown.classList.toggle('hidden');
+      dropdownOpen = !dropdown.classList.contains('hidden');
+      if (icon) {
+        icon.style.transform = dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)';
       }
     }
 
-    function openSettingsModal() {
-      const modal = document.getElementById("settingsModal");
-      const modalContent = document.getElementById("settingsModalContent");
-      
-      modal.classList.remove("hidden");
-      if (document.getElementById("profileDropdown")) {
-        document.getElementById("profileDropdown").classList.add("hidden");
-      }
-      
-      // Animate in
+    function animateModalOpen(modalId, contentId) {
+      const modal = document.getElementById(modalId);
+      const modalContent = document.getElementById(contentId);
+      if (!modal || !modalContent) return;
+
+      modal.classList.remove('hidden');
       setTimeout(() => {
-        if (modalContent) {
-          modalContent.classList.remove("scale-95", "opacity-0");
-          modalContent.classList.add("scale-100", "opacity-100");
-        }
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
       }, 10);
     }
 
-    function closeSettingsModal() {
-      const modal = document.getElementById("settingsModal");
-      const modalContent = document.getElementById("settingsModalContent");
-      
-      if (modalContent) {
-        modalContent.classList.remove("scale-100", "opacity-100");
-        modalContent.classList.add("scale-95", "opacity-0");
-      }
-      
+    function animateModalClose(modalId, contentId, afterClose) {
+      const modal = document.getElementById(modalId);
+      const modalContent = document.getElementById(contentId);
+      if (!modal || !modalContent) return;
+
+      modalContent.classList.remove('scale-100', 'opacity-100');
+      modalContent.classList.add('scale-95', 'opacity-0');
       setTimeout(() => {
-        modal.classList.add("hidden");
-        // Reset form error and password fields
-        const errorDiv = document.getElementById("passwordError");
-        if (errorDiv) errorDiv.classList.add("hidden");
-        const password = document.getElementById("password");
-        const confirmPassword = document.getElementById("confirmPassword");
-        if (password) password.value = "";
-        if (confirmPassword) confirmPassword.value = "";
+        modal.classList.add('hidden');
+        if (typeof afterClose === 'function') afterClose();
       }, 200);
     }
 
-    function openLogoutModal() {
-      const modal = document.getElementById("logoutModal");
-      const modalContent = document.getElementById("logoutModalContent");
-      
-      modal.classList.remove("hidden");
-      const dropdown = document.getElementById("profileDropdown");
-      if (dropdown) dropdown.classList.add("hidden");
-      
-      // Animate in
-      setTimeout(() => {
-        if (modalContent) {
-          modalContent.classList.remove("scale-95", "opacity-0");
-          modalContent.classList.add("scale-100", "opacity-100");
-        }
-      }, 10);
-    }
+    window.openSettingsModal = function () {
+      const dropdown = document.getElementById('profileDropdown');
+      if (dropdown) dropdown.classList.add('hidden');
+      dropdownOpen = false;
+      animateModalOpen('settingsModal', 'settingsModalContent');
+    };
 
-    function closeLogoutModal() {
-      const modal = document.getElementById("logoutModal");
-      const modalContent = document.getElementById("logoutModalContent");
-      
-      if (modalContent) {
-        modalContent.classList.remove("scale-100", "opacity-100");
-        modalContent.classList.add("scale-95", "opacity-0");
-      }
-      
-      setTimeout(() => {
-        modal.classList.add("hidden");
-      }, 200);
-    }
+    window.closeSettingsModal = function () {
+      animateModalClose('settingsModal', 'settingsModalContent', function () {
+        const errorDiv = document.getElementById('passwordError');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const avatarInput = document.getElementById('avatar');
+        if (errorDiv) errorDiv.classList.add('hidden');
+        if (password) password.value = '';
+        if (confirmPassword) confirmPassword.value = '';
+        if (avatarInput) avatarInput.value = '';
+      });
+    };
 
-    // Form validation
-    const settingsForm = document.getElementById("settingsForm");
-    if (settingsForm) {
-      settingsForm.addEventListener("submit", function(e) {
-        const password = document.getElementById("password").value;
-        const confirmPassword = document.getElementById("confirmPassword").value;
-        const errorDiv = document.getElementById("passwordError");
-        
-        if (password || confirmPassword) {
-          if (password !== confirmPassword) {
-            e.preventDefault();
-            errorDiv.textContent = "Passwords do not match";
-            errorDiv.classList.remove("hidden");
-            return false;
-          }
-          
-          if (password.length < 6 && password.length > 0) {
-            e.preventDefault();
-            errorDiv.textContent = "Password must be at least 6 characters";
-            errorDiv.classList.remove("hidden");
-            return false;
-          }
-        }
-        
-        errorDiv.classList.add("hidden");
-        return true;
+    window.openLogoutModal = function () {
+      const dropdown = document.getElementById('profileDropdown');
+      if (dropdown) dropdown.classList.add('hidden');
+      dropdownOpen = false;
+      animateModalOpen('logoutModal', 'logoutModalContent');
+    };
+
+    window.closeLogoutModal = function () {
+      animateModalClose('logoutModal', 'logoutModalContent');
+    };
+
+    const profileBtn = document.getElementById('profileBtn');
+    if (profileBtn) {
+      profileBtn.addEventListener('click', function (event) {
+        event.stopPropagation();
+        toggleDropdown();
       });
     }
 
-    // Close dropdown if clicking outside
-    document.addEventListener("click", function (e) {
-      const profileBtn = document.getElementById("profileBtn");
-      const dropdown = document.getElementById("profileDropdown");
-      
-      if (profileBtn && dropdown && !profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.classList.add("hidden");
-        const icon = document.getElementById("dropdownIcon");
-        if (icon) icon.style.transform = "rotate(0deg)";
+    const settingsForm = document.getElementById('settingsForm');
+    if (settingsForm) {
+      settingsForm.addEventListener('submit', function (event) {
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const errorDiv = document.getElementById('passwordError');
+        const passwordValue = password ? password.value : '';
+        const confirmValue = confirmPassword ? confirmPassword.value : '';
+
+        if (passwordValue || confirmValue) {
+          if (passwordValue !== confirmValue) {
+            event.preventDefault();
+            errorDiv.textContent = 'Passwords do not match.';
+            errorDiv.classList.remove('hidden');
+            return;
+          }
+
+          if (passwordValue.length > 0 && passwordValue.length < 6) {
+            event.preventDefault();
+            errorDiv.textContent = 'Password must be at least 6 characters.';
+            errorDiv.classList.remove('hidden');
+            return;
+          }
+        }
+
+        errorDiv.classList.add('hidden');
+      });
+    }
+
+    const avatarInput = document.getElementById('avatar');
+    if (avatarInput) {
+      avatarInput.addEventListener('change', function (event) {
+        const file = event.target.files && event.target.files[0];
+        const preview = document.getElementById('settingsAvatarPreview');
+        const fallback = document.getElementById('settingsAvatarFallback');
+
+        if (!file || !preview || !fallback) {
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (loadEvent) {
+          preview.src = loadEvent.target.result;
+          preview.classList.remove('hidden');
+          fallback.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.addEventListener('click', function (event) {
+      const dropdown = document.getElementById('profileDropdown');
+      if (profileBtn && dropdown && !profileBtn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.add('hidden');
+        const icon = document.getElementById('dropdownIcon');
+        if (icon) icon.style.transform = 'rotate(0deg)';
         dropdownOpen = false;
       }
-      
-      // Close logout modal when clicking outside
-      const logoutModal = document.getElementById("logoutModal");
-      if (logoutModal && e.target === logoutModal) {
-        closeLogoutModal();
+
+      const logoutModal = document.getElementById('logoutModal');
+      if (logoutModal && event.target === logoutModal) {
+        window.closeLogoutModal();
       }
-      
-      // Close settings modal when clicking outside
-      const settingsModal = document.getElementById("settingsModal");
-      if (settingsModal && e.target === settingsModal) {
-        closeSettingsModal();
+
+      const settingsModal = document.getElementById('settingsModal');
+      if (settingsModal && event.target === settingsModal) {
+        window.closeSettingsModal();
       }
     });
 
-    // Prevent modal content clicks from closing modals
-    const logoutModalContent = document.getElementById("logoutModalContent");
-    if (logoutModalContent) {
-      logoutModalContent.addEventListener("click", function(e) {
-        e.stopPropagation();
-      });
-    }
-    
-    const settingsModalContent = document.getElementById("settingsModalContent");
-    if (settingsModalContent) {
-      settingsModalContent.addEventListener("click", function(e) {
-        e.stopPropagation();
-      });
-    }
-
-    // Auto-hide flash messages after 5 seconds
-    setTimeout(() => {
-      const flashMessages = document.querySelectorAll('.animate-fade-in');p
-      flashMessages.forEach(message => {
-        setTimeout(() => {
-          if (message && message.remove) {
-            message.style.opacity = '0';
-            setTimeout(() => message.remove(), 300);
-          }
+    setTimeout(function () {
+      const flashMessages = document.querySelectorAll('.animate-fade-in');
+      flashMessages.forEach(function (message) {
+        setTimeout(function () {
+          if (!message || !message.remove) return;
+          message.style.opacity = '0';
+          setTimeout(function () { message.remove(); }, 300);
         }, 5000);
       });
     }, 100);
-  </script>
+  })();
+</script>

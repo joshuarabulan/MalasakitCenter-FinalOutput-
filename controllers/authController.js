@@ -913,11 +913,15 @@ exports.postLogin = async (req, res) => {
                     return reject(sessionError);
                 }
 
+                const profilePicture = user.profile_picture || user.avatar || null;
+
                 req.session.user = {
                     id: user.id,
                     role: normalizedRole,
                     name: user.name,
-                    email: user.email
+                    email: user.email,
+                    avatar: profilePicture,
+                    profile_picture: profilePicture
                 };
 
                 req.session.save((saveError) => {
@@ -939,7 +943,9 @@ exports.postLogin = async (req, res) => {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: normalizedRole
+                role: normalizedRole,
+                avatar: user.profile_picture || user.avatar || null,
+                profile_picture: user.profile_picture || user.avatar || null
             }
         });
 

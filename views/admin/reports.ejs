@@ -35,8 +35,19 @@
                 <a href="/admin/feedback" class="nav-item flex items-center py-3 px-4 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition duration-200"><i class="fas fa-comment-dots w-5 mr-3 text-center"></i><span class="nav-label">Feedback</span></a>
             </nav>
             <div class="px-4 pb-5 pt-3 border-t border-slate-700/80">
-                <a href="/logout" class="nav-item nav-item-logout flex items-center py-3 px-4 text-slate-200 hover:text-white rounded-lg transition duration-200">
-                    <i class="fas fa-sign-out-alt w-5 mr-3 text-center"></i><span class="nav-label">Log Out</span>
+                <a href="/logout" class="nav-item nav-item-logout nav-account-card flex items-center gap-3 py-3 px-4 text-slate-200 hover:text-white rounded-lg transition duration-200">
+                    <div class="nav-account-avatar">
+                        <% if (user && (user.profile_picture || user.avatar)) { %>
+                            <img src="/uploads/avatars/<%= user.profile_picture || user.avatar %>" alt="Profile photo" class="w-full h-full object-cover">
+                        <% } else { %>
+                            <span><%= user && user.name ? user.name.charAt(0).toUpperCase() : 'A' %></span>
+                        <% } %>
+                    </div>
+                    <div class="nav-account-copy">
+                        <span class="nav-account-name"><%= user && user.name ? user.name : 'Admin User' %></span>
+                        <span class="nav-account-action">Log Out</span>
+                    </div>
+                    <i class="fas fa-sign-out-alt nav-account-icon"></i>
                 </a>
             </div>
         </aside>

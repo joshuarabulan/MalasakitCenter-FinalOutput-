@@ -146,6 +146,25 @@
         });
     }
 
+    function getLogoutProfileMarkup() {
+        var sidebarAvatar = document.querySelector('.nav-item-logout .nav-account-avatar');
+        if (sidebarAvatar) {
+            return sidebarAvatar.innerHTML;
+        }
+
+        var headerAvatarImage = document.querySelector('#profileBtn img');
+        if (headerAvatarImage) {
+            return '<img src="' + headerAvatarImage.getAttribute('src') + '" alt="Profile photo">';
+        }
+
+        var headerFallback = document.querySelector('#profileBtn .w-10.h-10 span');
+        if (headerFallback) {
+            return '<span>' + headerFallback.textContent.trim() + '</span>';
+        }
+
+        return '<span>A</span>';
+    }
+
     function createLogoutModal() {
         var existing = document.querySelector('.admin-logout-modal');
         if (existing) {
@@ -163,7 +182,7 @@
                     '<i class="fas fa-times" aria-hidden="true"></i>' +
                 '</button>' +
                 '<div class="admin-logout-dialog__body">' +
-                    '<div class="admin-logout-dialog__icon"><i class="fas fa-sign-out-alt" aria-hidden="true"></i></div>' +
+                    '<div class="admin-logout-dialog__icon">' + getLogoutProfileMarkup() + '</div>' +
                     '<h2 class="admin-logout-dialog__title" id="adminLogoutTitle">Confirm Logout</h2>' +
                     '<p class="admin-logout-dialog__text">Are you sure you want to logout? You will need to login again to access your account.</p>' +
                 '</div>' +

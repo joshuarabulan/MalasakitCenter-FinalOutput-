@@ -15,10 +15,15 @@
 body {
     font-family: var(--admin-font-body);
     overflow-x: hidden;
+    background:
+        radial-gradient(circle at top right, rgba(96, 165, 250, 0.12), transparent 24rem),
+        linear-gradient(180deg, #f8fafc 0%, #f5efe8 100%);
+    color: #0f172a;
 }
 
 .sidebar {
     transition: width 0.2s ease, transform 0.28s ease, box-shadow 0.28s ease;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22) !important;
 }
 
 .sidebar nav {
@@ -31,6 +36,19 @@ body {
 .tab-content.admin-main {
     min-width: 0;
     transition: margin-left 0.2s ease, padding 0.2s ease;
+    min-height: 100vh;
+}
+
+.admin-main {
+    position: relative;
+}
+
+.admin-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0));
+    pointer-events: none;
 }
 
 .admin-sidebar-backdrop,
@@ -85,6 +103,19 @@ body {
     color: #dc2626;
     font-size: 1.4rem;
     margin-bottom: 1rem;
+}
+
+.admin-logout-dialog__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 100%; /* perfect circle */
+}
+
+.admin-logout-dialog__icon span {
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
 .admin-logout-dialog__title {
@@ -294,6 +325,9 @@ body.sidebar-collapsed .admin-topbar {
     align-items: center;
     white-space: nowrap;
     min-height: 3rem;
+    border-radius: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
 }
 
 .sidebar .nav-item-logout {
@@ -305,6 +339,146 @@ body.sidebar-collapsed .admin-topbar {
 .sidebar .nav-item-logout:focus-visible {
     background: rgba(220, 38, 38, 0.24) !important;
     border-color: rgba(248, 113, 113, 0.34);
+}
+
+.nav-account-card {
+    align-items: center;
+    min-height: 4.4rem;
+    padding-top: 0.85rem !important;
+    padding-bottom: 0.85rem !important;
+}
+
+.nav-account-avatar {
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 999px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #2563eb, #0f172a);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.22);
+}
+
+.nav-account-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.nav-account-copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.nav-account-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #f8fafc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nav-account-action {
+    font-size: 0.72rem;
+    color: #fecaca;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.nav-account-icon {
+    color: #fecaca;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.sidebar .nav-item:not(.nav-item-logout) {
+    border: 1px solid transparent;
+}
+
+.sidebar .nav-item:not(.nav-item-logout):hover,
+.sidebar .nav-item:not(.nav-item-logout):focus-visible {
+    border-color: rgba(148, 163, 184, 0.14);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.admin-page-heading h1,
+.admin-main h1[style*="Instrument Serif"] {
+    color: #1f2937 !important;
+}
+
+.admin-page-heading p {
+    color: #64748b !important;
+}
+
+.chart-card,
+.stat-card,
+.feedback-card,
+.table-card,
+.summary-card,
+.admin-main .bg-white.rounded-2xl,
+.admin-main .bg-white.rounded-xl,
+.admin-main .bg-white.rounded-lg {
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
+}
+
+.chart-card,
+.admin-main .bg-white.rounded-2xl,
+.admin-main .bg-white.rounded-xl,
+.admin-main .bg-white.rounded-lg {
+    backdrop-filter: blur(10px);
+}
+
+.admin-main table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.admin-main thead th {
+    color: #8b7355 !important;
+}
+
+.admin-main tbody tr:hover {
+    background: rgba(248, 250, 252, 0.8);
+}
+
+.admin-main input,
+.admin-main select,
+.admin-main textarea,
+.fi {
+    border-radius: 0.95rem !important;
+    border-color: rgba(203, 213, 225, 0.95) !important;
+    box-shadow: none !important;
+}
+
+.admin-main input:focus,
+.admin-main select:focus,
+.admin-main textarea:focus,
+.fi:focus {
+    outline: none;
+    border-color: rgba(37, 99, 235, 0.55) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+}
+
+.admin-main button,
+.admin-main .btn,
+.admin-main a.btn {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.admin-main button:hover,
+.admin-main .btn:hover,
+.admin-main a.btn:hover {
+    transform: translateY(-1px);
 }
 
 .sidebar .nav-item i {
@@ -657,6 +831,10 @@ body [style*="color: #ec4899"] {
 
     body.sidebar-collapsed .sidebar .nav-item i {
         margin-right: 0.75rem !important;
+    }
+
+    .nav-account-card {
+        min-height: 4.75rem;
     }
 }
 
